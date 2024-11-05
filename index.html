@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#9A7AA0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="description" content="Gradia by JVDesign allows you to calculate and organize your grades quickly and easily, even over multiple school years. Keep track of your academic performance offline and on your device, ensuring you never miss a chance to improve your grades. Take control of your educational journey with Gradia!">
+    <title>Gradia</title>
+    <link rel="apple-touch-icon" href="app_icon.png">
+    <link rel="apple-touch-startup-image" href="app_icon.png">
+
+    <style>
+        #loading-screen {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #loading-screen svg {
+            width: 80vw;
+            aspect-ratio: 1;
+            max-width: 80vh;
+            fill:#957b9e;
+            fill-opacity:1;
+            stroke-width:4.50001;
+            paint-order:fill markers stroke;
+        }
+    </style>
+    
+</head>
+<body>
+    <div id="loading-screen">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M 11.958917,0.04026482 A 12,12 0 0 0 0.040782,10.665456 h 2.778642 a 9.25,9.25 0 0 1 9.139493,-7.8749715 9.25,9.25 0 0 1 1.37511,0.1085205 V 0.12243035 a 12,12 0 0 0 -1.37511,-0.08216553 z m 1.37511,10.62519118 v 2.749703 h 7.772136 a 9.25,9.25 0 0 1 -7.772136,7.766451 v 2.778125 A 12,12 0 0 0 23.959218,12.040049 12,12 0 0 0 23.877053,10.665456 H 21.105646 Z M 0.041299,13.415159 A 12,12 0 0 0 10.584324,23.959735 V 13.415159 Z" />
+        </svg>
+    </div>
+    <img src="background.jpg" class="background" defer>
+    <main>
+        <dialog id="downloadDialog">
+            <form method="dialog">
+                <div class="infoTop">
+                    <button value="true" autofocus>Später</button>
+                    <button value="false">Nicht mehr zeigen</button>
+                </div>
+                <span id="downloadMessage"></span>
+            </form>
+        </dialog>
+        
+        <dialog id="confirmDialog">
+            <form method="dialog">
+                <span id="confirmMessage"></span>
+                <div>
+                    <button value="false">Cancel</button>
+                    <button value="true" autofocus>Ok</button>
+                </div>
+            </form>
+        </dialog>
+
+        <dialog id="infoDialog">
+            <form method="dialog">
+                <div class="infoTop">
+                    <button id="infoConfirm" value="true" autofocus>Fertig</button>
+                </div>
+                <span id="infoMessage"></span>
+            </form>
+        </dialog>
+        
+        <nav id="top-controls">
+            <div class="transparent" onClick = "toggleEditing()">
+                <i class="options-icon"></i>
+            </div>
+            <span id="sessionLink" onclick="switchScene('sessions')"></span>
+        </nav>
+
+        <table id="table">
+        </table>
+
+        <div id="add">
+            <input type="text" id="addSess" placeholder="Schuljahr-Name">
+            <input type="text" id="focusedSubj" list="subjects" placeholder="Fach-Name">
+            <datalist id="subjects"></datalist>
+            <input type="number" max="6" min="1" id="grade" placeholder="Note">
+            <input type="number" id="weight" placeholder="Gewichtung">
+            <input type="text" id="description" placeholder="Beschreibung">
+            <div class="checkboxbox" id="schulaufgabebox"><input type="checkbox" id="schulaufgabe"><label for="schulaufgabe">Schulaufgabe</label></div>
+            <span class="data" id="addVar"></span>
+        </div>
+
+        <div id="settings">
+            <select class="autosave" name="language" id="lang">
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+            </select>
+            <input type="text" id="examName">
+            <div class="checkboxbox between" id="multiplierBox">
+                <span>Gewichtungen</span>
+                <label class="switch">
+                    <input class="autosave" type="checkbox" id="showMultipliers">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="checkboxbox between" id="darkmodeBox">
+                <span>Darkmode</span>
+                <label class="switch">
+                    <input class="autosave" type="checkbox" id="darkmode">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="checkboxbox between" id="offlineBox">
+                <span>Offline</span>
+                <label class="switch">
+                    <input class="autosave" type="checkbox" id="offline">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="labelBox">
+                <div class="innerLabelBox"><input type="button" onClick="downloadTxtFile(subjects, 'gradia_save')" id="downloadButton" value="Daten herunterladen"/><label for="downloadButton">Datei herunterladen</label></div>
+                <div class="innerLabelBox"><input type="file" id="fileInput" accept=".txt,.json,.js"><label for="fileInput">Datei hochladen</label></div>
+                <div class="innerLabelBox"><input type="button" onClick="deleteData()" id="deleteButton" value="Alle Daten löschen"/><label for="deleteButton">Daten löschen</label></div>
+            </div>
+            <span id="buildVersion"></span>
+            <div id="updateInfo">
+                <h2 id="updateDate"></h2>
+                <h3 id="updateVersion"></h3>
+                <span id="updateDescription"></span>
+                <span id="updateGuide">Starte Gradia neu, um das Update zu installieren.</span>
+            </div>
+        </div>
+    </main>
+    <nav class="nav bottom">
+        <div class="smalluibutton"><i data-size = '100%' class="home-icon" onClick="switchScene('main')"></i></div>
+        <div id="centerbutton" class="uibutton"><i id="centerbuttonicon" data-size = '100%' data-color = "#fff" class="plus-icon" onClick="switchScene('add')"></i></div>
+        <div class="smalluibutton"><i data-size = '100%' class="settings-icon" onClick="switchScene('settings')"></i></div>
+    </nav>
+</body>
+<footer>
+    <script src="script.js"></script>
+    <link rel="stylesheet" href="style.css">
+</footer>
+</html>

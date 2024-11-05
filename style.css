@@ -1,0 +1,570 @@
+:root {
+    --main-color: #fff;
+    --editing: none;
+    font-size: 25px;
+}
+
+*[onClick] {
+    cursor: pointer;
+}
+
+html {
+    color: var(--main-color);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+}
+body {
+    background-size: cover;
+    background-repeat: no-repeat;
+    overflow: hidden;
+}
+
+.background {
+    width: 100vw;
+    height: 100vh;
+    filter: contrast(120%) invert(1) brightness(30%);
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+.transparent {
+    background: none;
+    border: none;
+    width: auto;
+    height: auto;
+}
+main {
+    width: 100vw;
+    height: calc(100vh - 22vw);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: fixed;
+    left: 0;
+    top: 0;
+    position: absolute;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.nav {
+    background: #9A7AA0;
+    width: 100%;
+    height: 22vh;
+    max-height: 22vw;
+    box-shadow: #9A7AA0 0px 20px 20px 20px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 999;
+}
+#centerbutton {
+    height: 30vh;
+    max-height: 30vw;
+    background: #9A7AA0;
+    aspect-ratio: 1;
+    position: relative;
+    bottom: 12.5vw;
+    border-radius: 50%;
+    box-shadow: #000 0 0 10px 0px;
+}
+.bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+.uibutton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.smalluibutton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35vh;
+    max-width: 35vw;
+}
+.smalluibutton i, .uibutton i {
+    height: 70%;
+    filter: drop-shadow(0 0 5px #000);
+}
+.uiicon {
+    filter: invert(1) drop-shadow(0 0 5px #000);
+    height: 70%;
+    aspect-ratio: 1;
+}
+
+i {
+    color: var(--main-color);
+    font-size: 1rem;
+}
+
+#top-controls {
+    width: 90%;
+    max-width: 120vh;
+    margin: 15px 0 5px 0;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#add, #settings {
+    position: fixed;
+    height: 90vh;
+    width: 100vw;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background: #9A7AA0;
+    top: 0;
+    left: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 0;
+    color: #fff;
+}
+
+#add:last-child, #settings:last-child {
+    margin: 0 0 19vw 0;
+}
+
+.data {
+    display: none;
+}
+
+input, select {
+    width: 80vw;
+    border-radius: 10px;
+    border: none;
+    margin: 10px 0;
+    padding: 5px 10px;
+    height: 1.2rem;
+    font-size: 1rem;
+    margin-top: 15px;
+    background: #fff;
+    color: #000;
+}
+
+#buildVersion {
+    margin-top: 30px;
+}
+
+#updateInfo {
+    display: none;
+    width: 80vw;
+    border-radius: 10px;
+    border: none;
+    margin: 10px 0 16vh 0;
+    padding: 5px 10px;
+    font-size: 1rem;
+    margin-top: 15px;
+    background: #fff;
+    color: #000;
+    text-wrap: balance
+}
+
+#updateDate {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 15px 0 5px 0;
+}
+
+#updateVersion {
+    font-size: 1.15rem;
+    margin: 0 0 15px 0;
+}
+
+#updateDescription ul {
+    list-style-type: none;
+    margin-block-start: 10px;
+    margin-block-end: 0px;
+    padding-inline-start: 25px;
+}
+
+#updateDescription li b {
+    font-weight: 600;
+}
+
+#updateDescription li p {
+    margin: 5px 0 10px 0;
+}
+
+#updateDescription li:last-of-type p {
+    margin-bottom: 0;
+}
+
+#updateGuide {
+    display: block;
+    margin: 10px 0 15px 0;
+} 
+
+select {
+    width: calc(80vw + 20px);
+    height: calc(1.2rem + 10px);
+}
+
+input[type=button] {
+    width: calc(80vw + 20px);
+    height: auto;
+    font-weight: 600;
+    margin: 10px 0 30px 0;
+}
+
+input[type=checkbox] {
+    display: inline;
+    width: 1.2rem;
+    margin: 0;
+}
+
+.checkboxbox {
+    width: 80vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    padding: 5px 10px;
+    margin: 10px 0;
+}
+
+.checkboxbox label {
+    margin-left: 10px;
+}
+
+.between {
+    justify-content: space-between;
+}
+
+#examName {
+    display: none; /*----- Discontinued -----*/
+}
+
+#sessionLink {
+    width: 90%;
+    max-width: 120vh;
+    text-align: left;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+#table {
+    width: 90%;
+    max-width: 120vh;
+    margin:  0 0 19vw 0;
+    overflow: hidden;
+}
+
+#table tr {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    column-gap: 30px;
+    margin: 15px 0 0 0;
+    padding-top: 15px;
+    border-top: solid 2px var(--main-color);
+    cursor: pointer;
+}
+
+#table tr div {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+#table tr .gradeDiv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row-reverse;
+    gap: 1rem;
+}
+
+#table tr div i {
+    margin-right: 20px;
+    display: var(--editing);
+    font-size: 0.8rem;
+}
+
+#table tr:first-of-type {
+    border: none;
+}
+
+#table #total {
+    border-top: double 2px var(--main-color);
+}
+
+#table th {
+    text-align: left;
+
+}
+
+#table td {
+    text-align: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#table .hiddenTr {
+    display: none;
+    padding-left: 10%;
+    margin: 7.5px 0 0 0;
+    width: 90%;
+    padding-top: 0;
+    border: none;
+}
+
+#table .inExam {
+    padding-left: 20%;
+    width: 80%;
+}
+
+#emptyTable {
+    height: calc(70vh - 19vw);
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+#emptyTable th {
+    text-align: center;
+    display: block;
+    width: 100%;
+}
+
+dialog {
+    border-radius: 15px;
+    background: #9A7AA0;
+    border: none;
+    top: calc(70vh / 2 - 50dvh);
+    color: #fff;
+    font-size: 1rem;
+    padding: 30px 40px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+dialog form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+dialog form span {
+    margin-bottom: 20px;
+    line-height: 1.3rem;
+}
+
+dialog form div {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+
+dialog button {
+    border-radius: 10px;
+    border: none;
+    padding: 7px;
+    font-size: 0.8rem;
+    background: #fff;
+    color: #000;
+    flex: 1;
+}
+
+#infoDialog, #downloadDialog {
+    width: calc(100dvw - 40px);
+    max-width: 80dvh;
+    height: 90dvh;
+    top: 10dvh;
+    padding: 30px 20px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.1);
+    border-radius: 15px 15px 0 0;
+}
+
+#infoDialog form, #downloadDialog form {
+    width: 100%;
+    height: 100%;
+    justify-content: flex-start;
+}
+
+#infoDialog .infoTop, #downloadDialog .infoTop {
+    position: absolute;
+    top: 0;
+    background: #3c2f3e;
+    padding: 7px 0;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    box-shadow: 0px 2px 10px 0px #000;
+}
+
+#infoDialog .infoTop button, #downloadDialog .infoTop button {
+    background: none;
+    color: violet;
+    flex: 0;
+    text-wrap: nowrap;
+    margin: 0 15px;
+    cursor: pointer;
+}
+
+#infoDialog #infoMessage, #downloadDialog #downloadMessage {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    padding: 60px 0 30px 0;
+    overflow: scroll;
+}
+
+input[type=file] {
+    display: none;
+}
+
+.labelBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: calc(80vw + 20px);
+    margin: 10px 0;
+    padding: 5px 10px;
+    gap: 20px;
+    font-size: 1rem;
+    margin-top: 15px;
+}
+
+.labelBox input {
+    display: none;
+}
+
+.labelBox .innerLabelBox {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.labelBox label {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 5px 15px;
+    background: #fff;
+    color: #000;
+    border-radius: 10px;
+    height: 100%;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+    width: 60px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #2B9720;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2B9720;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }  
+
+@media screen and (min-width: 500px) {
+    .nav {
+        max-height: 10vh;
+    }
+
+    #centerbutton {
+        max-height: 15vh;
+        bottom: 7.5vh;
+    }
+
+    main {
+        height: 90vh;
+    }
+
+    #table .hiddenTr {
+        padding-left: 50px;
+        width: calc(100% - 50px);
+    }
+
+    #table {
+        margin:  0 0 100px 0;
+    }
+
+    #table .inExam {
+        padding-left: 100px;
+        width: calc(100% - 100px);
+    }
+
+    #emptyTable {
+        height: calc(70vh - 100px);
+    }
+}
+
+@media screen and (min-width: 750px) {
+    .labelBox {
+        flex-direction: row;
+    }
+
+    .labelBox .innerLabelBox {
+        width: calc(100% / 3);
+        height: 100%;
+    }
+
+    .labelBox .innerLabelBox:first-of-type {
+        justify-content: left;
+    }
+    
+    .labelBox .innerLabelBox:last-of-type {
+        justify-content: right;
+    }
+
+    .labelBox label {
+        width: 75%;
+    }
+
+}
