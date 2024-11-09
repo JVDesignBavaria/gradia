@@ -526,8 +526,13 @@ input[type=file] {
     }
 
     #centerbutton {
-        max-height: 15vh;
+        height: 15vh;
         bottom: 7.5vh;
+    }
+
+    .smalluibutton {
+        width: calc((100vw - 15vh) / 2);
+        max-width: none;
     }
 
     main {
