@@ -764,13 +764,13 @@ function saveSettings() {
 
 function changeMode(mode) {
     if (mode) {
-        Array.from(document.getElementsByClassName('background')).forEach(element => {
+        document.querySelectorAll('.background').forEach(element => {
             element.style.display = 'block';
             document.documentElement.style.setProperty('--main-color', '#fff');
         });
     }
     else {
-        Array.from(document.getElementsByClassName('background')).forEach(element => {
+        document.querySelectorAll('.background').forEach(element => {
             element.style.display = 'none';
         });
         document.documentElement.style.setProperty('--main-color', '#000');

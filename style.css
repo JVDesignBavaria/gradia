@@ -24,6 +24,11 @@ body {
 .background {
     width: 100vw;
     height: 100vh;
+    background: url(background.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     filter: contrast(120%) invert(1) brightness(30%);
     position: fixed;
     left: 0;
@@ -137,6 +142,7 @@ i {
 
 input, select {
     width: 80vw;
+    max-width: 120vh;
     border-radius: 10px;
     border: none;
     margin: 10px 0;
@@ -221,6 +227,7 @@ input[type=checkbox] {
 
 .checkboxbox {
     width: 80vw;
+    max-width: 120vh;
     display: flex;
     flex-direction: row;
     justify-content: left;
@@ -427,6 +434,7 @@ input[type=file] {
     justify-content: space-between;
     align-items: center;
     width: calc(80vw + 20px);
+    max-width: 120vh;
     margin: 10px 0;
     padding: 5px 10px;
     gap: 20px;
