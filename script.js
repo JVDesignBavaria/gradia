@@ -473,6 +473,10 @@ function save() {
             toggleEditing();
             break;
         case 'editSubject':
+            if (document.getElementById('focusedSubj').value == '') {
+                showMessage(text({de:`Die Felder müssen ausgefüllt sein`, en:`You need to fill in the inputs`}));
+                return;
+            }
             name = document.getElementById('focusedSubj').value;
 
             if(dir.find(element => element.name === name) && !(dir.indexOf(dir.find(element => element.name === name)) == addVar)) {
