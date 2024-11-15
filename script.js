@@ -433,6 +433,10 @@ function save() {
             }
             break;
         case 'editGrade':
+            if (document.getElementById('grade').value == '' || document.getElementById('weight').value == '') {
+                showMessage(text({de:`Die Felder müssen ausgefüllt sein`, en:`You need to fill in the inputs`}));
+                return;
+            }
             let newGrade = {
                 grade: 1,
                 weight: 1,
@@ -441,9 +445,8 @@ function save() {
             newGrade.grade = parseFloat(document.getElementById('grade').value);
             newGrade.weight = parseFloat(document.getElementById('weight').value);
             newGrade.description = document.getElementById('description').value;
-            subjects.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
 
-            if(addVar[2]) { //2 indices means Schulaufgabe
+            if(addVar[2] || addVar[2] === 0) { //2 indices means Schulaufgabe
                 subjects.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]][addVar[2]] = newGrade;
             }
             else {
