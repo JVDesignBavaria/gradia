@@ -57,7 +57,38 @@
             <form method="dialog">
                 <span id="confirmMessage"></span>
                 <div>
-                    <button value="false">Cancel</button>
+                    <button value="false">Abbrechen</button>
+                    <button value="true" autofocus>Ok</button>
+                </div>
+            </form>
+        </dialog>
+
+        <dialog id="sortDialog">
+            <form method="dialog">
+                <span id="sortMessage"></span>
+                <div class="multiSelect">
+                    <select id="sortMode">
+                        <option value="alphabet">alphabetisch</option>
+                        <option value="gradeCount">Notenanzahl</option>
+                    </select>
+                    <select id="sortOrder">
+                        <option value="asc">aufsteigend</option>
+                        <option value="desc">absteigend</option>
+                    </select>
+                </div>
+                <div>
+                    <button value="false">Abbrechen</button>
+                    <button value="true" autofocus>Ok</button>
+                </div>
+            </form>
+        </dialog>
+
+        <dialog id="selectDialog">
+            <form method="dialog">
+                <span id="selectMessage"></span>
+                <select id="dialogSelect"></select>
+                <div>
+                    <button value="false">Abbrechen</button>
                     <button value="true" autofocus>Ok</button>
                 </div>
             </form>
@@ -73,8 +104,13 @@
         </dialog>
         
         <nav id="top-controls">
-            <div class="transparent" onClick = "toggleEditing()">
-                <i class="options-icon"></i>
+            <div id="toolDiv">
+                <div class="transparent" onClick="toggleEditing()">
+                    <i class="options-icon"></i>
+                </div>
+                <div onClick="sortMenu()">
+                    <i class="alphabet-asc-icon"  id="sortIcon"></i>
+                </div>
             </div>
             <span id="sessionLink" onclick="switchScene('sessions')"></span>
         </nav>

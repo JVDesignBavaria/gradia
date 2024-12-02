@@ -1,6 +1,9 @@
-const buildVersion = 'Version 1.0'
+const buildVersion = 'Version 1.1'
 
-let subjects = [];
+let subjects = {
+    version: buildVersion,
+    sessions: []
+}
 
 let settings = {
     lang: undefined,
@@ -32,6 +35,15 @@ const iconPaths = {
     "delete-icon": "M 9.4921875,2.41875 8.6015625,3.75 H 15.398438 L 14.507813,2.41875 C 14.4375,2.315625 14.320313,2.25 14.19375,2.25 H 9.8015625 C 9.675,2.25 9.5578125,2.3109375 9.4875,2.41875 Z M 16.382813,1.171875 18.103125,3.75 H 18.75 21 21.375 C 21.998438,3.75 22.5,4.2515625 22.5,4.875 22.5,5.4984375 21.998438,6 21.375,6 H 21 V 20.25 C 21,22.321875 19.321875,24 17.25,24 H 6.75 C 4.678125,24 3,22.321875 3,20.25 V 6 H 2.625 C 2.0015625,6 1.5,5.4984375 1.5,4.875 1.5,4.2515625 2.0015625,3.75 2.625,3.75 H 3 5.25 5.896875 L 7.6171875,1.1671875 C 8.1046875,0.440625 8.925,0 9.8015625,0 H 14.19375 c 0.876563,0 1.696875,0.440625 2.184375,1.1671875 z M 5.25,6 v 14.25 c 0,0.829687 0.6703125,1.5 1.5,1.5 h 10.5 c 0.829687,0 1.5,-0.670313 1.5,-1.5 V 6 Z M 9,9 v 9.75 C 9,19.1625 8.6625,19.5 8.25,19.5 7.8375,19.5 7.5,19.1625 7.5,18.75 V 9 C 7.5,8.5875 7.8375,8.25 8.25,8.25 8.6625,8.25 9,8.5875 9,9 Z m 3.75,0 v 9.75 c 0,0.4125 -0.3375,0.75 -0.75,0.75 -0.4125,0 -0.75,-0.3375 -0.75,-0.75 V 9 c 0,-0.4125 0.3375,-0.75 0.75,-0.75 0.4125,0 0.75,0.3375 0.75,0.75 z m 3.75,0 v 9.75 c 0,0.4125 -0.3375,0.75 -0.75,0.75 C 15.3375,19.5 15,19.1625 15,18.75 V 9 c 0,-0.4125 0.3375,-0.75 0.75,-0.75 0.4125,0 0.75,0.3375 0.75,0.75 z",
     "close-icon": `<path d="m 21.4125,5.4125 c 0.78125,-0.78125 0.78125,-2.05 0,-2.83125 C 20.63125,1.8 19.3625,1.8 18.58125,2.58125 L 12,9.16875 5.4125,2.5875 C 4.63125,1.80625 3.3625,1.80625 2.58125,2.5875 1.8,3.36875 1.8,4.6375 2.58125,5.41875 L 9.16875,12 2.5875,18.5875 c -0.78125,0.78125 -0.78125,2.05 0,2.83125 0.78125,0.78125 2.05,0.78125 2.83125,0 L 12,14.83125 18.5875,21.4125 c 0.78125,0.78125 2.05,0.78125 2.83125,0 0.78125,-0.78125 0.78125,-2.05 0,-2.83125 L 14.83125,12 Z" style="stroke-width:0.0625" />`,
     "ios-share-icon": "m 11.55943,0.43947875 c -0.58597,-0.58597 -1.53758,-0.58597 -2.12355,0 L 3.43559,6.4397688 c -0.58597,0.58597 -0.58597,1.53758 0,2.12354 0.58597,0.58597 1.53758,0.58597 2.12354,0 l 3.4408,-3.44079 v 9.8770402 c 0,0.82973 0.67034,1.50008 1.50007,1.50008 0.82973,0 1.50007,-0.67035 1.50007,-1.50008 V 5.1225188 l 3.44079,3.44079 c 0.58597,0.58597 1.53758,0.58597 2.12355,0 0.58596,-0.58596 0.58596,-1.53757 0,-2.12354 L 11.56411,0.43947875 Z M 2.99963,16.499639 c 0,-0.82973 -0.67034,-1.50008 -1.50007,-1.50008 -0.82973,0 -1.50007,0.67035 -1.50007,1.50008 v 3.00014 c 0,2.4845 2.01572,4.50022 4.50022,4.50022 h 12.00058 c 2.4845,0 4.50022,-2.01572 4.50022,-4.50022 v -3.00014 c 0,-0.82973 -0.67034,-1.50008 -1.50007,-1.50008 -0.82973,0 -1.50008,0.67035 -1.50008,1.50008 v 3.00014 c 0,0.82973 -0.67034,1.50008 -1.50007,1.50008 H 4.49971 c -0.82973,0 -1.50008,-0.67035 -1.50008,-1.50008 z",
+    "sort-icon": "m 6.3748144,1.4999998 c -0.4218745,0 -0.8202942,0.1781437 -1.1062317,0.4875183 l -4.1249998,4.5 c -0.55781192,0.609375 -0.51562437,1.560901 0.09375,2.118713 0.6093744,0.557812 1.5609013,0.515625 2.1187132,-0.09375 L 4.8748144,6.8578491 V 21 c 0,0.829686 0.6703135,1.5 1.5,1.5 0.8296871,0 1.5,-0.670314 1.5,-1.5 V 6.8578491 l 1.5187683,1.654632 c 0.5578122,0.6140621 1.5046523,0.651562 2.1187133,0.09375 0.614062,-0.557812 0.651562,-1.509338 0.09375,-2.118713 l -4.1249999,-4.5 C 7.1951091,1.6781434 6.7966889,1.4999998 6.3748144,1.4999998 Z m 11.2487186,0 c -0.829687,0 -1.5,0.6703134 -1.5,1.5000001 V 17.142151 l -1.518768,-1.654633 c -0.557812,-0.609375 -1.509339,-0.651562 -2.118714,-0.09375 -0.609374,0.557812 -0.651562,1.509339 -0.09375,2.118713 l 4.125,4.5 C 16.803238,22.321856 17.201658,22.5 17.623533,22.5 c 0.421874,0 0.820295,-0.178144 1.106232,-0.487519 l 4.125,-4.5 c 0.557812,-0.609374 0.520312,-1.560901 -0.09375,-2.118713 -0.614062,-0.557812 -1.560902,-0.520312 -2.118714,0.09375 l -1.518768,1.654633 V 2.9999999 c 0,-0.8296867 -0.670313,-1.5000001 -1.5,-1.5000001 z",
+    "alphabet-asc-icon": "m 7.2785827,15.200984 c 0,0.870511 0.703294,1.573805 1.573805,1.573805 h 2.4934993 l -3.6099173,3.609917 c -0.452469,0.452469 -0.585259,1.126255 -0.339352,1.716432 0.245907,0.590177 0.816412,0.973793 1.45577,0.973793 h 6.2952233 c 0.870512,0 1.573806,-0.703295 1.573806,-1.573806 0,-0.870512 -0.703294,-1.573806 -1.573806,-1.573806 h -2.493498 l 3.609917,-3.609917 c 0.452469,-0.452469 0.585259,-1.126255 0.339352,-1.716432 -0.245907,-0.590177 -0.816412,-0.973792 -1.455771,-0.973792 H 8.8523877 c -0.870511,0 -1.573805,0.703294 -1.573805,1.573806 z M 12,0.9250689 c -0.595095,0 -1.141009,0.334434 -1.406589,0.870511 l -3.1476123,6.295223 -0.786902,1.573806 c -0.388533,0.7770671 -0.07377,1.7213501 0.703294,2.1098841 0.777067,0.388533 1.72135,0.07377 2.109883,-0.703295 l 0.354107,-0.703294 h 4.3476383 l 0.354106,0.703294 c 0.388534,0.777067 1.332817,1.091828 2.109884,0.703295 0.777066,-0.388534 1.091827,-1.332817 0.703294,-2.1098841 L 16.5542,8.0908029 13.406589,1.7955799 C 13.141009,1.2595029 12.595095,0.9250689 12,0.9250689 Z M 11.006535,8.0071949 12,6.0202649 l 0.993465,1.98693 z",
+    "alphabet-desc-icon": "m 7.278583,2.5575432 c 0,0.870511 0.703294,1.573805 1.573805,1.573805 h 2.493499 L 7.73597,7.7412652 C 7.283501,8.1937342 7.150711,8.8675202 7.396618,9.4576972 7.642525,10.047875 8.21303,10.43149 8.852388,10.43149 h 6.295223 c 0.870512,0 1.573806,-0.7032948 1.573806,-1.5738058 0,-0.870512 -0.703294,-1.573806 -1.573806,-1.573806 h -2.493498 l 3.609917,-3.609917 c 0.452469,-0.452469 0.585259,-1.126255 0.339352,-1.716432 C 16.357475,1.3673522 15.78697,0.98373724 15.147611,0.98373724 H 8.852388 c -0.870511,0 -1.573805,0.70329396 -1.573805,1.57380596 z M 12,12.000378 c -0.595095,0 -1.141009,0.334434 -1.406589,0.870511 l -3.147612,6.295223 -0.786902,1.573806 c -0.388534,0.777067 -0.07377,1.72135 0.703294,2.109884 0.777067,0.388533 1.72135,0.07377 2.109883,-0.703295 l 0.354107,-0.703294 h 4.347638 l 0.354106,0.703294 c 0.388534,0.777067 1.332817,1.091828 2.109884,0.703295 0.777066,-0.388534 1.091827,-1.332817 0.703294,-2.109884 L 16.5542,19.166112 13.406589,12.870889 C 13.141009,12.334812 12.595095,12.000378 12,12.000378 Z M 11.006535,19.082504 12,17.095574 l 0.993465,1.98693 z",
+    "grade-asc-icon": "M 289.05664 32.060547 C 285.30254 31.928711 281.50117 32.46172 277.82617 33.699219 L 229.82617 49.699219 C 213.12619 55.299213 204.02696 73.499235 209.62695 90.199219 C 215.22695 106.8992 233.32697 116.00039 250.12695 110.40039 L 256.02734 108.40039 L 256.02734 160 L 240.02734 160 C 222.32736 160 208.02734 174.30002 208.02734 192 C 208.02734 209.69998 222.32736 224 240.02734 224 L 288.02734 224 L 336.02734 224 C 353.72733 224 368.02734 209.69998 368.02734 192 C 368.02734 174.30002 353.72733 160 336.02734 160 L 320.02734 160 L 320.02734 64 C 320.02734 53.70001 315.02655 43.999994 306.72656 38 L 306.62695 38.099609 C 301.43946 34.349613 295.31347 32.280273 289.05664 32.060547 z M 297.45312 248.0293 C 287.17481 247.59277 276.86327 252.09181 270.30078 260.9668 L 221.5 326.76758 C 207.50001 345.66756 200 368.46682 200 391.9668 C 200 440.56675 239.40005 479.9668 288 479.9668 C 336.59995 479.9668 376 440.56675 376 391.9668 C 376 352.78886 350.42766 319.60751 315.05859 308.18945 L 321.80078 299.06836 C 332.30077 284.86837 329.2996 264.76757 315.09961 254.26758 C 309.77461 250.33008 303.62011 248.29121 297.45312 248.0293 z M 286.64453 360.00977 C 299.11488 359.48748 311.2745 366.32688 316.94922 378.31836 C 324.51551 394.30698 317.68785 413.40049 301.69922 420.9668 C 285.71058 428.5331 266.61707 421.70543 259.05078 405.7168 C 251.48449 389.72817 258.31215 370.63466 274.30078 363.06836 C 278.29794 361.17678 282.48775 360.18386 286.64453 360.00977 z ",
+    "grade-desc-icon": "M 297.45312 32.029297 C 287.17481 31.592774 276.86327 36.091806 270.30078 44.966797 L 221.5 110.76758 C 207.50001 129.66756 200 152.46682 200 175.9668 C 200 224.56675 239.40005 263.9668 288 263.9668 C 336.59995 263.9668 376 224.56675 376 175.9668 C 376 136.78886 350.42766 103.60751 315.05859 92.189453 L 321.80078 83.068359 C 332.30077 68.868374 329.2996 48.767568 315.09961 38.267578 C 309.77461 34.330082 303.62011 32.291211 297.45312 32.029297 z M 286.64453 144.00977 C 299.11488 143.48748 311.2745 150.32688 316.94922 162.31836 C 324.51551 178.30698 317.68785 197.40049 301.69922 204.9668 C 285.71058 212.5331 266.61707 205.70543 259.05078 189.7168 C 251.48449 173.72817 258.31215 154.63466 274.30078 147.06836 C 278.29794 145.17678 282.48775 144.18386 286.64453 144.00977 z M 289.05664 288.06055 C 285.30254 287.92871 281.50117 288.46172 277.82617 289.69922 L 229.82617 305.69922 C 213.12619 311.29921 204.02696 329.49924 209.62695 346.19922 C 215.22695 362.8992 233.32697 372.00039 250.12695 366.40039 L 256.02734 364.40039 L 256.02734 416 L 240.02734 416 C 222.32736 416 208.02734 430.30002 208.02734 448 C 208.02734 465.69998 222.32736 480 240.02734 480 L 288.02734 480 L 336.02734 480 C 353.72733 480 368.02734 465.69998 368.02734 448 C 368.02734 430.30002 353.72733 416 336.02734 416 L 320.02734 416 L 320.02734 320 C 320.02734 309.70001 315.02655 299.99999 306.72656 294 L 306.62695 294.09961 C 301.43946 290.34961 295.31347 288.28027 289.05664 288.06055 z ",
+    "gradeCount-asc-icon": "M 7.0211,0 C 5.49008,0 4.22457,1.265515 4.22457,2.796529 V 21.203472 C 4.22457,22.734485 5.49008,24 7.0211,24 h 9.9578 c 1.53101,0 2.79653,-1.265515 2.79653,-2.796528 V 2.796529 C 19.77543,1.265515 18.50991,0 16.9789,0 Z m 0,2.113937 h 9.9578 c 0.39646,0 0.68259,0.286131 0.68259,0.682592 v 18.406943 c 0,0.396459 -0.28613,0.682591 -0.68259,0.682591 H 7.0211 c -0.39646,0 -0.68259,-0.286132 -0.68259,-0.682591 V 2.796529 c 0,-0.396461 0.28613,-0.682592 0.68259,-0.682592 z m 5.02256,0.632324 c -0.15513,-0.0054 -0.31222,0.01658 -0.46408,0.06771 L 9.59612,3.475195 c -0.69007,0.231401 -1.06604,0.98343 -0.83464,1.6735 0.2314,0.690069 0.9793,1.066137 1.6735,0.834737 l 0.24381,-0.08268 V 8.03296 h -0.66112 c -0.73139,0 -1.32225,0.590955 -1.32225,1.322346 0,0.731391 0.59085,1.322243 1.32225,1.322243 h 1.98346 1.98347 c 0.73139,0 1.32224,-0.590852 1.32224,-1.322243 0,-0.731391 -0.59085,-1.322346 -1.32224,-1.322346 H 13.32338 V 4.066128 c 0,-0.425612 -0.20658,-0.826484 -0.54954,-1.074413 l -0.004,0.0041 C 12.55548,2.840859 12.30233,2.755309 12.04379,2.74623 Z m 0.34692,8.924262 c -0.42472,-0.01804 -0.85072,0.167846 -1.12189,0.534574 l -2.0166,2.719011 c -0.57851,0.780977 -0.88842,1.723078 -0.88842,2.694134 0,2.008227 1.6281,3.63622 3.63633,3.63622 2.00822,0 3.63632,-1.627993 3.63632,-3.63622 0,-1.618894 -1.05674,-2.990069 -2.51825,-3.461882 l 0.27859,-0.376854 c 0.43388,-0.586765 0.30993,-1.417367 -0.27683,-1.851243 -0.22004,-0.162704 -0.47442,-0.246917 -0.72925,-0.25774 z m -0.44663,4.627128 c 0.51529,-0.02158 1.01777,0.261093 1.25226,0.7566 0.31265,0.660675 0.0305,1.449616 -0.63016,1.762267 -0.66067,0.312652 -1.44961,0.03052 -1.76226,-0.630155 -0.31265,-0.660675 -0.0305,-1.449617 0.63015,-1.762268 0.16517,-0.07816 0.33824,-0.11925 0.51001,-0.126444 z",
+    "gradeCount-desc-icon": "M 7.0211002,4.5e-7 C 5.4900903,4.5e-7 4.2245704,1.2655165 4.2245704,2.7965295 V 21.203472 C 4.2245704,22.734484 5.4900903,24 7.0211002,24 h 9.9578008 c 1.531009,0 2.796529,-1.265516 2.796529,-2.796528 V 2.7965295 C 19.77543,1.2655165 18.509911,4.5e-7 16.978901,4.5e-7 Z m 0,2.11393705 h 9.9578008 c 0.396459,0 0.682589,0.2861319 0.682589,0.6825919 V 21.203472 c 0,0.39646 -0.28613,0.682591 -0.682589,0.682591 H 7.0211002 c -0.39646,0 -0.6825899,-0.286131 -0.6825899,-0.682591 V 2.7965295 c 0,-0.04956 0.00499,-0.0974 0.013099,-0.1431661 0.060201,-0.320364 0.3225705,-0.5394259 0.6694806,-0.5394259 z m 5.3694808,0.5723529 c -0.42472,-0.01804 -0.85072,0.1678459 -1.12189,0.5345739 L 9.2520806,5.9398752 c -0.5789604,0.78063 -0.8884004,1.7230799 -0.8884004,2.6941353 0,2.0082245 1.6280904,3.6362185 3.6363198,3.6362185 2.008221,0 3.63632,-1.627994 3.63632,-3.6362185 0,-1.6188932 -1.05675,-2.9900703 -2.51825,-3.4618833 L 13.396661,4.7952733 C 13.83047,4.2084563 13.706591,3.3779053 13.11983,2.9440304 12.899791,2.7813265 12.64541,2.6971134 12.390581,2.6862904 Z M 11.94395,7.3134183 c 0.51529,-0.021581 1.01777,0.261094 1.25226,0.7566 0.312651,0.6606753 0.0305,1.4496163 -0.630149,1.7622663 -0.66068,0.3126534 -1.449621,0.03051 -1.76227,-0.630154 -0.31265,-0.660674 -0.0305,-1.4496173 0.63015,-1.7622683 0.16517,-0.07816 0.33824,-0.11925 0.510009,-0.126444 z m 0.0997,6.0025297 c -0.0936,0.0055 -0.312221,0.01657 -0.46407,0.06771 l -1.9834804,0.661225 c -0.6900602,0.2314 -1.0660301,0.98343 -0.8346301,1.673498 0.2314,0.690069 0.9793001,1.066138 1.6735005,0.834738 l 0.2438,-0.08269 v 2.132208 h -0.661112 c -0.7313904,0 -1.3222508,0.590956 -1.3222508,1.322346 0,0.731391 0.5908604,1.322243 1.3222508,1.322243 h 1.983459 1.983471 c 0.73139,0 1.32224,-0.590852 1.32224,-1.322243 0,-0.73139 -0.59085,-1.322346 -1.32224,-1.322346 h -0.661221 v -3.966832 c 0,-0.425611 -0.206579,-0.826482 -0.549549,-1.074413 l -0.004,0.0041 c -0.21436,-0.154969 -0.47143,-0.264748 -0.726051,-0.249599 z",
+
+
 }
 
 let scene;
@@ -85,16 +97,16 @@ function replaceIcons() {
 } 
 
 function addSubject(name) {
-    subjects.find(element => element.name === activeSession).grades.push({name, grades: []});
+    subjects.sessions.find(element => element.name === activeSession).grades.push({name, grades: []});
 }
 
 function addSession(name) {
     const cleared = deleteSpaces(name);
-    if(!cleared || subjects.find(element => element.name === cleared)) {
+    if(!cleared || subjects.sessions.find(element => element.name === cleared)) {
         showMessage(text({de:`Dieser Name ist nicht gültig`, en:`This name isn't valid`}));
         return false;
     }
-    subjects.push({ name: cleared, grades: [] })
+    subjects.sessions.push({ name: cleared, grades: [] })
     activeSession = cleared;
     settings.activeSession = activeSession;
     setLocalStorage(settings, 'settings');
@@ -109,7 +121,7 @@ function addGrade(subjectName, grade, weight, description) {
         addSession(newSession);
     }
 
-    let subject = subjects.find(element => element.name === activeSession).grades.find(subject => subject.name === subjectName);
+    let subject = subjects.sessions.find(element => element.name === activeSession).grades.find(subject => subject.name === subjectName);
 
     if (subject) {
         if (document.getElementById('schulaufgabe').checked) {
@@ -139,8 +151,119 @@ function searchArray(array) {
     return;
 }
 
+function sortArray(array, mode, order) {
+    if(!Array.isArray(array)) return;
+    let orderMultiplier = (order == 'desc') ? -1 : 1;
+    switch(mode) {
+        case 'alphabet': {
+            array.sort((a, b) => {
+                const nameA = a.name.toUpperCase();
+                const nameB = b.name.toUpperCase();
+
+                if(nameA < nameB) return (-1 * orderMultiplier);
+                if(nameA > nameB) return (1 * orderMultiplier);
+                return 0; //equal
+            });
+
+            sortIcon('alphabet', order);
+            break;
+        }
+        case 'gradeCount': {
+            array.sort((a, b) => {
+                const countA = a.grades.length;
+                const countB = b.grades.length;
+
+                if(countA < countB) return (-1 * orderMultiplier);
+                if(countA > countB) return (1 * orderMultiplier);
+                return 0; //equal
+            });
+
+            sortIcon('gradeCount', order);
+            break;
+        }
+        default: {
+            console.log(`Can't sort by ${mode}`);
+        }
+    }
+
+    return array;
+}
+
+function sortButton(scope, mode, order) {
+    let path;
+    switch(scope) {
+        case 'sessions':
+            path = subjects.sessions;
+            path = sortArray(path, mode, order);
+
+            subjects.sorted = {mode, order};;
+
+            loadSession();
+            break;
+        case 'main':
+            path = subjects.sessions.find(element => element.name === activeSession).grades;
+            path = sortArray(path, mode, order);
+
+            subjects.sessions.find(element => element.name === activeSession).sorted = {mode, order};
+
+            loadSubjects();
+            break;
+    }
+    
+    setLocalStorage(subjects, 'subjects');
+}
+
+function sortIcon(mode, order) {
+    const icon = document.getElementById('sortIcon');
+
+    if(mode && order) {
+        icon.className = `${mode}-${order}-icon`;
+
+        replaceIcons();
+        return;
+    }
+
+    icon.className = 'sort-icon';
+}
+
+async function sortMenu() {
+    const dialog = document.getElementById('sortDialog');
+    const messageSpan = document.getElementById('sortMessage');
+    messageSpan.innerHTML = text({de:`Wie soll die Tabelle sortiert werden?`, en:`How should the table be sorted?`});
+    if(scene === 'sessions' && (sortData = subjects.sorted) || scene === 'main' && (sortData = subjects.sessions.find(element => element.name === activeSession).sorted)) {
+        document.getElementById('sortMode').value = sortData.mode;
+        document.getElementById('sortOrder').value = sortData.order;
+    }
+
+    const response = await sortPromise(dialog);
+    if(!response) return;
+    sortButton(scene, response.sortMode, response.order);
+}
+
+function sortPromise(dialog) {
+    return new Promise((resolve, reject) => {
+        dialog.showModal();
+        dialog.onclose = () => {
+            if(!(dialog.returnValue === 'true')) resolve(false);
+            
+            // Get the values from the select elements
+            const sortMode = document.getElementById('sortMode').value;
+            const order = document.getElementById('sortOrder').value;
+
+            // Resolve with an object containing the return value and the select values
+            resolve({
+                sortMode: sortMode,
+                order: order
+            });
+        };
+    });
+}
+
+
 function loadSubjects() {
-    if(!(subjects.find(element => element.name === activeSession).grades.length > 0)) {
+    const target = subjects.sessions.find(element => element.name === activeSession);
+
+    if(!(subjects.sessions.find(element => element.name === activeSession).grades.length > 0)) {
         emptyTable(document.getElementById('table'));
         let newTR = document.createElement('tr');
         newTR.id = 'emptyTable';
@@ -151,112 +274,80 @@ function loadSubjects() {
         document.getElementById('emptyTable').appendChild(newTH);
         return;
     }
+
     emptyTable(document.getElementById('table'));
-        let avg = [];
-        subjects.find(element => element.name === activeSession).grades.forEach(subject => {
-            let newTR = document.createElement('tr');
-            newTR.dataset.session = activeSession;
-            newTR.dataset.name = subject.name;
-            newTR.id = activeSession + subject.name;
-            newTR.className = 'subjTR';
-            document.getElementById('table').appendChild(newTR);
+
+    sortIcon(target.sorted?.mode, target.sorted?.order);
+
+    let avg = [];
+    subjects.sessions.find(element => element.name === activeSession).grades.forEach(subject => {
+        let newTR = document.createElement('tr');
+        newTR.dataset.session = activeSession;
+        newTR.dataset.name = subject.name;
+        newTR.id = activeSession + subject.name;
+        newTR.className = 'subjTR';
+        document.getElementById('table').appendChild(newTR);
 
 
-            let newSubjDiv = document.createElement('div');
+        let newSubjDiv = document.createElement('div');
 
-            let toolDiv = document.createElement('div');
-            toolDiv.classList = `transparent`;
+        let toolDiv = document.createElement('div');
+        toolDiv.classList = `transparent`;
 
-            let editBtn = document.createElement('i');
-            editBtn.classList = `edit-icon editIcon`;
-            toolDiv.appendChild(editBtn);
+        let editBtn = document.createElement('i');
+        editBtn.classList = `edit-icon editIcon`;
+        toolDiv.appendChild(editBtn);
 
-            let removeBtn = document.createElement('i');
-            removeBtn.classList = `delete-icon removeIcon`;
-            toolDiv.appendChild(removeBtn);
+        let removeBtn = document.createElement('i');
+        removeBtn.classList = `delete-icon removeIcon`;
+        toolDiv.appendChild(removeBtn);
 
-            let newSubj = document.createElement('th');
-            newSubj.textContent = subject.name;
-            newSubjDiv.appendChild(toolDiv);
-            newSubjDiv.appendChild(newSubj);
-            document.getElementById(activeSession + subject.name).appendChild(newSubjDiv);
+        let newSubj = document.createElement('th');
+        newSubj.textContent = subject.name;
+        newSubjDiv.appendChild(toolDiv);
+        newSubjDiv.appendChild(newSubj);
+        document.getElementById(activeSession + subject.name).appendChild(newSubjDiv);
 
-            let calcAvg = calculateAvg(subject.grades, subject.examWeight);
-            if(parseFloat(calcAvg)) {
-                let newAvg = document.createElement('td');
-                newAvg.textContent = calcAvg;
-                avg.push(parseFloat(calcAvg));
-                document.getElementById(activeSession + subject.name).appendChild(newAvg);
-            }
+        let calcAvg = calculateAvg(subject.grades, subject.examWeight);
+        if(parseFloat(calcAvg)) {
+            let newAvg = document.createElement('td');
+            newAvg.textContent = calcAvg;
+            avg.push(parseFloat(calcAvg));
+            document.getElementById(activeSession + subject.name).appendChild(newAvg);
+        }
 
-            let count = -1;
-            subject.grades.forEach(gradesArray => {
-                count ++;
-                let newTr = document.createElement('tr');
-                newTr.dataset.session = activeSession;
-                newTr.dataset.name = subject.name;
-                newTr.dataset.count = count;
-                newTr.id = activeSession + subject.name + count;
-                newTr.classList = activeSession + subject.name + ' hiddenTr';
-                document.getElementById('table').appendChild(newTr);
+        let count = -1;
+        subject.grades.forEach(gradesArray => {
+            count ++;
+            let newTr = document.createElement('tr');
+            newTr.dataset.session = activeSession;
+            newTr.dataset.name = subject.name;
+            newTr.dataset.count = count;
+            newTr.id = activeSession + subject.name + count;
+            newTr.classList = activeSession + subject.name + ' hiddenTr';
+            document.getElementById('table').appendChild(newTr);
 
-                if (Array.isArray(gradesArray)) {
-                    let newTd = document.createElement('td');
-                    newTd.textContent = settings.examName;
-                    document.getElementById(activeSession + subject.name + count).appendChild(newTd);
+            if (Array.isArray(gradesArray)) {
+                let newTd = document.createElement('td');
+                newTd.textContent = settings.examName;
+                document.getElementById(activeSession + subject.name + count).appendChild(newTd);
 
-                    newTd = document.createElement('td');
-                    newTd.textContent = calculateAvg(gradesArray, 1);
-                    document.getElementById(activeSession + subject.name + count).appendChild(newTd);
+                newTd = document.createElement('td');
+                newTd.textContent = calculateAvg(gradesArray, 1);
+                document.getElementById(activeSession + subject.name + count).appendChild(newTd);
 
-                    let count2 = -1;
-                    gradesArray.forEach(element => {
-                        count2 ++;
-                        let newTr = document.createElement('tr');
-                        newTr.dataset.session = activeSession;
-                        newTr.dataset.name = subject.name;
-                        newTr.dataset.count = count;
-                        newTr.dataset.innerCount = count2;
-                        newTr.id = activeSession + subject.name + count + count2;
-                        newTr.classList = activeSession + subject.name + ' ' + activeSession + subject.name + count + ' hiddenTr' + ' inExam';
-                        document.getElementById('table').appendChild(newTr);
+                let count2 = -1;
+                gradesArray.forEach(element => {
+                    count2 ++;
+                    let newTr = document.createElement('tr');
+                    newTr.dataset.session = activeSession;
+                    newTr.dataset.name = subject.name;
+                    newTr.dataset.count = count;
+                    newTr.dataset.innerCount = count2;
+                    newTr.id = activeSession + subject.name + count + count2;
+                    newTr.classList = activeSession + subject.name + ' ' + activeSession + subject.name + count + ' hiddenTr' + ' inExam';
+                    document.getElementById('table').appendChild(newTr);
 
-                        let newGrdDiv = document.createElement('div');
-
-                        let toolDiv = document.createElement('div');
-                        toolDiv.classList = `transparent`;
-
-                        let editBtn = document.createElement('i');
-                        editBtn.classList = `edit-icon editIcon`;
-                        toolDiv.appendChild(editBtn);
-
-                        let removeBtn = document.createElement('i');
-                        removeBtn.classList = `delete-icon removeIcon`;
-                        toolDiv.appendChild(removeBtn);
-
-                        let newGrd = document.createElement('td');
-                        newGrd.textContent = element.description;
-                        newGrdDiv.appendChild(toolDiv);
-                        newGrdDiv.appendChild(newGrd);
-                        document.getElementById(activeSession + subject.name + count + count2).appendChild(newGrdDiv);
-
-                        let gradeDiv = document.createElement('div');
-                        gradeDiv.classList = 'gradeDiv';
-
-                        newGrd = document.createElement('td');
-                        newGrd.textContent = element.grade;
-                        gradeDiv.appendChild(newGrd);
-
-                        if(settings.showMultiplier) {
-                            newGrd = document.createElement('td');
-                            newGrd.textContent = element.weight + 'x';
-                            gradeDiv.appendChild(newGrd);
-                        }
-
-                        document.getElementById(activeSession + subject.name + count + count2).appendChild(gradeDiv);
-                    });
-                }
-                else {
                     let newGrdDiv = document.createElement('div');
 
                     let toolDiv = document.createElement('div');
@@ -271,45 +362,82 @@ function loadSubjects() {
                     toolDiv.appendChild(removeBtn);
 
                     let newGrd = document.createElement('td');
-                    newGrd.textContent = gradesArray.description;
+                    newGrd.textContent = element.description;
                     newGrdDiv.appendChild(toolDiv);
                     newGrdDiv.appendChild(newGrd);
-                    document.getElementById(activeSession + subject.name + count).appendChild(newGrdDiv);
+                    document.getElementById(activeSession + subject.name + count + count2).appendChild(newGrdDiv);
 
                     let gradeDiv = document.createElement('div');
                     gradeDiv.classList = 'gradeDiv';
 
                     newGrd = document.createElement('td');
-                    newGrd.textContent = gradesArray.grade;
+                    newGrd.textContent = element.grade;
                     gradeDiv.appendChild(newGrd);
 
                     if(settings.showMultiplier) {
                         newGrd = document.createElement('td');
-                        newGrd.textContent = gradesArray.weight + 'x';
+                        newGrd.textContent = element.weight + 'x';
                         gradeDiv.appendChild(newGrd);
                     }
 
-                    document.getElementById(activeSession + subject.name + count).appendChild(gradeDiv);
+                    document.getElementById(activeSession + subject.name + count + count2).appendChild(gradeDiv);
+                });
+            }
+            else {
+                let newGrdDiv = document.createElement('div');
+
+                let toolDiv = document.createElement('div');
+                toolDiv.classList = `transparent`;
+
+                let editBtn = document.createElement('i');
+                editBtn.classList = `edit-icon editIcon`;
+                toolDiv.appendChild(editBtn);
+
+                let removeBtn = document.createElement('i');
+                removeBtn.classList = `delete-icon removeIcon`;
+                toolDiv.appendChild(removeBtn);
+
+                let newGrd = document.createElement('td');
+                newGrd.textContent = gradesArray.description;
+                newGrdDiv.appendChild(toolDiv);
+                newGrdDiv.appendChild(newGrd);
+                document.getElementById(activeSession + subject.name + count).appendChild(newGrdDiv);
+
+                let gradeDiv = document.createElement('div');
+                gradeDiv.classList = 'gradeDiv';
+
+                newGrd = document.createElement('td');
+                newGrd.textContent = gradesArray.grade;
+                gradeDiv.appendChild(newGrd);
+
+                if(settings.showMultiplier) {
+                    newGrd = document.createElement('td');
+                    newGrd.textContent = gradesArray.weight + 'x';
+                    gradeDiv.appendChild(newGrd);
                 }
-            });
+
+                document.getElementById(activeSession + subject.name + count).appendChild(gradeDiv);
+            }
         });
+    });
 
-        let newTR = document.createElement('tr');
-        newTR.id = 'total';
-        newTR.className = 'subjTR';
-        document.getElementById('table').appendChild(newTR);
+    let newTR = document.createElement('tr');
+    newTR.id = 'total';
+    newTR.className = 'subjTR';
+    document.getElementById('table').appendChild(newTR);
 
-        let newSubj = document.createElement('th');
-        newSubj.textContent = text({de:`Gesamt`, en:`Total`});
-        document.getElementById('total').appendChild(newSubj);
+    let newSubj = document.createElement('th');
+    newSubj.textContent = text({de:`Gesamt`, en:`Total`});
+    document.getElementById('total').appendChild(newSubj);
 
+    let calcAvg = calculateAvgFromArray(avg);
+    if(parseFloat(calcAvg)) {
+        let newAvg = document.createElement('td');
         let calcAvg = calculateAvgFromArray(avg);
-        if(parseFloat(calcAvg)) {
-            let newAvg = document.createElement('td');
-            let calcAvg = calculateAvgFromArray(avg);
-            newAvg.textContent = calcAvg;
-            document.getElementById('total').appendChild(newAvg);
-        }
+        newAvg.textContent = calcAvg;
+        document.getElementById('total').appendChild(newAvg);
+    }
+
     replaceIcons();
 }
 
@@ -346,7 +474,7 @@ function emptyTable(el) {
 }
 
 function toggleAll(elements) {
-    if (elements[0].style.display == 'none') {
+    if (getComputedStyle(elements[0]).display === 'none') {
         for (var i = 0; i < elements.length; i++) {
             elements[i].style.display = 'flex';
         }
@@ -404,7 +532,7 @@ function save() {
     if(document.getElementById('addVar').textContent) addVar = JSON.parse(document.getElementById('addVar').textContent);
     let name;
     let dir;
-    if(!(scene == 'editSession') && !(scene == 'addSession') || scene == 'sessions') dir = subjects.find(session => session.name === activeSession).grades;
+    if(!(scene == 'editSession') && !(scene == 'addSession') || scene == 'sessions') dir = subjects.sessions.find(session => session.name === activeSession).grades;
     switch (scene) {
         case 'addGrade':
             if (document.getElementById('focusedSubj').value == '' || document.getElementById('grade').value == '' || document.getElementById('weight').value == '') {
@@ -447,10 +575,10 @@ function save() {
             newGrade.description = document.getElementById('description').value;
 
             if(addVar[2] || addVar[2] === 0) { //2 indices means Schulaufgabe
-                subjects.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]][addVar[2]] = newGrade;
+                subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]][addVar[2]] = newGrade;
             }
             else {
-                subjects.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
+                subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
             }
             toggleEditing();
             break;
@@ -462,14 +590,14 @@ function save() {
                 showMessage(text({de:`Ungültiger Name`, en:`Invalid name`}));
                 return;
             }
-            for (const session of subjects) {
+            for (const session of subjects.sessions) {
                 if(session.name == cleaned) {
                     showMessage(text({de:`Ein Schuljahr mit diesem Namen ist bereits vorhanden`, en:`A school year with this name can't exist twice`}));
                     return;
                 }
             }
 
-            subjects[addVar].name = name;
+            subjects.sessions[addVar].name = name;
             toggleEditing();
             break;
         case 'editSubject':
@@ -491,7 +619,7 @@ function save() {
                 showMessage(text({de:`Die Fächer-Bezeichnung kann nicht das Schuljahr enthalten`, en:`The subject can't contain the name of the year`}));
                 return;
             }*/
-            subjects.find(session => session.name == activeSession).grades[addVar].name = name;
+            subjects.sessions.find(session => session.name == activeSession).grades[addVar].name = name;
             toggleEditing();
             break;
         default:
@@ -518,22 +646,71 @@ function deleteSpaces(str) {
 }
 
 async function deleteData() {
-    if(!(await getConfirm(text({de:`Alle gespeicherten Daten löschen?`, en:`Delete all saved data?`})))) return;
-    deleteLocalStorage('subjects');
+    let key = await selectDialog();
+    if(!key) return;
+    if(!(await getConfirm(text({de:`Alle ${key === 'settings' ? 'Einstellungen' : key === 'subjects' ? 'Noten' : 'gespeicherten Daten'} löschen?`, en:`Delete all ${key === 'settings' ? 'settings' : key === 'subjects' ? 'grades' : 'saved data'}?`})))) return;
+    deleteLocalStorage(key === 'all' ? 'subjects' : key);
 
-    subjects = [];
-    settings = {
-        lang: 'de',
-        examName: 'Schulaufgaben',
-        showMultiplier: false,
-        darkmode: true,
-        activeSession: undefined,
-        seenDownloadMessage: false,
-        offline: false
+    if(key === 'subjects' || key === 'all') {
+        subjects = {
+            version: buildVersion,
+            sessions: subjects
+        }
     }
+
+    if(key === 'settings' || key === 'all') {
+        settings = {
+            lang: languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en',
+            examName: 'Schulaufgaben',
+            showMultiplier: false,
+            darkmode: true,
+            activeSession: undefined,
+            seenDownloadMessage: false,
+            offline: false,
+            seenStoragePolicy: false
+        }
+    }
+
     setLocalStorage(subjects, 'subjects');
     setLocalStorage(settings, 'settings');
-    switchScene('main');
+    switchScene(key === 'settings' ? 'settings' : 'main');
+}
+
+async function selectDialog() {
+    const options = [ 
+        {value: 'settings', content: text({de:'Einstellungen', en:'Settings'})},
+        {value: 'subjects', content: text({de:'Noten', en:'Grades'})},
+        {value: 'all', content: text({de:'Alle', en:'All'})},
+    ]
+    const select = document.getElementById('dialogSelect');
+    select.innerHTML = '';
+    options.forEach(option => {
+        const obj = document.createElement('option');
+        obj.value = option.value;
+        obj.textContent = option.content;
+        select.appendChild(obj);
+    });
+    const dialog = document.getElementById('selectDialog');
+    const messageSpan = document.getElementById('selectMessage');
+    messageSpan.innerHTML = text({de:`Welche Daten sollen gelöscht werden?`, en:`What data should be deleted?`});
+
+    const response = await selectPromise(dialog);
+    return response;
+}
+
+function selectPromise(dialog) {
+    return new Promise((resolve, reject) => {
+        dialog.showModal();
+        dialog.onclose = () => {
+            if(!(dialog.returnValue === 'true')) resolve(false);
+            
+            // Get the values from the select elements
+            const value = document.getElementById('dialogSelect').value;
+
+            // Resolve with an object containing the return value and the select values
+            resolve(value);
+        };
+    });
 }
 
 function toggleEditing() {
@@ -547,7 +724,7 @@ function toggleEditing() {
 }
 
 function loadSession() {
-    if(!subjects.length > 0) {
+    if(!subjects.sessions.length > 0) {
         emptyTable(document.getElementById('table'));
         let newTR = document.createElement('tr');
         newTR.id = 'emptyTable';
@@ -558,58 +735,63 @@ function loadSession() {
         document.getElementById('emptyTable').appendChild(newTH);
         return;
     }
+
     emptyTable(document.getElementById('table'));
-        let avg = [];
-        subjects.forEach(session => {
-            let newTR = document.createElement('tr');
-            newTR.id = session.name;
-            newTR.className = 'sessionTR';
-            document.getElementById('table').appendChild(newTR);
 
-            let newGrdDiv = document.createElement('div');
+    sortIcon(subjects.sorted?.mode, subjects.sorted?.order);
 
-            let toolDiv = document.createElement('div');
-            toolDiv.classList = `transparent`;
-
-            let editBtn = document.createElement('i');
-            editBtn.classList = `edit-icon editIcon`;
-            toolDiv.appendChild(editBtn);
-
-            let removeBtn = document.createElement('i');
-            removeBtn.classList = `delete-icon removeIcon`;
-            toolDiv.appendChild(removeBtn);
-
-            let newSess = document.createElement('th');
-            newSess.textContent = session.name;
-            newGrdDiv.appendChild(toolDiv);
-            newGrdDiv.appendChild(newSess);
-            document.getElementById(session.name).appendChild(newGrdDiv);
-
-            let innerAvg = getAvgArray(session.grades);
-            let calcAvg = calculateAvgFromArray(innerAvg);
-            if(parseFloat(calcAvg)) {
-                let newAvg = document.createElement('td');
-                newAvg.textContent = calcAvg;
-                avg.push(parseFloat(calcAvg));
-                document.getElementById(session.name).appendChild(newAvg);
-            }
-        });
-
+    let avg = [];
+    subjects.sessions.forEach(session => {
         let newTR = document.createElement('tr');
-        newTR.id = 'total';
+        newTR.id = session.name;
         newTR.className = 'sessionTR';
         document.getElementById('table').appendChild(newTR);
 
-        let newSubj = document.createElement('th');
-        newSubj.textContent = text({de:`Gesamt`, en:`Total`});
-        document.getElementById('total').appendChild(newSubj);
+        let newGrdDiv = document.createElement('div');
 
-        let calcAvg = calculateAvgFromArray(avg);
+        let toolDiv = document.createElement('div');
+        toolDiv.classList = `transparent`;
+
+        let editBtn = document.createElement('i');
+        editBtn.classList = `edit-icon editIcon`;
+        toolDiv.appendChild(editBtn);
+
+        let removeBtn = document.createElement('i');
+        removeBtn.classList = `delete-icon removeIcon`;
+        toolDiv.appendChild(removeBtn);
+
+        let newSess = document.createElement('th');
+        newSess.textContent = session.name;
+        newGrdDiv.appendChild(toolDiv);
+        newGrdDiv.appendChild(newSess);
+        document.getElementById(session.name).appendChild(newGrdDiv);
+
+        let innerAvg = getAvgArray(session.grades);
+        let calcAvg = calculateAvgFromArray(innerAvg);
         if(parseFloat(calcAvg)) {
             let newAvg = document.createElement('td');
             newAvg.textContent = calcAvg;
-            document.getElementById('total').appendChild(newAvg);
+            avg.push(parseFloat(calcAvg));
+            document.getElementById(session.name).appendChild(newAvg);
         }
+    });
+
+    let newTR = document.createElement('tr');
+    newTR.id = 'total';
+    newTR.className = 'sessionTR';
+    document.getElementById('table').appendChild(newTR);
+
+    let newSubj = document.createElement('th');
+    newSubj.textContent = text({de:`Gesamt`, en:`Total`});
+    document.getElementById('total').appendChild(newSubj);
+
+    let calcAvg = calculateAvgFromArray(avg);
+    if(parseFloat(calcAvg)) {
+        let newAvg = document.createElement('td');
+        newAvg.textContent = calcAvg;
+        document.getElementById('total').appendChild(newAvg);
+    }
+
     replaceIcons();
 }
 
@@ -715,7 +897,7 @@ function switchScene(target) {
 function setSubjectList() {
     dataList = document.getElementById('subjects');
     dataList.innerHTML = '';
-    subjects.find(session => session.name == activeSession).grades.forEach(subject => {
+    subjects.sessions.find(session => session.name == activeSession).grades.forEach(subject => {
         const option = document.createElement('option');
         option.value = subject.name;
         dataList.appendChild(option);
@@ -759,7 +941,7 @@ function saveSettings() {
         settings.lang = document.getElementById('lang').value;
         changeLang(settings.lang);
     }
-    settings.examName = document.getElementById('examName').value;
+    settings.examName = document.getElementById('examName').value || 'Schulaufgaben';
     settings.showMultiplier = document.getElementById('showMultipliers').checked;
     settings.darkmode = document.getElementById('darkmode').checked;
     settings.offline = document.getElementById('offline').checked;
@@ -796,6 +978,14 @@ function changeLang(lang) {
             document.querySelector('#downloadDialog button[value="true"]').textContent = 'Später';
             document.querySelector('#confirmDialog button[value="false"]').textContent = 'Abbrechen';
             document.querySelector('#confirmDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#selectDialog button[value="false"]').textContent = 'Abbrechen';
+            document.querySelector('#selectDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog button[value="false"]').textContent = 'Abbrechen';
+            document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetisch';
+            document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'Notenanzahl';
+            document.querySelector('#sortDialog option[value="asc"]').textContent = 'aufsteigend';
+            document.querySelector('#sortDialog option[value="desc"]').textContent = 'absteigend';
             document.querySelector('#infoDialog button[value="true"]').textContent = 'Fertig';
             document.getElementById('updateGuide').textContent = 'Starte Gradia neu, um das Update zu installieren.';
 
@@ -816,6 +1006,14 @@ function changeLang(lang) {
             document.querySelector('#downloadDialog button[value="true"]').textContent = 'Later';
             document.querySelector('#confirmDialog button[value="false"]').textContent = 'Cancel';
             document.querySelector('#confirmDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#selectDialog button[value="false"]').textContent = 'Cancel';
+            document.querySelector('#selectDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog button[value="false"]').textContent = 'Cancel';
+            document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetic';
+            document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'grade count';
+            document.querySelector('#sortDialog option[value="asc"]').textContent = 'ascending';
+            document.querySelector('#sortDialog option[value="desc"]').textContent = 'descending';
             document.querySelector('#infoDialog button[value="true"]').textContent = 'Confirm';
             document.getElementById('updateGuide').textContent = 'Restart Gradia to install the update.';
 
@@ -925,7 +1123,10 @@ function checkLocalStorage() {
     if(localStorage.getItem('gradia') !== null) return true;
 
     setLocalStorage([], 'gradia');
-    setLocalStorage([],'subjects');
+    setLocalStorage({
+        version: buildVersion,
+        sessions: []
+    },'subjects');
     setLocalStorage(settings, 'settings');
 }
 
@@ -1064,7 +1265,7 @@ async function showDownloadMessage() {
     else alert(navigator.userAgent);*/
 
     const downloadMessage = {
-        de:`Installiere Gradia auf deinem Gerät: <p>Für einen schnellen Zugriff auf Gradia, direkt von deinem Homebildschirm aus, <br>tippe <i class="ios-share-icon" data-color="#ee82ee"></i> und wähle <i>Zum Homebildschirm hinzufügen</i></p>`,
+        de:`Installiere Gradia auf deinem Gerät: <p>Für einen schnellen Zugriff auf Gradia, direkt von deinem Homebildschirm aus, <br>tippe <i class="ios-share-icon inline" data-color="#ee82ee"></i> und wähle <i class="inline">Zum Homebildschirm hinzufügen</i></p>`,
         en:`Install Gradia on your device: <p>For quick access to Gradia, right from your homescreen, <br>tap <i class="ios-share-icon" data-color="#ee82ee"></i> and choose <i>Add to homescreen</i></p>`
     }
 
@@ -1153,13 +1354,35 @@ function handleUpdate(updateData) {
     output += text(info.description);
     if(info.features) {
         output += `<ul>`;
+
         info.features.forEach(feature => {
+            console.log(feature.version)
+            if(compareVersion(buildVersion, feature.version) > -1) return;
+
             output += `<li><b>${text(feature.name)}</b><p>${text(feature.description)}</p></li>`
         });
+
         output += `</ul>`;
     }
     document.getElementById('updateDescription').innerHTML = output;
     console.log(output);
+}
+
+function compareVersion(version1, version2) {
+    const split1 = version1 ? version1.replace(/[a-zA-Z\s]/g, '').split('.').map(Number) : [];
+    const split2 = version2 ? version2.replace(/[a-zA-Z\s]/g, '').split('.').map(Number) : [];
+
+    const maxLength = Math.max(split1.length, split2.length);
+
+    for(let i = 0; i < maxLength; i ++) {
+        const num1 = split1[i] || 0;
+        const num2 = split2[i] || 0;
+
+        if(num1 > num2) return 1;
+        if(num1 < num2) return -1;
+    }
+
+    return 0;
 }
 
 
@@ -1271,14 +1494,14 @@ function init() {
             let grade;
 
             if(scene == 'sessions') { //if session
-                let session = subjects.find(element => element.name == id);
-                let index = subjects.indexOf(session);
+                let session = subjects.sessions.find(element => element.name == id);
+                let index = subjects.sessions.indexOf(session);
                 editSessionScene(session, index);
                 return;
             }
 
             if(!index) { //if no index: subject instead of 
-                let dir = subjects.find(session => session.name === activeSession).grades;
+                let dir = subjects.sessions.find(session => session.name === activeSession).grades;
                 let subjectObj = dir.find(element => element.name === subject);
                 let index = dir.indexOf(subjectObj);
                 editSubjectScene(subjectObj, index);
@@ -1286,10 +1509,10 @@ function init() {
             }
 
             if(index2) { //2 indices means Schulaufgabe
-                grade = subjects.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index][index2];
+                grade = subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index][index2];
             }
             else {
-                grade = subjects.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index];
+                grade = subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index];
             }
 
             editScene(grade, `["${subject}", ${index}${index2 ? `, ${index2}` : ``}]`);
@@ -1307,12 +1530,12 @@ function init() {
             let dir;
 
             if(scene == 'sessions') { //if session
-                dir = subjects;
-                const session = subjects.find(session => session.name == id);
-                subjectsIndex = subjects.indexOf(session);
+                dir = subjects.sessions;
+                const session = subjects.sessions.find(session => session.name == id);
+                subjectsIndex = subjects.sessions.indexOf(session);
             }
             else {
-                dir = subjects.find(element => element.name === activeSession).grades;
+                dir = subjects.sessions.find(element => element.name === activeSession).grades;
 
                 if(!index) { //if no index: subject instead of grade
                     let grade = dir.find(element => element.name === subject);
@@ -1398,8 +1621,17 @@ function init() {
             
             // Process the array or do something with the data
             subjects = JSON.parse(dataArray);
+            if(Array.isArray(subjects)) {
+                subjects = {
+                    version: buildVersion,
+                    sessions: subjects
+                }
+            }
+
             setLocalStorage(subjects, 'subjects');
             switchScene('main');
+
+            document.getElementById('fileInput').value = '';
         };
     
         reader.readAsText(file);
@@ -1432,6 +1664,15 @@ function init() {
         settings = getLocalStorageValue('settings');
     }
 
+    //Convert subjects Array to object
+    if(Array.isArray(subjects)) {
+        subjects = {
+            version: buildVersion,
+            sessions: subjects
+        }
+        setLocalStorage(subjects, 'subjects');
+    }
+
     if(!settings.lang) {
         settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
     }
@@ -1447,13 +1688,14 @@ function init() {
         appChannel('request', 'settings', 'replaceSettings', identifier);
     }*/
 
-    if(settings.activeSession == undefined && subjects.length > 0) activeSession = subjects[subjects.length - 1].name;
+    if(settings.activeSession == undefined && subjects.sessions.length > 0) activeSession = subjects.sessions[subjects.sessions.length - 1].name;
     else if (!(settings.activeSession == undefined)) activeSession = settings.activeSession;
     else activeSession = undefined;
 
     if(!(activeSession == undefined)) {
         document.getElementById('sessionLink').textContent = '< ' + activeSession;
         loadSubjects();
+        scene = 'main';
     }
     else {
         switchScene('sessions');
@@ -1478,3 +1720,17 @@ function init() {
 
     if(!settings.offline) registerSW();
 }
+
+window.onerror = function(message, source, lineno, colno, error) {
+    alert(`Error: ${message}\nSource: ${source}\nLine: ${lineno}, Column: ${colno}\nStack Trace: ${error?.stack || 'N/A'}`);
+
+    if(!subjects.sessions) {
+        subjects = {
+            version: buildVersion,
+            sessions: []
+        }
+        setLocalStorage(subjects, 'subjects');
+    }
+    // Return true to prevent the default browser error alert (optional)
+    return false;
+};

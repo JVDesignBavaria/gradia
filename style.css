@@ -104,6 +104,13 @@ main {
 i {
     color: var(--main-color);
     font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inline {
+    display: inline;
 }
 
 #top-controls {
@@ -114,6 +121,17 @@ i {
     flex-direction: row-reverse;
     justify-content: space-between;
     align-items: center;
+}
+
+#toolDiv {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    flex-direction: row-reverse;
+}
+
+#toolDiv > * {
+    margin-left: 20px;
 }
 
 #add, #settings {
@@ -132,7 +150,7 @@ i {
     color: #fff;
 }
 
-#add:last-child, #settings:last-child {
+#add > :last-child, #settings > :last-child {
     margin: 0 0 19vw 0;
 }
 
@@ -249,10 +267,10 @@ input[type=checkbox] {
 }
 
 #sessionLink {
-    width: 90%;
     max-width: 120vh;
     text-align: left;
     font-size: 0.9rem;
+    line-height: 1rem;
     cursor: pointer;
 }
 
@@ -405,6 +423,36 @@ dialog button {
     flex-direction: row-reverse;
     justify-content: space-between;
     box-shadow: 0px 2px 10px 0px #000;
+}
+
+#sortDialog {
+    width: calc(100dvw - 80px);
+    max-width: 80dvh;
+}
+
+.multiSelect {
+    gap: 0;
+}
+
+.multiSelect select {
+    border-radius: 0;
+    border: none;
+    border-right: solid 1.5px #000;
+    padding: 7px;
+    font-size: 0.8rem;
+    background: #fff;
+    color: #000;
+    flex: 1;
+    min-width: 0;
+}
+
+.multiSelect select:nth-of-type(1) {
+    border-radius: 10px 0 0 10px;
+}
+
+.multiSelect select:last-of-type {
+    border-radius: 0 10px 10px 0;
+    border: none;
 }
 
 #infoDialog .infoTop button, #downloadDialog .infoTop button {
