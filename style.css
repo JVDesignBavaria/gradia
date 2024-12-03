@@ -276,9 +276,10 @@ input[type=checkbox] {
 
 #table {
     width: 90%;
-    max-width: 120vh;
+    max-width: min(90%, 120vh);
     margin:  0 0 19vw 0;
     overflow: hidden;
+    overflow-wrap: anywhere;
 }
 
 #table tr {
@@ -317,7 +318,18 @@ input[type=checkbox] {
 }
 
 #table #total {
-    border-top: double 2px var(--main-color);
+    margin-top: 20px;
+    border-top: solid 1.75px var(--main-color);
+    position: relative;
+}
+
+#table #total::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    margin: -20px 0;
+    border-top: solid 1.75px var(--main-color);
+    width: 100%;
 }
 
 #table th {
