@@ -8,6 +8,10 @@
     cursor: pointer;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 html {
     color: var(--main-color);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -136,7 +140,7 @@ i {
 
 #add, #settings {
     position: fixed;
-    height: 90vh;
+    height: max(calc(100vh - 22vw), 90vh);
     width: 100vw;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -151,7 +155,7 @@ i {
 }
 
 #add > :last-child, #settings > :last-child {
-    margin: 0 0 19vw 0;
+    margin-bottom: min(19vw, 22.5vh);
 }
 
 .data {
@@ -159,13 +163,13 @@ i {
 }
 
 input, select {
-    width: 80vw;
+    width: calc(80vw + 20px);
     max-width: 120vh;
     border-radius: 10px;
     border: none;
     margin: 10px 0;
     padding: 5px 10px;
-    height: 1.2rem;
+    height: calc(1.2rem + 10px);
     font-size: 1rem;
     margin-top: 15px;
     background: #fff;
@@ -177,8 +181,8 @@ input, select {
 }
 
 #updateInfo {
-    display: none;
     width: 80vw;
+    max-width: 120vh;
     border-radius: 10px;
     border: none;
     margin: 10px 0 16vh 0;
@@ -226,7 +230,7 @@ input, select {
 } 
 
 select {
-    width: calc(80vw + 20px);
+    width: 80vw;
     height: calc(1.2rem + 10px);
 }
 
@@ -348,7 +352,6 @@ input[type=checkbox] {
     display: none;
     padding-left: 10%;
     margin: 7.5px 0 0 0;
-    width: 90%;
     padding-top: 0;
     border: none;
 }
@@ -372,29 +375,39 @@ input[type=checkbox] {
 }
 
 dialog {
+    position: relative;
+    width: 565px;
+    min-width: min(375px, 100vw);
     border-radius: 15px;
     background: #9A7AA0;
     border: none;
     top: calc(70vh / 2 - 50dvh);
     color: #fff;
     font-size: 1rem;
-    padding: 30px 40px;
+    padding: 0;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
 }
 
 dialog form {
+    padding: 30px 40px;
+    width: 100%;
+    height: 100%;
+}
+
+dialog form > div {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-dialog form span {
+dialog form > div span {
+    width: 100%;
     margin-bottom: 20px;
     line-height: 1.3rem;
 }
 
-dialog form div {
+dialog form > div div {
     width: 100%;
     display: flex;
     gap: 10px;
@@ -410,25 +423,27 @@ dialog button {
     flex: 1;
 }
 
+dialog form > div select {
+    width: 100%;
+}
+
 #infoDialog, #downloadDialog {
     width: calc(100dvw - 40px);
     max-width: 80dvh;
     height: 90dvh;
     top: 10dvh;
-    padding: 30px 20px;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.1);
     border-radius: 15px 15px 0 0;
 }
 
-#infoDialog form, #downloadDialog form {
-    width: 100%;
-    height: 100%;
+#infoDialog form > div, #downloadDialog form > div {
     justify-content: flex-start;
 }
 
 #infoDialog .infoTop, #downloadDialog .infoTop {
     position: absolute;
     top: 0;
+    left: 0;
     background: #3c2f3e;
     padding: 7px 0;
     display: flex;
@@ -481,7 +496,11 @@ dialog button {
     width: 100%;
     height: 100%;
     padding: 60px 0 30px 0;
-    overflow: scroll;
+}
+
+#infoDialog span, #downloadDialog span {
+    max-height: calc(100% - 28px);
+    overflow-y: scroll;
 }
 
 input[type=file] {
@@ -494,12 +513,16 @@ input[type=file] {
     justify-content: space-between;
     align-items: center;
     width: calc(80vw + 20px);
-    max-width: 120vh;
+    max-width: calc(120vh + 20px);
     margin: 10px 0;
     padding: 5px 10px;
     gap: 20px;
     font-size: 1rem;
     margin-top: 15px;
+}
+
+.labelBox * {
+    box-sizing: content-box;
 }
 
 .labelBox input {
@@ -524,6 +547,7 @@ input[type=file] {
     color: #000;
     border-radius: 10px;
     height: 100%;
+    overflow-wrap: anywhere;
 }
 
 .switch {
@@ -601,7 +625,6 @@ input[type=file] {
 
     #table .hiddenTr {
         padding-left: 50px;
-        width: calc(100% - 50px);
     }
 
     #table {
@@ -635,9 +658,4 @@ input[type=file] {
     .labelBox .innerLabelBox:last-of-type {
         justify-content: right;
     }
-
-    .labelBox label {
-        width: 75%;
-    }
-
 }

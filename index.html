@@ -46,61 +46,71 @@
     <main>
         <dialog id="downloadDialog">
             <form method="dialog">
-                <div class="infoTop">
-                    <button value="true" autofocus>Später</button>
-                    <button value="false">Nicht mehr zeigen</button>
+                <div>
+                    <div class="infoTop">
+                        <button value="true" autofocus>Später</button>
+                        <button value="false">Nicht mehr zeigen</button>
+                    </div>
+                    <span id="downloadMessage"></span>
                 </div>
-                <span id="downloadMessage"></span>
             </form>
         </dialog>
         
         <dialog id="confirmDialog">
             <form method="dialog">
-                <span id="confirmMessage"></span>
                 <div>
-                    <button value="false">Abbrechen</button>
-                    <button value="true" autofocus>Ok</button>
+                    <span id="confirmMessage"></span>
+                    <div>
+                        <button value="false">Abbrechen</button>
+                        <button value="true" autofocus>Ok</button>
+                    </div>
                 </div>
             </form>
         </dialog>
 
         <dialog id="sortDialog">
             <form method="dialog">
-                <span id="sortMessage"></span>
-                <div class="multiSelect">
-                    <select id="sortMode">
-                        <option value="alphabet">alphabetisch</option>
-                        <option value="gradeCount">Notenanzahl</option>
-                    </select>
-                    <select id="sortOrder">
-                        <option value="asc">aufsteigend</option>
-                        <option value="desc">absteigend</option>
-                    </select>
-                </div>
                 <div>
-                    <button value="false">Abbrechen</button>
-                    <button value="true" autofocus>Ok</button>
+                    <span id="sortMessage"></span>
+                    <div class="multiSelect">
+                        <select id="sortMode">
+                            <option value="alphabet">alphabetisch</option>
+                            <option value="gradeCount">Notenanzahl</option>
+                        </select>
+                        <select id="sortOrder">
+                            <option value="asc">aufsteigend</option>
+                            <option value="desc">absteigend</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button value="false">Abbrechen</button>
+                        <button value="true" autofocus>Ok</button>
+                    </div>
                 </div>
             </form>
         </dialog>
 
         <dialog id="selectDialog">
             <form method="dialog">
-                <span id="selectMessage"></span>
-                <select id="dialogSelect"></select>
                 <div>
-                    <button value="false">Abbrechen</button>
-                    <button value="true" autofocus>Ok</button>
+                    <span id="selectMessage"></span>
+                    <select id="dialogSelect"></select>
+                    <div>
+                        <button value="false">Abbrechen</button>
+                        <button value="true" autofocus>Ok</button>
+                    </div>
                 </div>
             </form>
         </dialog>
 
         <dialog id="infoDialog">
             <form method="dialog">
-                <div class="infoTop">
-                    <button id="infoConfirm" value="true" autofocus>Fertig</button>
+                <div>
+                    <div class="infoTop">
+                        <button id="infoConfirm" value="true" autofocus>Fertig</button>
+                    </div>
+                    <span id="infoMessage"></span>
                 </div>
-                <span id="infoMessage"></span>
             </form>
         </dialog>
         
@@ -163,12 +173,6 @@
                 <div class="innerLabelBox"><input type="button" onClick="deleteData()" id="deleteButton" value="Alle Daten löschen"/><label for="deleteButton">Daten löschen</label></div>
             </div>
             <span id="buildVersion"></span>
-            <div id="updateInfo">
-                <h2 id="updateDate"></h2>
-                <h3 id="updateVersion"></h3>
-                <span id="updateDescription"></span>
-                <span id="updateGuide">Starte Gradia neu, um das Update zu installieren.</span>
-            </div>
         </div>
     </main>
     <nav class="nav bottom">

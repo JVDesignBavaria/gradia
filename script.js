@@ -987,7 +987,6 @@ function changeLang(lang) {
             document.querySelector('#sortDialog option[value="asc"]').textContent = 'aufsteigend';
             document.querySelector('#sortDialog option[value="desc"]').textContent = 'absteigend';
             document.querySelector('#infoDialog button[value="true"]').textContent = 'Fertig';
-            document.getElementById('updateGuide').textContent = 'Starte Gradia neu, um das Update zu installieren.';
 
             document.getElementById('addSess').placeholder = 'Schuljahr-Name';
             document.getElementById('focusedSubj').placeholder = 'Fach-Name';
@@ -1015,7 +1014,6 @@ function changeLang(lang) {
             document.querySelector('#sortDialog option[value="asc"]').textContent = 'ascending';
             document.querySelector('#sortDialog option[value="desc"]').textContent = 'descending';
             document.querySelector('#infoDialog button[value="true"]').textContent = 'Confirm';
-            document.getElementById('updateGuide').textContent = 'Restart Gradia to install the update.';
 
             document.getElementById('addSess').placeholder = 'School year name';
             document.getElementById('focusedSubj').placeholder = 'Subject name';
@@ -1266,7 +1264,7 @@ async function showDownloadMessage() {
 
     const downloadMessage = {
         de:`Installiere Gradia auf deinem Gerät: <p>Für einen schnellen Zugriff auf Gradia, direkt von deinem Homebildschirm aus, <br>tippe <i class="ios-share-icon inline" data-color="#ee82ee"></i> und wähle <i class="inline">Zum Homebildschirm hinzufügen</i></p>`,
-        en:`Install Gradia on your device: <p>For quick access to Gradia, right from your homescreen, <br>tap <i class="ios-share-icon" data-color="#ee82ee"></i> and choose <i>Add to homescreen</i></p>`
+        en:`Install Gradia on your device: <p>For quick access to Gradia, right from your homescreen, <br>tap <i class="ios-share-icon inline" data-color="#ee82ee"></i> and choose <i class="inline">Add to homescreen</i></p>`
     }
 
     const result = await getDownloadResult(text(downloadMessage));
@@ -1338,9 +1336,11 @@ async function registerSW() {
 
 function handleUpdate(updateData) {
     if(updateData.version == buildVersion) return;
-    document.getElementById('updateInfo').style.display = 'block';
+    const wrapper = document.createElement('div');
+    wrapper.id = 'updateInfo';
     const info = updateData.info;
     let output = ``;
+
     console.log(`${text({de:`Ein neues Update ist verfügbar:`, en:`A new update is available:`})} ${updateData.version}
     ${info.description}
     ${info.features.forEach(feature => {
@@ -1349,8 +1349,16 @@ function handleUpdate(updateData) {
     })}
     ${info.release}`)
 
-    document.getElementById('updateDate').textContent = info.release.toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
-    document.getElementById('updateVersion').textContent = updateData.version;
+    const date = document.createElement('h2');
+    date.id = 'updateDate';
+    date.textContent = info.release.toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
+    wrapper.appendChild(date);
+
+    const version = document.createElement('h3');
+    version.id = 'updateVersion';
+    version.textContent = updateData.version;
+    wrapper.appendChild(version);
+
     output += text(info.description);
     if(info.features) {
         output += `<ul>`;
@@ -1364,8 +1372,19 @@ function handleUpdate(updateData) {
 
         output += `</ul>`;
     }
-    document.getElementById('updateDescription').innerHTML = output;
+
+    const description = document.createElement('span');
+    description.id = 'updateDescription';
+    description.innerHTML = output;
+    wrapper.appendChild(description);
     console.log(output);
+
+    const guide = document.createElement('span');
+    guide.id = 'updateGuide';
+    guide.textContent = text({de:'Starte Gradia neu, um das Update zu installieren.', en:'Restart Gradia to install the update.'});
+    wrapper.appendChild(guide);
+
+    document.getElementById('settings').appendChild(wrapper);
 }
 
 function compareVersion(version1, version2) {
@@ -1479,6 +1498,15 @@ function init() {
             save();
         })
     });
+
+    document.querySelectorAll('dialog').forEach(element => {
+        element.addEventListener('click', (e) => {
+            if(e.target.nodeName === 'DIALOG') {
+                e.target.close('false');
+            }
+        })
+    });
+
     document.getElementById('table').addEventListener('click', async function(e) {
         const target = e.target.closest('tr');
         const icon = e.target.closest('i');
