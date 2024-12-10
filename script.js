@@ -1657,7 +1657,8 @@ function init() {
             }
 
             setLocalStorage(subjects, 'subjects');
-            switchScene('main');
+            activeSession = undefined;
+            switchScene('main'); //no active session: switches to sessions automatically
 
             document.getElementById('fileInput').value = '';
         };
