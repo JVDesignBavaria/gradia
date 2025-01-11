@@ -394,6 +394,10 @@ dialog form {
     min-height: calc(100% - 60px);
 }
 
+dialog i {
+    color: #fff;
+}
+
 dialog form > div {
     display: flex;
     flex-direction: column;
@@ -633,7 +637,6 @@ input[type=file] {
 
     #table .inExam {
         padding-left: 100px;
-        width: calc(100% - 100px);
     }
 
     #emptyTable {

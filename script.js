@@ -1335,50 +1335,54 @@ async function registerSW() {
 }
 
 function handleUpdate(updateData) {
-    if(updateData.version == buildVersion) return;
+    if(updateData.version == buildVersion) return; //Update already installed
+
+    const info = updateData.info;
+    let output = '';
+
+    // Create Wrapper Element
     const wrapper = document.createElement('div');
     wrapper.id = 'updateInfo';
-    const info = updateData.info;
-    let output = ``;
 
-    console.log(`${text({de:`Ein neues Update ist verfügbar:`, en:`A new update is available:`})} ${updateData.version}
-    ${info.description}
-    ${info.features.forEach(feature => {
-        return `${feature.name} - ${feature.description}
-        `
-    })}
-    ${info.release}`)
-
+    // Create Date Display
     const date = document.createElement('h2');
     date.id = 'updateDate';
     date.textContent = info.release.toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
     wrapper.appendChild(date);
 
+    // Create Version Display
     const version = document.createElement('h3');
     version.id = 'updateVersion';
     version.textContent = updateData.version;
     wrapper.appendChild(version);
 
-    output += text(info.description);
+    // Create Description Content
+    let featureCount = 0;
     if(info.features) {
         output += `<ul>`;
 
         info.features.forEach(feature => {
             console.log(feature.version)
-            if(compareVersion(buildVersion, feature.version) > -1) return;
+            if(compareVersion(buildVersion, feature.version) > -1) return; //Feature is older than current version
 
+            featureCount ++;
             output += `<li><b>${text(feature.name)}</b><p>${text(feature.description)}</p></li>`
         });
 
         output += `</ul>`;
     }
 
+    // Create Introduction Sentence
+    const intro = text({de:`Dieses Update enthält Fehlerbehebungen${featureCount < 1 ? `.` : featureCount == 1 ? ` und führt dieses neue Feature ein:` : ` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${featureCount < 1 ? `.` : featureCount == 1 ? ` and introduces this new feature:` : ` and introduces these new features:`}`});
+
+    // Create Description Display
     const description = document.createElement('span');
     description.id = 'updateDescription';
-    description.innerHTML = output;
+    description.innerHTML = intro + output;
     wrapper.appendChild(description);
     console.log(output);
 
+    // Create Guide Display
     const guide = document.createElement('span');
     guide.id = 'updateGuide';
     guide.textContent = text({de:'Starte Gradia neu, um das Update zu installieren.', en:'Restart Gradia to install the update.'});

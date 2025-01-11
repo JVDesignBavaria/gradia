@@ -6,7 +6,7 @@ const INFO = {
     features: [
         {name:{de:`Tabellen-Sortierung`, en:`Table Sort`}, description:{de:`Die Tabellen können automatisch sortiert werden`, en:`Tables can be sorted automatically`}, version: '1.1'},
         {name:{de:`Update Historie`, en:`Update History`}, description:{de:`Die Tabellen können automatisch sortiert werden`, en:`Tables can be sorted automatically`}, version: '1.1'},
-        {name:{de:`Teilweise Datenlöschung`, en:`Partial Data Deletion`}, description:{de:`Einstellungen oder Noten können unabhängig voneinander gelöscht werden`, en:`Settings and Grades can be delteded independently`}, version: '1.1'},
+        {name:{de:`Teilweise Datenlöschung`, en:`Partial Data Deletion`}, description:{de:`Einstellungen oder Noten können unabhängig voneinander gelöscht werden`, en:`Settings and Grades can be deleted independently`}, version: '1.1'},
     ],
     release: new Date('2024-11-22')
 };
