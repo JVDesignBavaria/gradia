@@ -1,4 +1,4 @@
-const buildVersion = 'Version 1.1'
+const buildVersion = 'Version 1.0'
 
 let subjects = {
     version: buildVersion,
@@ -1306,6 +1306,19 @@ function singleLanguage(string) {
     return result;
 }
 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if(!response.ok) {
+            throw new Error(`Response status for ${url}: ${response.status}`);
+        }
+
+        const json = await response.json();
+        return json;
+    }
+    catch(error) {console.log(error)}
+}
+
 
 //----- SERVICE WORKER HANDLING -----//
 
@@ -1322,10 +1335,19 @@ async function registerSW() {
         else if(registration.active) console.log("SW active");
 
         const channel = new BroadcastChannel('sw_channel');
-        channel.onmessage = (event) => {
+        channel.onmessage = async (event) => {
             if(event.data.from !== 'SW') return;
             console.log(`Received channelmessage ${event.data}`);
-            handleUpdate(event.data);
+
+            try {
+                const changelog = await fetchData('testlog.json');
+                handleUpdate(changelog, event.data.version);
+            }
+            catch (error) {
+                console.log(`Error fetching changelog ${error}`);
+                return error;
+            }
+            
         }
     }
     catch(error) {
@@ -1334,11 +1356,10 @@ async function registerSW() {
     }
 }
 
-function handleUpdate(updateData) {
-    if(updateData.version == buildVersion) return; //Update already installed
+function handleUpdate(changelog, updateVersion) {
+    if(updateVersion == buildVersion) return; //Update already installed
 
-    const info = updateData.info;
-    let output = '';
+    let output = '<ul>';
 
     // Create Wrapper Element
     const wrapper = document.createElement('div');
@@ -1347,33 +1368,54 @@ function handleUpdate(updateData) {
     // Create Date Display
     const date = document.createElement('h2');
     date.id = 'updateDate';
-    date.textContent = info.release.toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
+    date.textContent = new Date(changelog.versions.find(element => element.version === updateVersion).release).toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
     wrapper.appendChild(date);
 
     // Create Version Display
     const version = document.createElement('h3');
     version.id = 'updateVersion';
-    version.textContent = updateData.version;
+    version.textContent = updateVersion;
     wrapper.appendChild(version);
 
     // Create Description Content
-    let featureCount = 0;
-    if(info.features) {
-        output += `<ul>`;
+    const features = new Map();
 
-        info.features.forEach(feature => {
-            console.log(feature.version)
-            if(compareVersion(buildVersion, feature.version) > -1) return; //Feature is older than current version
+    changelog.versions.forEach(element => {
+        console.log(element.version)
+        if(compareVersion(buildVersion, element.version) >= 0) return; //Tested version is older than current version
 
-            featureCount ++;
-            output += `<li><b>${text(feature.name)}</b><p>${text(feature.description)}</p></li>`
+        element.changes.forEach(change => {
+            if(!features.has(change.id)) {
+                features.set(change.id, change);
+                return;
+            }
+
+            console.log(`Duplicate ${change.id} found`)
+            switch(change.type) {
+                case "fixed": 
+                    break;
+                case "improved":
+                    const value = features.get(change.id);
+                    value.description = mergeTextObjects([value.description, change.alt_description || change.description]);
+                    features.set(change.id, value);
+                    break;
+                case "discontinued":
+                    features.delete(change.id);
+                    break;
+            }
         });
+    });
 
-        output += `</ul>`;
+    for(const change of features.values()) {
+        output += `<li><b>${text(change.name)}</b><p>${text(change.description)}</p></li>`
     }
 
+    console.log(features)
+
+    output += `</ul>`;
+
     // Create Introduction Sentence
-    const intro = text({de:`Dieses Update enthält Fehlerbehebungen${featureCount < 1 ? `.` : featureCount == 1 ? ` und führt dieses neue Feature ein:` : ` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${featureCount < 1 ? `.` : featureCount == 1 ? ` and introduces this new feature:` : ` and introduces these new features:`}`});
+    const intro = text({de:`Dieses Update enthält Fehlerbehebungen${features.length < 1 ? `.` : features.length == 1 ? ` und führt dieses neue Feature ein:` : ` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${features.length < 1 ? `.` : features.length == 1 ? ` and introduces this new feature:` : ` and introduces these new features:`}`});
 
     // Create Description Display
     const description = document.createElement('span');
@@ -1389,6 +1431,18 @@ function handleUpdate(updateData) {
     wrapper.appendChild(guide);
 
     document.getElementById('settings').appendChild(wrapper);
+}
+
+function mergeTextObjects(objArray) {
+    const result = {};
+
+    for(const obj of objArray) {
+        for(const lang in obj) {
+            result[lang] = (result[lang] || '') +  obj[lang];
+        }
+    }
+    console.log(result)
+    return result;
 }
 
 function compareVersion(version1, version2) {

@@ -1,0 +1,33 @@
+{
+    "app": "Gradia",
+    "changelog_version": "1.0",
+    "versions": [
+        {
+            "version": "Version 1.1",
+            "release": "2025-01-11",
+            "changes": [
+                {
+                    "id": "UI_table-sort",
+                    "name": {"de": "Tabellen-Sortierung", "en": "Table Sort"},
+                    "description": {"de": "Die Tabellen können automatisch sortiert werden", "en": "Tables can be sorted automatically"},
+                    "tags": ["UI", "Tools"],
+                    "type": "new"
+                },
+                {
+                    "id": "DATA_deletion",
+                    "name": {"de": "Teilweise Datenlöschung", "en": "Partial Data Deletion"},
+                    "description": {"de": "Einstellungen oder Noten können unabhängig voneinander gelöscht werden", "en": "Settings and Grades can be deleted independently"},
+                    "tags": ["UI", "Data"],
+                    "type": "new"
+                },
+                {
+                    "id": "UI_update-history",
+                    "name": {"de": "Update-Historie", "en": "Update History"},
+                    "description": {"de": "Neue Features werden versionsübergreifend angezeigt", "en": "New Features are displayed across all versions"},
+                    "tags": ["UI", "Updates"],
+                    "type": "new"
+                }
+            ]
+        }
+    ]
+}
