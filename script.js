@@ -671,6 +671,9 @@ async function deleteData() {
         }
     }
 
+    changeLang(settings.lang);
+    changeMode(settings.darkmode);
+
     setLocalStorage(subjects, 'subjects');
     setLocalStorage(settings, 'settings');
     switchScene(key === 'settings' ? 'settings' : 'main');
@@ -1380,30 +1383,25 @@ function handleUpdate(changelog, updateVersion) {
     // Create Description Content
     const features = new Map();
 
-    changelog.versions.forEach(element => {
-        console.log(element.version)
-        if(compareVersion(buildVersion, element.version) >= 0) return; //Tested version is older than current version
+    const filteredVersions = changelog.versions.filter((element) => compareVersion(buildVersion, element.version) < 0 && compareVersion(element.version, updateVersion) <= 0); //only versions newer than current, but older or equal than updateVersion
 
-        element.changes.forEach(change => {
-            if(!features.has(change.id)) {
-                features.set(change.id, change);
-                return;
-            }
+    filteredVersions.flatMap(version => version.changes).forEach(change => {
+        if(!features.has(change.id)) {
+            features.set(change.id, change);
+            return;
+        }
 
-            console.log(`Duplicate ${change.id} found`)
-            switch(change.type) {
-                case "fixed": 
-                    break;
-                case "improved":
-                    const value = features.get(change.id);
-                    value.description = mergeTextObjects([value.description, change.alt_description || change.description]);
-                    features.set(change.id, value);
-                    break;
-                case "discontinued":
-                    features.delete(change.id);
-                    break;
-            }
-        });
+        console.log(`Duplicate ${change.id} found`)
+        switch(change.type) {
+            case "fixed": 
+                break;
+            case "improved":
+                features.get(change.id).description = mergeTextObjects([features.get(change.id).description, change.alt_description || change.description]);
+                break;
+            case "discontinued":
+                features.delete(change.id);
+                break;
+        }
     });
 
     for(const change of features.values()) {
@@ -1415,7 +1413,7 @@ function handleUpdate(changelog, updateVersion) {
     output += `</ul>`;
 
     // Create Introduction Sentence
-    const intro = text({de:`Dieses Update enthält Fehlerbehebungen${features.length < 1 ? `.` : features.length == 1 ? ` und führt dieses neue Feature ein:` : ` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${features.length < 1 ? `.` : features.length == 1 ? ` and introduces this new feature:` : ` and introduces these new features:`}`});
+    const intro = text({de:`Dieses Update enthält Fehlerbehebungen${features.size < 1 ? `.` : features.size == 1 ? ` und führt dieses neue Feature ein:` : ` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${features.size < 1 ? `.` : features.size == 1 ? ` and introduces this new feature:` : ` and introduces these new features:`}`});
 
     // Create Description Display
     const description = document.createElement('span');
