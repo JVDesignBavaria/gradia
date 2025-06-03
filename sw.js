@@ -8,12 +8,18 @@ const INFO = {
         {name:{de:"Update-Historie", en:"Update History"}, description:{de:"Neue Features werden versionsübergreifend angezeigt", en:"New Features are displayed across all versions"}, version: '1.1'},
         {name:{de:`Teilweise Datenlöschung`, en:`Partial Data Deletion`}, description:{de:`Einstellungen oder Noten können unabhängig voneinander gelöscht werden`, en:`Settings and Grades can be deleted independently`}, version: '1.1'},
     ],
-    release: new Date('2024-11-22')
+    release: new Date('2025-06-08')
 };
 
 async function resourcesToCache(resources) {
     const cache = await caches.open(CACHE_NAME);
-    await cache.addAll(resources);
+    
+    // Fetch all resources with `cache: "reload"` and store them in cache
+    await Promise.all(resources.map(async (resource) => {
+        const response = await fetch(resource, { cache: "reload" }); //Force fresh network fetch
+        if (!response.ok) throw new Error(`Failed to fetch ${resource}: ${response.statusText}`);
+        await cache.put(resource, response.clone());
+    }));
 }
 
 self.addEventListener('install', (event) => {
@@ -23,8 +29,7 @@ self.addEventListener('install', (event) => {
             'style.css',
             'script.js',
             'background.jpg',
-            //'/favicon.ico',
-            'changelog.json'
+            //'/favicon.ico'
         ])
     )
     self.skipWaiting();
@@ -60,7 +65,7 @@ async function cacheFirst(request) {
     const responseFromCache = await caches.match(request);
     if(responseFromCache) return responseFromCache;
 
-    const responseFromNetwork = await fetch(request);
+    const responseFromNetwork = await fetch(request, {cache: "reload"});
 
     const cache = await caches.open(CACHE_NAME);
     await cache.put(request, responseFromNetwork.clone());
