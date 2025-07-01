@@ -1,4 +1,7 @@
-const buildVersion = 'Version 1.1'
+const buildVersion = 'Version 1.1';
+
+import * as DataManager from 'datamanager';
+import { generateRecoveryKey } from 'cryptojs';
 
 let subjects = {
     version: buildVersion,
@@ -109,7 +112,7 @@ function addSession(name) {
     subjects.sessions.push({ name: cleared, grades: [] })
     activeSession = cleared;
     settings.activeSession = activeSession;
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('settings', settings);
     document.getElementById('sessionLink').textContent = '< ' + cleared;
     loadSession();
     return true;
@@ -210,7 +213,7 @@ function sortButton(scope, mode, order) {
             break;
     }
     
-    setLocalStorage(subjects, 'subjects');
+    DataManager.storage.set('subjects', subjects);
 }
 
 function sortIcon(mode, order) {
@@ -230,7 +233,18 @@ async function sortMenu() {
     const dialog = document.getElementById('sortDialog');
     const messageSpan = document.getElementById('sortMessage');
     messageSpan.innerHTML = text({de:`Wie soll die Tabelle sortiert werden?`, en:`How should the table be sorted?`});
-    if(scene === 'sessions' && (sortData = subjects.sorted) || scene === 'main' && (sortData = subjects.sessions.find(element => element.name === activeSession).sorted)) {
+    
+    let sortData = null;
+
+    if (scene === 'sessions') {
+        sortData = subjects.sorted;
+    } 
+    else if (scene === 'main') {
+        const session = subjects.sessions.find(el => el.name === activeSession);
+        if (session) sortData = session.sorted;
+    }
+
+    if (sortData) {
         document.getElementById('sortMode').value = sortData.mode;
         document.getElementById('sortOrder').value = sortData.order;
     }
@@ -557,7 +571,7 @@ function save() {
             if(addSession(newSessName)) {
                 activeSession = deleteSpaces(newSessName);
                 settings.activeSession = activeSession;
-                setLocalStorage(settings, 'settings');
+                DataManager.storage.set('settings', settings);
             }
             break;
         case 'editGrade':
@@ -625,7 +639,7 @@ function save() {
         default:
             break;
     }
-    setLocalStorage(subjects, 'subjects');
+    DataManager.storage.set('subjects', subjects);
     switchScene('main');
     clearInputs();
 }
@@ -646,10 +660,17 @@ function deleteSpaces(str) {
 }
 
 async function deleteData() {
-    let key = await selectDialog();
+    const message = {de:`Welche Daten sollen gelöscht werden?`, en:`What data should be deleted?`};
+    const options = [ 
+        {value: 'settings', content: text({de:'Einstellungen', en:'Settings'})},
+        {value: 'subjects', content: text({de:'Noten', en:'Grades'})},
+        {value: 'all', content: text({de:'Alle', en:'All'})},
+    ];
+
+    let key = await selectDialog(message, options);
     if(!key) return;
     if(!(await getConfirm(text({de:`Alle ${key === 'settings' ? 'Einstellungen' : key === 'subjects' ? 'Noten' : 'gespeicherten Daten'} löschen?`, en:`Delete all ${key === 'settings' ? 'settings' : key === 'subjects' ? 'grades' : 'saved data'}?`})))) return;
-    deleteLocalStorage(key === 'all' ? 'subjects' : key);
+    DataManager.storage.remove(key === 'all' ? 'subjects' : key);
 
     if(key === 'subjects' || key === 'all') {
         subjects = {
@@ -674,17 +695,12 @@ async function deleteData() {
     changeLang(settings.lang);
     changeMode(settings.darkmode);
 
-    setLocalStorage(subjects, 'subjects');
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('subjects', subjects);
+    DataManager.storage.set('settings', settings);
     switchScene(key === 'settings' ? 'settings' : 'main');
 }
 
-async function selectDialog() {
-    const options = [ 
-        {value: 'settings', content: text({de:'Einstellungen', en:'Settings'})},
-        {value: 'subjects', content: text({de:'Noten', en:'Grades'})},
-        {value: 'all', content: text({de:'Alle', en:'All'})},
-    ]
+async function selectDialog(message, options) {
     const select = document.getElementById('dialogSelect');
     select.innerHTML = '';
     options.forEach(option => {
@@ -695,7 +711,7 @@ async function selectDialog() {
     });
     const dialog = document.getElementById('selectDialog');
     const messageSpan = document.getElementById('selectMessage');
-    messageSpan.innerHTML = text({de:`Welche Daten sollen gelöscht werden?`, en:`What data should be deleted?`});
+    messageSpan.innerHTML = text(message);
 
     const response = await selectPromise(dialog);
     return response;
@@ -863,7 +879,7 @@ function switchScene(target) {
             scene = 'sessions';
             activeSession = undefined;
             settings.activeSession = undefined;
-            setLocalStorage(settings, 'settings');
+            DataManager.storage.set('settings', settings);
             break;
         case 'editGrade':
             scene = 'editGrade';
@@ -898,7 +914,7 @@ function switchScene(target) {
 }
 
 function setSubjectList() {
-    dataList = document.getElementById('subjects');
+    const dataList = document.getElementById('subjects');
     dataList.innerHTML = '';
     subjects.sessions.find(session => session.name == activeSession).grades.forEach(subject => {
         const option = document.createElement('option');
@@ -951,7 +967,7 @@ function saveSettings() {
 
     changeMode(settings.darkmode);
 
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('settings', settings);
 }
 
 function changeMode(mode) {
@@ -1074,153 +1090,35 @@ function dialogPromise(dialog) {
 
 
 
-function setLocalStorage(value, key) {
-    if (typeof(Storage) !== "undefined") {
-        // Retrieve the array from localStorage
-        var gradiaArray = JSON.parse(localStorage.getItem('gradia')) || [];
 
-        gradiaArray = gradiaArray.filter(item => item.key !== key);
 
-        // Push new value with key into the array
-        gradiaArray.push({ key: key, value: value });
 
-        // Convert the updated array back into a string and set it in localStorage
-        localStorage.setItem('gradia', JSON.stringify(gradiaArray));
-    } else {
-        console.log("Sorry, your browser does not support Web Storage...");
-    }
-}
+async function downloadMenu() {
+    const message = {de:`Welches Datei-Format soll genutzt werden?`, en:`Which data-format should be used?`};
+    const options = [ 
+        {value: 'gradia-grd', content: text({de:'.grd - Maximale Kompatibilität', en:'.grd - Maximum Compatibility'})},
+        {value: 'gradia-grde', content: text({de:'.grde - Maximale Sicherheit', en:'.grde - Maximum Security'})},
+    ]
 
-function deleteLocalStorage(key) {
-    var gradiaArray = JSON.parse(localStorage.getItem('gradia')) || [];
+    let password = null;
+    const recoveryKey = await generateRecoveryKey();
 
-    gradiaArray = gradiaArray.filter(item => item.key !== key);
+    const format = await selectDialog(message, options);
+    const formatConfig = DataManager.file.formats[format];
+    if(!formatConfig) throw new Error('Not a valid file format');
+    if(formatConfig.encrypted) password = prompt("What password should be used to encrypt this file?");
+    console.log(recoveryKey)
 
-    localStorage.setItem('gradia', JSON.stringify(gradiaArray));
-}
+    const encryptParameters = {password, recoveryKey}
 
-function getLocalStorageValue(key) {
-    if (typeof(Storage) !== "undefined") {
-        // Retrieve the gradia array from localStorage
-        const gradiaArray = JSON.parse(localStorage.getItem('gradia')) || [];
-
-        // Find the item with the given key in the gradia array
-        const item = gradiaArray.find(item => item.key === key);
-
-        if (item) {
-            // Return the value associated with the given key
-            return item.value;
-        } else {
-            console.log(`No value found for key '${key}' in the gradia localstorage.`);
-            return null;
-        }
-    } else {
-        console.log("Sorry, your browser does not support Web Storage...");
-        return null;
-    }
-}
-
-function checkLocalStorage() {
-    if(localStorage.getItem('gradia') !== null) return true;
-
-    setLocalStorage([], 'gradia');
-    setLocalStorage({
-        version: buildVersion,
-        sessions: []
-    },'subjects');
-    setLocalStorage(settings, 'settings');
+    DataManager.file.export({data: subjects, format, encryptParameters})
+    
+    switchScene('main');
 }
 
 
 
 
-function downloadTxtFile(array, fileName) {
-    // Convert array elements to strings and join them with newline characters
-    const text = JSON.stringify(array);
-
-    // Create a Blob object
-    const blob = new Blob([text], { type: 'text/plain' });
-
-    // Create a link element
-    const link = document.createElement('a');
-
-    // Set link's attributes
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-
-    // Append link to the body
-    document.body.appendChild(link);
-
-    // Trigger a click event on the link
-    link.click();
-
-    // Cleanup: remove the link
-    document.body.removeChild(link);
-}
-
-
-
-
-
-
-
-
-function setCookie(value) {
-    // Serialize the value to a JSON string
-    const jsonString = JSON.stringify(value);
-
-    // Calculate the expiration date
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 30);
-
-    // Convert the JSON string to a URI-encoded string
-    const encodedValue = encodeURIComponent(jsonString);
-
-    // Create the cookie string
-    const cookieString = `subjects=${encodedValue}; expires=${expirationDate.toUTCString()}; path=/`;
-
-    // Set the cookie
-    document.cookie = cookieString;
-}
-
-function getCookieValue(cookieName) {
-    const cookies = document.cookie.split('; ');
-
-    for (const cookie of cookies) {
-        const [name, value] = cookie.split('=');
-
-        if (name === cookieName) {
-            // Decode the cookie value
-            const decodedValue = decodeURIComponent(value);
-
-            // Check if the value is JSON encoded
-            try {
-                const parsedValue = JSON.parse(decodedValue);
-                return parsedValue; // Return the parsed array
-            } catch (error) {
-                // If JSON parsing fails, return the decoded value as is
-                return decodedValue;
-            }
-        }
-    }
-
-    return null; // Cookie not found
-}
-
-
-
-function checkCookie() {
-    const cookies = document.cookie.split('; ');
-
-    for (const cookie of cookies) {
-        const [name, value] = cookie.split('=');
-        if (name === 'subjects') {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 function appChannel(type, message, purpose, identifier) {
     const channel = new BroadcastChannel('app_channel');
@@ -1274,7 +1172,7 @@ async function showDownloadMessage() {
     if(result) settings.seenDownloadMessage = new Date();
     else settings.seenDownloadMessage = true;
     
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('settings', settings);
 }
 
 async function getDownloadResult(message) {
@@ -1288,7 +1186,7 @@ async function getDownloadResult(message) {
 
 function seenStoragePolicy() {
     settings.seenStoragePolicy = true;
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('settings', settings);
     document.getElementById('infoConfirm').onclick = '';
 }
 
@@ -1543,8 +1441,10 @@ async function sendLogData(logType) {
 
 
 //----- CALLED ON EVERY LOAD -----//
-
+window.DataManager = DataManager;
 window.onload = () => {
+    initStorage();
+    initFileEngine();
     init();
 };
 
@@ -1562,6 +1462,24 @@ function init() {
             }
         })
     });
+
+    document.querySelectorAll('.options-icon').forEach(element => {
+        element.addEventListener('click', toggleEditing);
+    });
+
+    document.getElementById('sessionLink').addEventListener('click', () => switchScene('sessions'))
+
+    document.getElementById('sortIcon').addEventListener('click', sortMenu);
+
+    document.querySelectorAll('.nav > div > i').forEach(element => {
+        element.addEventListener('click', (e) => {
+            switchScene(e.currentTarget.dataset.scene);
+        })
+    })
+
+    document.getElementById('downloadButton').addEventListener('click', downloadMenu);
+
+    document.getElementById('deleteButton').addEventListener('click', deleteData);
 
     document.getElementById('table').addEventListener('click', async function(e) {
         const target = e.target.closest('tr');
@@ -1637,7 +1555,7 @@ function init() {
 
             if(!(await getConfirm(`Really delete?`))) return;
             dir.splice(subjectsIndex, 1)
-            setLocalStorage(subjects, 'subjects');
+            DataManager.storage.set('subjects', subjects);
             toggleEditing();
             if(scene == 'sessions') {
                 loadSession();
@@ -1649,7 +1567,7 @@ function init() {
             if(target.className.includes('sessionTR') && !(target.id == 'total')) {
                 activeSession = target.id;
                 settings.activeSession = activeSession;
-                setLocalStorage(settings, 'settings');
+                DataManager.storage.set('settings', settings);
                 document.getElementById('sessionLink').textContent = '< ' + activeSession;
                 switchScene('main');
             }
@@ -1696,31 +1614,60 @@ function init() {
 
     document.getElementById('fileInput').addEventListener('change', function(event) {
         const file = event.target.files[0];
-        const reader = new FileReader();
-    
-        reader.onload = function(e) {
-            const fileContent = e.target.result;
-            // Split the file content into an array (assuming each line is an element)
-            const dataArray = fileContent.split('\n');
-            
-            // Process the array or do something with the data
-            subjects = JSON.parse(dataArray);
-            if(Array.isArray(subjects)) {
-                subjects = {
-                    version: buildVersion,
-                    sessions: subjects
-                }
-            }
+        if(!file) return;
 
-            setLocalStorage(subjects, 'subjects');
-            activeSession = undefined;
-            switchScene('main'); //no active session: switches to sessions automatically
+        const fileExtension = file.name.split('.').slice(-1)[0];
 
-            document.getElementById('fileInput').value = '';
-        };
-    
-        reader.readAsText(file);
+        // Find the format key matching the extension and if encrypted
+        const formatEntry = Object.values(DataManager.file.formats).find(format => format.extension === fileExtension);
+
+        if (formatEntry && formatEntry.encrypted) {
+            //document.getElementById('fileAccessKey').value = '';
+            //document.documentElement.style.setProperty('--fileAccessDisplay', 'block');
+            handleFile(prompt("Enter your access key"));
+        } 
+        else {
+            //document.documentElement.style.setProperty('--fileAccessDisplay', 'none');
+            handleFile();
+        }
     });
+
+    async function handleFile(accessKey) {
+        const file = document.getElementById('fileInput').files[0];
+
+        //const accessKey = document.getElementById('fileAccessKey')?.value; //normally - changed to parameter input until dialog UI refactor
+        DataManager.file.import(file, accessKey)
+            .then((result) =>{
+                subjects = JSON.parse(result);
+
+                DataManager.storage.set('subjects', subjects);
+                activeSession = undefined;
+                switchScene('main'); //no active session: switches to sessions automatically
+            })
+            .catch(error => {
+                switch(error.code) {
+                    case 'NO_KEY':
+                        alert('You need to input your password or recovery key');
+                        break;
+                    case 'INVALID_FILE_STRUCTURE':
+                        alert(`The uploaded file's file structure is invalid.`);
+                        break;
+                    case 'DEK_DECRYPTION_ERROR':
+                        alert('The provided key is invalid');
+                        break;
+                    case 'DECRYPTION_ERROR':
+                        alert('The decryption failed');
+                        break;
+                    case 'BAD_HMAC':
+                        alert('The file decryption failed, because the content seems to be altered or corrupted.');
+                        break;
+                    default:
+                        alert(error.message);
+                }
+            });
+            
+        document.getElementById('fileInput').value = '';
+    }
 
     const app_channel = new BroadcastChannel('app_channel');
     app_channel.onmessage = (event) => {
@@ -1730,7 +1677,7 @@ function init() {
             broadcastID.splice(identifier, 1);
             console.log(data);
             settings = data.message;
-            setLocalStorage(settings, 'settings');
+            DataManager.storage.set('settings', settings);
             loadSession();
         }
         if(data.from === 'gradia' && data.type === 'request' && data.message === 'settings' && identifier < 0) {
@@ -1743,11 +1690,6 @@ function init() {
             })
         }
     }
-    const knownUser = checkLocalStorage();
-    if(knownUser) {
-        subjects = getLocalStorageValue('subjects');
-        settings = getLocalStorageValue('settings');
-    }
 
     //Convert subjects Array to object
     if(Array.isArray(subjects)) {
@@ -1755,7 +1697,7 @@ function init() {
             version: buildVersion,
             sessions: subjects
         }
-        setLocalStorage(subjects, 'subjects');
+        DataManager.storage.set('subjects', subjects);
     }
 
     if(!settings.lang) {
@@ -1797,13 +1739,66 @@ function init() {
     if(!settings.seenStoragePolicy) {
         showStoragePolicy();
     }
-    if(!knownUser) {
-        if(navigator.standalone) sendLogData('standalone');
-        else if(!isCrawler()) sendLogData('new_user');
-    }
+    
     showDownloadMessage();
 
     if(!settings.offline) registerSW();
+}
+
+function initStorage() {
+    DataManager.storage.prefix = 'gradia';
+
+    // Set templates for storage values
+    DataManager.storage.templates = {
+        subjects: {
+            version: undefined,
+            sessions: []
+        },
+        settings: {
+            lang: undefined,
+            examName: 'Schulaufgaben',
+            showMultiplier: false,
+            darkmode: true,
+            activeSession: undefined,
+            seenDownloadMessage: false,
+            offline: false,
+            seenStoragePolicy: false
+        }
+    }
+    
+    // Set keys that should be automatically set on storage initialization based on their template
+    DataManager.storage.defaults = ['subjects', 'settings'];
+
+    const initData = DataManager.storage.init();
+    console.log(initData)
+
+    if(!initData.isNewUser) {
+        subjects = {...initData.content.subjects};
+        settings = {...initData.content.settings};
+    }
+    else {
+        if(navigator.standalone) sendLogData('standalone');
+        else if(!isCrawler()) sendLogData('new_user');
+    }
+}
+
+function initFileEngine() {
+    DataManager.file.formats = {
+        'gradia-grd': {
+            encrypted: false,
+            extension: 'grd',
+            fileName: 'gradia_save',
+            minVersion: 'Version 1.0',
+            currVersion: 'Version 1.0'
+        },
+        'gradia-grde': {
+            encrypted: true,
+            extension: 'grde',
+            fileName: 'gradia_save',
+            minVersion: 'Version 1.0',
+            currVersion: 'Version 1.0'
+        }
+    }
 }
 
 window.onerror = function(message, source, lineno, colno, error) {
@@ -1814,7 +1809,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             version: buildVersion,
             sessions: []
         }
-        setLocalStorage(subjects, 'subjects');
+        DataManager.storage.set('subjects', subjects);
     }
     // Return true to prevent the default browser error alert (optional)
     return false;

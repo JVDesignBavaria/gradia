@@ -10,6 +10,7 @@
     <title>Gradia</title>
     <link rel="apple-touch-icon" href="app_icon.png">
     <link rel="apple-touch-startup-image" href="app_icon.png">
+    <link rel="stylesheet" href="style.css">
 
     <style>
         #loading-screen {
@@ -34,7 +35,17 @@
             paint-order:fill markers stroke;
         }
     </style>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "datamanager": "./modules/datamanager.js",
+                "cryptojs": "./modules/crypto.js"
+            }
+        }
+    </script>
     
+    <script type="module" src="script.js"></script>
 </head>
 <body>
     <div id="loading-screen">
@@ -42,7 +53,7 @@
             <path d="M 11.958917,0.04026482 A 12,12 0 0 0 0.040782,10.665456 h 2.778642 a 9.25,9.25 0 0 1 9.139493,-7.8749715 9.25,9.25 0 0 1 1.37511,0.1085205 V 0.12243035 a 12,12 0 0 0 -1.37511,-0.08216553 z m 1.37511,10.62519118 v 2.749703 h 7.772136 a 9.25,9.25 0 0 1 -7.772136,7.766451 v 2.778125 A 12,12 0 0 0 23.959218,12.040049 12,12 0 0 0 23.877053,10.665456 H 21.105646 Z M 0.041299,13.415159 A 12,12 0 0 0 10.584324,23.959735 V 13.415159 Z" />
         </svg>
     </div>
-    <div class="background" defer></div>
+    <div class="background"></div>
     <main>
         <dialog id="downloadDialog">
             <form method="dialog">
@@ -116,14 +127,14 @@
         
         <nav id="top-controls">
             <div id="toolDiv">
-                <div class="transparent" onClick="toggleEditing()">
+                <div class="transparent">
                     <i class="options-icon"></i>
                 </div>
-                <div onClick="sortMenu()">
+                <div>
                     <i class="alphabet-asc-icon"  id="sortIcon"></i>
                 </div>
             </div>
-            <span id="sessionLink" onclick="switchScene('sessions')"></span>
+            <span id="sessionLink"></span>
         </nav>
 
         <table id="table">
@@ -168,21 +179,17 @@
                 </label>
             </div>
             <div class="labelBox">
-                <div class="innerLabelBox"><input type="button" onClick="downloadTxtFile(subjects, 'gradia_save')" id="downloadButton" value="Daten herunterladen"/><label for="downloadButton">Datei herunterladen</label></div>
-                <div class="innerLabelBox"><input type="file" id="fileInput" accept=".txt,.json,.js"><label for="fileInput">Datei hochladen</label></div>
-                <div class="innerLabelBox"><input type="button" onClick="deleteData()" id="deleteButton" value="Alle Daten löschen"/><label for="deleteButton">Daten löschen</label></div>
+                <div class="innerLabelBox"><input type="button" id="downloadButton" value="Daten herunterladen"/><label for="downloadButton">Datei herunterladen</label></div>
+                <div class="innerLabelBox"><input type="file" id="fileInput" accept=".grd, .grde"><label for="fileInput">Datei hochladen</label></div>
+                <div class="innerLabelBox"><input type="button" id="deleteButton" value="Alle Daten löschen"/><label for="deleteButton">Daten löschen</label></div>
             </div>
             <span id="buildVersion"></span>
         </div>
     </main>
     <nav class="nav bottom">
-        <div class="smalluibutton"><i data-size = '100%' class="home-icon" onClick="switchScene('main')"></i></div>
-        <div id="centerbutton" class="uibutton"><i id="centerbuttonicon" data-size = '100%' data-color = "#fff" class="plus-icon" onClick="switchScene('add')"></i></div>
-        <div class="smalluibutton"><i data-size = '100%' class="settings-icon" onClick="switchScene('settings')"></i></div>
+        <div class="smalluibutton"><i data-size = '100%' class="home-icon" data-scene = "main"></i></div>
+        <div id="centerbutton" class="uibutton"><i id="centerbuttonicon" data-size = '100%' data-color = "#fff" class="plus-icon" data-scene = "add"></i></div>
+        <div class="smalluibutton"><i data-size = '100%' class="settings-icon" data-scene = "settings"></i></div>
     </nav>
 </body>
-<footer>
-    <script src="script.js"></script>
-    <link rel="stylesheet" href="style.css">
-</footer>
 </html>
