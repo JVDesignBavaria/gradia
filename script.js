@@ -277,7 +277,7 @@ function sortPromise(dialog) {
 function loadSubjects() {
     const target = subjects.sessions.find(element => element.name === activeSession);
 
-    if(!(subjects.sessions.find(element => element.name === activeSession).grades.length > 0)) {
+    if(!(subjects.sessions.find(element => element.name === activeSession)?.grades.length > 0)) {
         emptyTable(document.getElementById('table'));
         let newTR = document.createElement('tr');
         newTR.id = 'emptyTable';
@@ -675,8 +675,11 @@ async function deleteData() {
     if(key === 'subjects' || key === 'all') {
         subjects = {
             version: buildVersion,
-            sessions: subjects
+            sessions: []
         }
+
+        activeSession = undefined;
+        settings.activeSession = undefined;
     }
 
     if(key === 'settings' || key === 'all') {
@@ -855,7 +858,7 @@ function switchScene(target) {
             document.getElementById('centerbuttonicon').className = 'plus-icon';
             document.getElementById('sessionLink').style.display = 'block';
             document.getElementById('settings').style.display = 'none';
-            if(activeSession == undefined) {
+            if(!activeSession) {
                 switchScene('sessions');
                 break;
             }
@@ -1665,7 +1668,7 @@ function init() {
                         alert(error.message);
                 }
             });
-            
+
         document.getElementById('fileInput').value = '';
     }
 
