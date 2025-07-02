@@ -148,7 +148,7 @@ function addGrade(subjectName, grade, weight, description) {
 }
 
 function searchArray(array) {
-    for(i = 0; i < array.length; i ++) {
+    for(let i = 0; i < array.length; i ++) {
         if(Array.isArray(array[i])) return i;
     }
     return;
@@ -489,12 +489,12 @@ function emptyTable(el) {
 
 function toggleAll(elements) {
     if (getComputedStyle(elements[0]).display === 'none') {
-        for (var i = 0; i < elements.length; i++) {
+        for (let i = 0; i < elements.length; i++) {
             elements[i].style.display = 'flex';
         }
     }
     else {
-        for (var i = 0; i < elements.length; i++) {
+        for (let i = 0; i < elements.length; i++) {
             elements[i].style.display = 'none';
         }
     }
@@ -1575,12 +1575,12 @@ function init() {
                 switchScene('main');
             }
             else {
-                var id = target.id;
-                var elements = document.getElementsByClassName(id);
+                let id = target.id;
+                let elements = document.getElementsByClassName(id);
                 if(!(elements.length == 0)) {
                     toggleAll(elements);
                     if(!(/.*\d$/.test(id))) { //false if digit on last position
-                        for (var i = 0; i < elements.length; i++) {
+                        for (let i = 0; i < elements.length; i++) {
                             let className = elements[i].className;
                             if (className.includes('inExam')) elements[i].style.display = 'none';
                         };
