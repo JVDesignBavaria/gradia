@@ -6,7 +6,7 @@ import { updateStore } from './modules/idbUpdateStore.js';
 
 let subjects = {
     version: buildVersion,
-    sessions: []
+    semesters: []
 }
 
 let settings = {
@@ -14,7 +14,7 @@ let settings = {
     examName: 'Schulaufgaben',
     showMultiplier: false,
     darkmode: true,
-    activeSession: undefined,
+    activeSemester: undefined,
     seenDownloadMessage: false,
     offline: false,
     seenStoragePolicy: false
@@ -50,7 +50,7 @@ const iconPaths = {
 }
 
 let scene;
-let activeSession;
+let activeSemester;
 let editing = false;
 
 function replaceIcons() {
@@ -100,31 +100,31 @@ function replaceIcons() {
 } 
 
 function addSubject(name) {
-    subjects.sessions.find(element => element.name === activeSession).grades.push({name, grades: []});
+    subjects.semesters.find(element => element.name === activeSemester).grades.push({name, grades: []});
 }
 
-function addSession(name) {
+function addSemester(name) {
     const cleared = deleteSpaces(name);
-    if(!cleared || subjects.sessions.find(element => element.name === cleared)) {
+    if(!cleared || subjects.semesters.find(element => element.name === cleared)) {
         showMessage(text({de:`Dieser Name ist nicht gültig`, en:`This name isn't valid`}));
         return false;
     }
-    subjects.sessions.push({ name: cleared, grades: [] })
-    activeSession = cleared;
-    settings.activeSession = activeSession;
+    subjects.semesters.push({ name: cleared, grades: [] })
+    activeSemester = cleared;
+    settings.activeSemester = activeSemester;
     DataManager.storage.set('settings', settings);
-    document.getElementById('sessionLink').textContent = '< ' + cleared;
-    loadSession();
+    document.getElementById('semesterLink').textContent = '< ' + cleared;
+    loadsemester();
     return true;
 }
 
 function addGrade(subjectName, grade, weight, description) {
-    if(activeSession == undefined) {
-        let newSession = prompt(text({de:`Geben Sie einen Namen für das Schuljahr ein, für das die Note eingetragen werden soll`, en:`Enter a name for the school year this grade belongs to`}));
-        addSession(newSession);
+    if(activeSemester == undefined) {
+        let newsemester = prompt(text({de:`Geben Sie einen Namen für das Schuljahr ein, für das die Note eingetragen werden soll`, en:`Enter a name for the school year this grade belongs to`}));
+        addSemester(newsemester);
     }
 
-    let subject = subjects.sessions.find(element => element.name === activeSession).grades.find(subject => subject.name === subjectName);
+    let subject = subjects.semesters.find(element => element.name === activeSemester).grades.find(subject => subject.name === subjectName);
 
     if (subject) {
         if (document.getElementById('schulaufgabe').checked) {
@@ -206,27 +206,27 @@ function sortArray(array, mode, order) {
 }
 
 function refreshAverages() {
-    for (const session of subjects.sessions) {
+    for (const semester of subjects.semesters) {
         const avgArray = [];
-        for (const subject of session.grades) {
+        for (const subject of semester.grades) {
             subject.avg = parseFloat(calculateAvg(subject.grades, subject.examWeight)) || 0;
             avgArray.push(subject.avg);
         }
-        session.avg = calculateAvgFromArray(avgArray);
+        semester.avg = calculateAvgFromArray(avgArray);
     }
 }
 
 function refreshSort() {
     // Sort all lists individually
-    for (const session of subjects.sessions) {
-        if (session.sorted) {
-            session.grades = sortArray(session.grades, session.sorted.mode, session.sorted.order);
+    for (const semester of subjects.semesters) {
+        if (semester.sorted) {
+            semester.grades = sortArray(semester.grades, semester.sorted.mode, semester.sorted.order);
         }
     }
 
-    // Sort the sessions list globally, if a top-level sort is defined
+    // Sort the semesters list globally, if a top-level sort is defined
     if (subjects.sorted) {
-        subjects.sessions = sortArray(subjects.sessions, subjects.sorted.mode, subjects.sorted.order);
+        subjects.semesters = sortArray(subjects.semesters, subjects.sorted.mode, subjects.sorted.order);
     }
 
     DataManager.storage.set('subjects', subjects);
@@ -235,19 +235,19 @@ function refreshSort() {
 function sortButton(scope, mode, order) {
     let path;
     switch(scope) {
-        case 'sessions':
-            path = subjects.sessions;
+        case 'semesters':
+            path = subjects.semesters;
             sortArray(path, mode, order);
 
             subjects.sorted = {mode, order};;
 
-            loadSession();
+            loadsemester();
             break;
         case 'main':
-            path = subjects.sessions.find(element => element.name === activeSession).grades;
+            path = subjects.semesters.find(element => element.name === activeSemester).grades;
             sortArray(path, mode, order);
 
-            subjects.sessions.find(element => element.name === activeSession).sorted = {mode, order};
+            subjects.semesters.find(element => element.name === activeSemester).sorted = {mode, order};
 
             loadSubjects();
             break;
@@ -276,12 +276,12 @@ async function sortMenu() {
     
     let sortData = null;
 
-    if (scene === 'sessions') {
+    if (scene === 'semesters') {
         sortData = subjects.sorted;
     } 
     else if (scene === 'main') {
-        const session = subjects.sessions.find(el => el.name === activeSession);
-        if (session) sortData = session.sorted;
+        const semester = subjects.semesters.find(el => el.name === activeSemester);
+        if (semester) sortData = semester.sorted;
     }
 
     if (sortData) {
@@ -315,9 +315,9 @@ function sortPromise(dialog) {
 
 
 function loadSubjects() {
-    const target = subjects.sessions.find(element => element.name === activeSession);
+    const target = subjects.semesters.find(element => element.name === activeSemester);
 
-    if(!(subjects.sessions.find(element => element.name === activeSession)?.grades.length > 0)) {
+    if(!(subjects.semesters.find(element => element.name === activeSemester)?.grades.length > 0)) {
         emptyTable(document.getElementById('table'));
         let newTR = document.createElement('tr');
         newTR.id = 'emptyTable';
@@ -334,11 +334,11 @@ function loadSubjects() {
     sortIcon(target.sorted?.mode, target.sorted?.order);
 
     let avg = [];
-    subjects.sessions.find(element => element.name === activeSession).grades.forEach(subject => {
+    subjects.semesters.find(element => element.name === activeSemester).grades.forEach(subject => {
         let newTR = document.createElement('tr');
-        newTR.dataset.session = activeSession;
+        newTR.dataset.semester = activeSemester;
         newTR.dataset.name = subject.name;
-        newTR.id = activeSession + subject.name;
+        newTR.id = activeSemester + subject.name;
         newTR.className = 'subjTR';
         document.getElementById('table').appendChild(newTR);
 
@@ -360,46 +360,46 @@ function loadSubjects() {
         newSubj.textContent = subject.name;
         newSubjDiv.appendChild(toolDiv);
         newSubjDiv.appendChild(newSubj);
-        document.getElementById(activeSession + subject.name).appendChild(newSubjDiv);
+        document.getElementById(activeSemester + subject.name).appendChild(newSubjDiv);
 
         let calcAvg = calculateAvg(subject.grades, subject.examWeight);
         if(parseFloat(calcAvg)) {
             let newAvg = document.createElement('td');
             newAvg.textContent = calcAvg;
             avg.push(parseFloat(calcAvg));
-            document.getElementById(activeSession + subject.name).appendChild(newAvg);
+            document.getElementById(activeSemester + subject.name).appendChild(newAvg);
         }
 
         let count = -1;
         subject.grades.forEach(gradesArray => {
             count ++;
             let newTr = document.createElement('tr');
-            newTr.dataset.session = activeSession;
+            newTr.dataset.semester = activeSemester;
             newTr.dataset.name = subject.name;
             newTr.dataset.count = count;
-            newTr.id = activeSession + subject.name + count;
-            newTr.classList = activeSession + subject.name + ' hiddenTr';
+            newTr.id = activeSemester + subject.name + count;
+            newTr.classList = activeSemester + subject.name + ' hiddenTr';
             document.getElementById('table').appendChild(newTr);
 
             if (Array.isArray(gradesArray)) {
                 let newTd = document.createElement('td');
                 newTd.textContent = settings.examName;
-                document.getElementById(activeSession + subject.name + count).appendChild(newTd);
+                document.getElementById(activeSemester + subject.name + count).appendChild(newTd);
 
                 newTd = document.createElement('td');
                 newTd.textContent = calculateAvg(gradesArray, 1);
-                document.getElementById(activeSession + subject.name + count).appendChild(newTd);
+                document.getElementById(activeSemester + subject.name + count).appendChild(newTd);
 
                 let count2 = -1;
                 gradesArray.forEach(element => {
                     count2 ++;
                     let newTr = document.createElement('tr');
-                    newTr.dataset.session = activeSession;
+                    newTr.dataset.semester = activeSemester;
                     newTr.dataset.name = subject.name;
                     newTr.dataset.count = count;
                     newTr.dataset.innerCount = count2;
-                    newTr.id = activeSession + subject.name + count + count2;
-                    newTr.classList = activeSession + subject.name + ' ' + activeSession + subject.name + count + ' hiddenTr' + ' inExam';
+                    newTr.id = activeSemester + subject.name + count + count2;
+                    newTr.classList = activeSemester + subject.name + ' ' + activeSemester + subject.name + count + ' hiddenTr' + ' inExam';
                     document.getElementById('table').appendChild(newTr);
 
                     let newGrdDiv = document.createElement('div');
@@ -419,7 +419,7 @@ function loadSubjects() {
                     newGrd.textContent = element.description;
                     newGrdDiv.appendChild(toolDiv);
                     newGrdDiv.appendChild(newGrd);
-                    document.getElementById(activeSession + subject.name + count + count2).appendChild(newGrdDiv);
+                    document.getElementById(activeSemester + subject.name + count + count2).appendChild(newGrdDiv);
 
                     let gradeDiv = document.createElement('div');
                     gradeDiv.classList = 'gradeDiv';
@@ -434,7 +434,7 @@ function loadSubjects() {
                         gradeDiv.appendChild(newGrd);
                     }
 
-                    document.getElementById(activeSession + subject.name + count + count2).appendChild(gradeDiv);
+                    document.getElementById(activeSemester + subject.name + count + count2).appendChild(gradeDiv);
                 });
             }
             else {
@@ -455,7 +455,7 @@ function loadSubjects() {
                 newGrd.textContent = gradesArray.description;
                 newGrdDiv.appendChild(toolDiv);
                 newGrdDiv.appendChild(newGrd);
-                document.getElementById(activeSession + subject.name + count).appendChild(newGrdDiv);
+                document.getElementById(activeSemester + subject.name + count).appendChild(newGrdDiv);
 
                 let gradeDiv = document.createElement('div');
                 gradeDiv.classList = 'gradeDiv';
@@ -470,7 +470,7 @@ function loadSubjects() {
                     gradeDiv.appendChild(newGrd);
                 }
 
-                document.getElementById(activeSession + subject.name + count).appendChild(gradeDiv);
+                document.getElementById(activeSemester + subject.name + count).appendChild(gradeDiv);
             }
         });
     });
@@ -498,28 +498,28 @@ function loadSubjects() {
 /*function loadSubjects() {
     emptyTable(document.getElementById('table'));
         subjects.forEach(subject => {
-            console.log(activeSession + subject.name);
+            console.log(activeSemester + subject.name);
             
             let newTR = document.createElement('tr');
-            newTR.id = activeSession + subject.name;
+            newTR.id = activeSemester + subject.name;
             document.getElementById('table').appendChild(newTR);
 
             let newSubj = document.createElement('th');
-            newSubj.textContent = activeSession + subject.name;
-            document.getElementById(activeSession + subject.name).appendChild(newSubj);
+            newSubj.textContent = activeSemester + subject.name;
+            document.getElementById(activeSemester + subject.name).appendChild(newSubj);
 
             subject.grades.forEach(gradesArray => {
                 console.log(gradesArray.grade);
 
                 let newGrd = document.createElement('td');
                 newGrd.textContent = gradesArray.grade;
-                document.getElementById(activeSession + subject.name).appendChild(newGrd);
+                document.getElementById(activeSemester + subject.name).appendChild(newGrd);
             });
             console.log(calculateAvg(subject.grades));
 
             let newAvg = document.createElement('td');
             newAvg.textContent = calculateAvg(subject.grades);
-            document.getElementById(activeSession + subject.name).appendChild(newAvg);
+            document.getElementById(activeSemester + subject.name).appendChild(newAvg);
         });
 }*/
 
@@ -586,7 +586,7 @@ function save() {
     if(document.getElementById('addVar').textContent) addVar = JSON.parse(document.getElementById('addVar').textContent);
     let name;
     let dir;
-    if(!(scene == 'editSession') && !(scene == 'addSession') || scene == 'sessions') dir = subjects.sessions.find(session => session.name === activeSession).grades;
+    if(!(scene == 'editsemester') && !(scene == 'addSemester') || scene == 'semesters') dir = subjects.semesters.find(semester => semester.name === activeSemester).grades;
     switch (scene) {
         case 'addGrade':
             if (document.getElementById('focusedSubj').value == '' || document.getElementById('grade').value == '' || document.getElementById('weight').value == '') {
@@ -597,7 +597,7 @@ function save() {
                 showMessage(text({de:`Die Fächer-Bezeichnung darf keine Zahl enthalten`, en:`The subject name must not contain  any number`}));
                 return;
             }
-            if(document.getElementById('focusedSubj').value.includes(activeSession)) {
+            if(document.getElementById('focusedSubj').value.includes(activeSemester)) {
                 showMessage(text({de:`Die Fächer-Bezeichnung kann nicht das Schuljahr enthalten`, en:`The subject can't contain the name of the year`}));
                 return;
             }*/
@@ -606,11 +606,11 @@ function save() {
         case 'addSubject':
             addSubject(document.getElementById('focusedSubj').value);
             break;
-        case 'addSession':
+        case 'addSemester':
             let newSessName = document.getElementById('addSess').value;
-            if(addSession(newSessName)) {
-                activeSession = deleteSpaces(newSessName);
-                settings.activeSession = activeSession;
+            if(addSemester(newSessName)) {
+                activeSemester = deleteSpaces(newSessName);
+                settings.activeSemester = activeSemester;
                 DataManager.storage.set('settings', settings);
             }
             break;
@@ -629,14 +629,14 @@ function save() {
             newGrade.description = document.getElementById('description').value;
 
             if(addVar[2] || addVar[2] === 0) { //2 indices means Schulaufgabe
-                subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]][addVar[2]] = newGrade;
+                subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === addVar[0]).grades[addVar[1]][addVar[2]] = newGrade;
             }
             else {
-                subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
+                subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
             }
             toggleEditing();
             break;
-        case 'editSession':
+        case 'editsemester':
             name = document.getElementById('addSess').value;
             const cleaned = deleteSpaces(name);
 
@@ -644,14 +644,14 @@ function save() {
                 showMessage(text({de:`Ungültiger Name`, en:`Invalid name`}));
                 return;
             }
-            for (const session of subjects.sessions) {
-                if(session.name == cleaned) {
+            for (const semester of subjects.semesters) {
+                if(semester.name == cleaned) {
                     showMessage(text({de:`Ein Schuljahr mit diesem Namen ist bereits vorhanden`, en:`A school year with this name can't exist twice`}));
                     return;
                 }
             }
 
-            subjects.sessions[addVar].name = name;
+            subjects.semesters[addVar].name = name;
             toggleEditing();
             break;
         case 'editSubject':
@@ -669,11 +669,11 @@ function save() {
                 showMessage(text({de:`Die Fächer-Bezeichnung darf keine Zahl enthalten`, en:`The subject name must not contain  any number`}));
                 return;
             }
-            if(document.getElementById('focusedSubj').value.includes(activeSession)) {
+            if(document.getElementById('focusedSubj').value.includes(activeSemester)) {
                 showMessage(text({de:`Die Fächer-Bezeichnung kann nicht das Schuljahr enthalten`, en:`The subject can't contain the name of the year`}));
                 return;
             }*/
-            subjects.sessions.find(session => session.name == activeSession).grades[addVar].name = name;
+            subjects.semesters.find(semester => semester.name == activeSemester).grades[addVar].name = name;
             toggleEditing();
             break;
         default:
@@ -724,11 +724,11 @@ async function deleteData() {
     if(key === 'subjects' || key === 'all') {
         subjects = {
             version: buildVersion,
-            sessions: []
+            semesters: []
         }
 
-        activeSession = undefined;
-        settings.activeSession = undefined;
+        activeSemester = undefined;
+        settings.activeSemester = undefined;
     }
 
     if(key === 'settings' || key === 'all') {
@@ -737,7 +737,7 @@ async function deleteData() {
             examName: 'Schulaufgaben',
             showMultiplier: false,
             darkmode: true,
-            activeSession: undefined,
+            activeSemester: undefined,
             seenDownloadMessage: false,
             offline: false,
             seenStoragePolicy: false
@@ -794,8 +794,8 @@ function toggleEditing() {
     document.documentElement.style.setProperty('--editing', 'block');
 }
 
-function loadSession() {
-    if(!subjects.sessions.length > 0) {
+function loadsemester() {
+    if(!subjects.semesters.length > 0) {
         emptyTable(document.getElementById('table'));
         let newTR = document.createElement('tr');
         newTR.id = 'emptyTable';
@@ -812,10 +812,10 @@ function loadSession() {
     sortIcon(subjects.sorted?.mode, subjects.sorted?.order);
 
     let avg = [];
-    subjects.sessions.forEach(session => {
+    subjects.semesters.forEach(semester => {
         let newTR = document.createElement('tr');
-        newTR.id = session.name;
-        newTR.className = 'sessionTR';
+        newTR.id = semester.name;
+        newTR.className = 'semesterTR';
         document.getElementById('table').appendChild(newTR);
 
         let newGrdDiv = document.createElement('div');
@@ -832,24 +832,24 @@ function loadSession() {
         toolDiv.appendChild(removeBtn);
 
         let newSess = document.createElement('th');
-        newSess.textContent = session.name;
+        newSess.textContent = semester.name;
         newGrdDiv.appendChild(toolDiv);
         newGrdDiv.appendChild(newSess);
-        document.getElementById(session.name).appendChild(newGrdDiv);
+        document.getElementById(semester.name).appendChild(newGrdDiv);
 
-        let innerAvg = getAvgArray(session.grades);
+        let innerAvg = getAvgArray(semester.grades);
         let calcAvg = calculateAvgFromArray(innerAvg);
         if(parseFloat(calcAvg)) {
             let newAvg = document.createElement('td');
             newAvg.textContent = calcAvg;
             avg.push(parseFloat(calcAvg));
-            document.getElementById(session.name).appendChild(newAvg);
+            document.getElementById(semester.name).appendChild(newAvg);
         }
     });
 
     let newTR = document.createElement('tr');
     newTR.id = 'total';
-    newTR.className = 'sessionTR';
+    newTR.className = 'semesterTR';
     document.getElementById('table').appendChild(newTR);
 
     let newSubj = document.createElement('th');
@@ -878,11 +878,8 @@ function getAvgArray(array) {
 function switchScene(target) {
     switch (target) {
         case 'add':
-            if (scene == 'addGrade' || scene == 'addSession' || scene == 'editGrade' || scene == 'editSession' || scene == 'editSubject') save();
-            else if (scene == 'sessions') {
-                scene = 'addSession';
-                switchScene('addSession');
-            }
+            if (scene == 'addGrade' || scene == 'addSemester' || scene == 'editGrade' || scene == 'editsemester' || scene == 'editSubject') save();
+            else if (scene == 'semesters' || !activeSemester) switchScene('addSemester');
             else {
                 scene = 'addGrade';
                 document.getElementById('add').style.display = 'flex';
@@ -895,7 +892,8 @@ function switchScene(target) {
                 setSubjectList();
             }
             break;
-        case 'addSession':
+        case 'addSemester':
+            scene = 'addSemester';
             document.getElementById('add').style.display = 'flex';
             document.getElementById('centerbuttonicon').className = 'tick-icon';
             document.getElementById('settings').style.display = 'none';
@@ -905,10 +903,10 @@ function switchScene(target) {
         case 'main':
             document.getElementById('add').style.display = 'none';
             document.getElementById('centerbuttonicon').className = 'plus-icon';
-            document.getElementById('sessionLink').style.display = 'block';
+            document.getElementById('semesterLink').style.display = 'block';
             document.getElementById('settings').style.display = 'none';
-            if(!activeSession) {
-                switchScene('sessions');
+            if(!activeSemester) {
+                switchScene('semesters');
                 break;
             }
             scene = 'main';
@@ -925,12 +923,12 @@ function switchScene(target) {
             document.getElementById('darkmode').checked = settings.darkmode;
             document.getElementById('offline').checked = settings.offline;
             break;
-        case 'sessions':
-            loadSession();
-            document.getElementById('sessionLink').style.display = 'none';
-            scene = 'sessions';
-            activeSession = undefined;
-            settings.activeSession = undefined;
+        case 'semesters':
+            loadsemester();
+            document.getElementById('semesterLink').style.display = 'none';
+            scene = 'semesters';
+            activeSemester = undefined;
+            settings.activeSemester = undefined;
             DataManager.storage.set('settings', settings);
             break;
         case 'editGrade':
@@ -944,8 +942,8 @@ function switchScene(target) {
             document.getElementById('focusedSubj').style.display = 'none';
             document.getElementById('schulaufgabebox').style.display = 'none';
             break;
-        case 'editSession':
-            scene = 'editSession';
+        case 'editsemester':
+            scene = 'editsemester';
             document.getElementById('add').style.display = 'flex';
             document.getElementById('centerbuttonicon').className = 'tick-icon';
             document.getElementById('settings').style.display = 'none';
@@ -968,7 +966,7 @@ function switchScene(target) {
 function setSubjectList() {
     const dataList = document.getElementById('subjects');
     dataList.innerHTML = '';
-    subjects.sessions.find(session => session.name == activeSession).grades.forEach(subject => {
+    subjects.semesters.find(semester => semester.name === activeSemester).grades.forEach(subject => {
         const option = document.createElement('option');
         option.value = subject.name;
         dataList.appendChild(option);
@@ -985,10 +983,10 @@ function editScene(grade, slot) {
     document.getElementById('addVar').textContent = slot;
 }
 
-function editSessionScene(session, slot) {
-    switchScene('editSession');
+function editsemesterScene(semester, slot) {
+    switchScene('editsemester');
 
-    document.getElementById('addSess').value = session.name;
+    document.getElementById('addSess').value = semester.name;
     document.getElementById('addVar').textContent = slot;
 }
 
@@ -1614,7 +1612,7 @@ function init() {
         element.addEventListener('click', toggleEditing);
     });
 
-    document.getElementById('sessionLink').addEventListener('click', () => switchScene('sessions'))
+    document.getElementById('semesterLink').addEventListener('click', () => switchScene('semesters'))
 
     document.getElementById('sortIcon').addEventListener('click', sortMenu);
 
@@ -1633,7 +1631,7 @@ function init() {
         const icon = e.target.closest('i');
         if(icon && icon.classList.contains('editIcon')) {
             const id = target.id;
-            /*let subjectName = id.replace(new RegExp(activeSession, 'g'), ''); //removes activeSession from name string
+            /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
             let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
             let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
             const data = target.dataset;
@@ -1642,15 +1640,15 @@ function init() {
             let index2 = data.innerCount;
             let grade;
 
-            if(scene == 'sessions') { //if session
-                let session = subjects.sessions.find(element => element.name == id);
-                let index = subjects.sessions.indexOf(session);
-                editSessionScene(session, index);
+            if(scene == 'semesters') { //if semester
+                let semester = subjects.semesters.find(element => element.name == id);
+                let index = subjects.semesters.indexOf(semester);
+                editsemesterScene(semester, index);
                 return;
             }
 
             if(!index) { //if no index: subject instead of 
-                let dir = subjects.sessions.find(session => session.name === activeSession).grades;
+                let dir = subjects.semesters.find(semester => semester.name === activeSemester).grades;
                 let subjectObj = dir.find(element => element.name === subject);
                 let index = dir.indexOf(subjectObj);
                 editSubjectScene(subjectObj, index);
@@ -1658,17 +1656,17 @@ function init() {
             }
 
             if(index2) { //2 indices means Schulaufgabe
-                grade = subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index][index2];
+                grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index][index2];
             }
             else {
-                grade = subjects.sessions.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index];
+                grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
             }
 
             editScene(grade, `["${subject}", ${index}${index2 ? `, ${index2}` : ``}]`);
         }
         else if (icon && icon.classList.contains('removeIcon')) {
             const id = target.id;
-            /*let subjectName = id.replace(new RegExp(activeSession, 'g'), ''); //removes activeSession from name string
+            /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
             let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
             let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
             const data = target.dataset;
@@ -1678,13 +1676,13 @@ function init() {
             let subjectsIndex;
             let dir;
 
-            if(scene == 'sessions') { //if session
-                dir = subjects.sessions;
-                const session = subjects.sessions.find(session => session.name == id);
-                subjectsIndex = subjects.sessions.indexOf(session);
+            if(scene == 'semesters') { //if semester
+                dir = subjects.semesters;
+                const semester = subjects.semesters.find(semester => semester.name == id);
+                subjectsIndex = subjects.semesters.indexOf(semester);
             }
             else {
-                dir = subjects.sessions.find(element => element.name === activeSession).grades;
+                dir = subjects.semesters.find(element => element.name === activeSemester).grades;
 
                 if(!index) { //if no index: subject instead of grade
                     let grade = dir.find(element => element.name === subject);
@@ -1708,18 +1706,18 @@ function init() {
 
             toggleEditing();
 
-            if(scene == 'sessions') {
-                loadSession();
+            if(scene == 'semesters') {
+                loadsemester();
                 return;
             }
             loadSubjects();
         }
         else if (target && target.tagName === 'TR') {
-            if(target.className.includes('sessionTR') && !(target.id == 'total')) {
-                activeSession = target.id;
-                settings.activeSession = activeSession;
+            if(target.className.includes('semesterTR') && !(target.id == 'total')) {
+                activeSemester = target.id;
+                settings.activeSemester = activeSemester;
                 DataManager.storage.set('settings', settings);
-                document.getElementById('sessionLink').textContent = '< ' + activeSession;
+                document.getElementById('semesterLink').textContent = '< ' + activeSemester;
                 switchScene('main');
             }
             else {
@@ -1737,13 +1735,13 @@ function init() {
                 /*else {
                     if(!editing) return;
                     console.log(id);
-                    let subjectName = id.replace(new RegExp(activeSession, 'g'), '');
+                    let subjectName = id.replace(new RegExp(activeSemester, 'g'), '');
                     let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
                     let index = subjectName.match(/\d+$/); //int with only the numbers at the end
 
                     console.log(subjectName + '; ' + subject + '; ' + index);
 
-                    let grade = subjects.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index];
+                    let grade = subjects.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
 
                     editScene(grade, `["${subject}", ${index}]`);
                 }*/
@@ -1792,8 +1790,8 @@ function init() {
                 subjects = JSON.parse(result);
 
                 DataManager.storage.set('subjects', subjects);
-                activeSession = undefined;
-                switchScene('main'); //no active session: switches to sessions automatically
+                activeSemester = undefined;
+                switchScene('main'); //no active semester: switches to semesters automatically
             })
             .catch(error => {
                 switch(error.code) {
@@ -1829,7 +1827,7 @@ function init() {
             console.log(data);
             settings = data.message;
             DataManager.storage.set('settings', settings);
-            loadSession();
+            loadsemester();
         }
         if(data.from === 'gradia' && data.type === 'request' && data.message === 'settings' && identifier < 0) {
             app_channel.postMessage({
@@ -1857,17 +1855,17 @@ function init() {
         appChannel('request', 'settings', 'replaceSettings', identifier);
     }*/
 
-    if(settings.activeSession == undefined && subjects.sessions.length > 0) activeSession = subjects.sessions[subjects.sessions.length - 1].name;
-    else if (!(settings.activeSession == undefined)) activeSession = settings.activeSession;
-    else activeSession = undefined;
+    if(settings.activeSemester == undefined && subjects.semesters.length > 0) activeSemester = subjects.semesters[subjects.semesters.length - 1].name;
+    else if (!(settings.activeSemester == undefined)) activeSemester = settings.activeSemester;
+    else activeSemester = undefined;
 
-    if(!(activeSession == undefined)) {
-        document.getElementById('sessionLink').textContent = '< ' + activeSession;
+    if(!(activeSemester == undefined)) {
+        document.getElementById('semesterLink').textContent = '< ' + activeSemester;
         loadSubjects();
         scene = 'main';
     }
     else {
-        switchScene('sessions');
+        switchScene('semesters');
     }
 
     changeMode(settings.darkmode);
@@ -1894,14 +1892,14 @@ function initStorage() {
     DataManager.storage.templates = {
         subjects: {
             version: undefined,
-            sessions: []
+            semesters: []
         },
         settings: {
             lang: undefined,
             examName: 'Schulaufgaben',
             showMultiplier: false,
             darkmode: true,
-            activeSession: undefined,
+            activeSemester: undefined,
             seenDownloadMessage: false,
             offline: false,
             seenStoragePolicy: false
@@ -1912,14 +1910,13 @@ function initStorage() {
     DataManager.storage.defaults = ['subjects', 'settings'];
 
     const initData = DataManager.storage.init();
-    console.log(initData)
 
     if(!initData.isNewUser) {
         //Convert subjects Array to object if necessary
         if(Array.isArray(initData.content.subjects)) {
             initData.content.subjects = {
                 version: buildVersion,
-                sessions: initData.content.subjects
+                semesters: initData.content.subjects
             }
         }
 
@@ -1956,10 +1953,10 @@ function initFileEngine() {
 window.onerror = function(message, source, lineno, colno, error) {
     alert(`Error: ${message}\nSource: ${source}\nLine: ${lineno}, Column: ${colno}\nStack Trace: ${error?.stack || 'N/A'}`);
 
-    if(!subjects.sessions) {
+    if(!subjects.semesters) {
         subjects = {
             version: buildVersion,
-            sessions: []
+            semesters: []
         }
         DataManager.storage.set('subjects', subjects);
     }

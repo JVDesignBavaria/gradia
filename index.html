@@ -7,9 +7,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <meta name="description" content="Gradia by JVDesign allows you to calculate and organize your grades quickly and easily, even over multiple school years. Keep track of your academic performance offline and on your device, ensuring you never miss a chance to improve your grades. Take control of your educational journey with Gradia!">
+    <meta property="og:image" content="./img/ogimage.png" />
     <title>Gradia</title>
-    <link rel="apple-touch-icon" href="app_icon.png">
-    <link rel="apple-touch-startup-image" href="app_icon.png">
+    <link rel="apple-touch-icon" href="./img/app_icon.png">
+    <link rel="apple-touch-startup-image" href="./img/app_icon.png">
     <link rel="stylesheet" href="style.css">
 
     <style>
@@ -42,6 +43,35 @@
                 "datamanager": "./modules/datamanager.js",
                 "cryptojs": "./modules/crypto.js"
             }
+        }
+    </script>
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Gradia",
+            "alternateName": "Grade Tracker Gradia",
+            "operatingSystem": "Web",
+            "applicationCategory": "EducationApplication",
+            "applicationSubCategory": "StudentApplication",
+            "description": "Gradia by JVDesign lets students manage and calculate their grades across multiple school years. Track academic progress with weighted exams, offline access, and a clean, structured interface.",
+            "keywords": "grade tracker, grade calculator, school app, student planner, grade management, GPA calculator, education, semester planner, exam organizer",
+            "url": "https://github.com/jvdesign-dev/gradia",
+            "screenshot": "https://jvdesign.is-a.dev/gradia/img/ogimage.png",
+            "softwareVersion": "1.1",
+            "creator": {
+                "@type": "Organization",
+                "name": "JVDesign"
+            },
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR"
+            },
+            "browserRequirements": "Requires modern browser",
+            "inLanguage": ["de", "en"],
+            "datePublished": "2025-07-10"
         }
     </script>
     
@@ -135,7 +165,7 @@
                     <i class="alphabet-asc-icon"  id="sortIcon"></i>
                 </div>
             </div>
-            <span id="sessionLink"></span>
+            <span id="semesterLink"></span>
         </nav>
 
         <table id="table">

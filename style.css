@@ -28,7 +28,7 @@ body {
 .background {
     width: 100vw;
     height: 100vh;
-    background: url(background.jpg);
+    background: url(./img/background.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -270,7 +270,7 @@ input[type=checkbox] {
     display: none; /*----- Discontinued -----*/
 }
 
-#sessionLink {
+#semesterLink {
     max-width: 120vh;
     text-align: left;
     font-size: 0.9rem;

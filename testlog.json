@@ -117,16 +117,6 @@
                     "tags": ["UI", "Tools"],
                     "type": "improved"
                 }
-            ],
-            "tasks": [
-                {
-                    "type": "rename",
-                    "params": {
-                        "from": "subjects.sessions",
-                        "to": "subjects.semesters"
-                    },
-                    "onFailure": "stop"
-                }
             ]
         },
         {
