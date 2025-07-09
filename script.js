@@ -1,7 +1,8 @@
-const buildVersion = 'Version 1.1';
+const buildVersion = 'Beta 1.1.3';
 
 import * as DataManager from 'datamanager';
 import { generateRecoveryKey } from 'cryptojs';
+import { updateStore } from './modules/idbUpdateStore.js';
 
 let subjects = {
     version: buildVersion,
@@ -41,11 +42,10 @@ const iconPaths = {
     "sort-icon": "m 6.3748144,1.4999998 c -0.4218745,0 -0.8202942,0.1781437 -1.1062317,0.4875183 l -4.1249998,4.5 c -0.55781192,0.609375 -0.51562437,1.560901 0.09375,2.118713 0.6093744,0.557812 1.5609013,0.515625 2.1187132,-0.09375 L 4.8748144,6.8578491 V 21 c 0,0.829686 0.6703135,1.5 1.5,1.5 0.8296871,0 1.5,-0.670314 1.5,-1.5 V 6.8578491 l 1.5187683,1.654632 c 0.5578122,0.6140621 1.5046523,0.651562 2.1187133,0.09375 0.614062,-0.557812 0.651562,-1.509338 0.09375,-2.118713 l -4.1249999,-4.5 C 7.1951091,1.6781434 6.7966889,1.4999998 6.3748144,1.4999998 Z m 11.2487186,0 c -0.829687,0 -1.5,0.6703134 -1.5,1.5000001 V 17.142151 l -1.518768,-1.654633 c -0.557812,-0.609375 -1.509339,-0.651562 -2.118714,-0.09375 -0.609374,0.557812 -0.651562,1.509339 -0.09375,2.118713 l 4.125,4.5 C 16.803238,22.321856 17.201658,22.5 17.623533,22.5 c 0.421874,0 0.820295,-0.178144 1.106232,-0.487519 l 4.125,-4.5 c 0.557812,-0.609374 0.520312,-1.560901 -0.09375,-2.118713 -0.614062,-0.557812 -1.560902,-0.520312 -2.118714,0.09375 l -1.518768,1.654633 V 2.9999999 c 0,-0.8296867 -0.670313,-1.5000001 -1.5,-1.5000001 z",
     "alphabet-asc-icon": "m 7.2785827,15.200984 c 0,0.870511 0.703294,1.573805 1.573805,1.573805 h 2.4934993 l -3.6099173,3.609917 c -0.452469,0.452469 -0.585259,1.126255 -0.339352,1.716432 0.245907,0.590177 0.816412,0.973793 1.45577,0.973793 h 6.2952233 c 0.870512,0 1.573806,-0.703295 1.573806,-1.573806 0,-0.870512 -0.703294,-1.573806 -1.573806,-1.573806 h -2.493498 l 3.609917,-3.609917 c 0.452469,-0.452469 0.585259,-1.126255 0.339352,-1.716432 -0.245907,-0.590177 -0.816412,-0.973792 -1.455771,-0.973792 H 8.8523877 c -0.870511,0 -1.573805,0.703294 -1.573805,1.573806 z M 12,0.9250689 c -0.595095,0 -1.141009,0.334434 -1.406589,0.870511 l -3.1476123,6.295223 -0.786902,1.573806 c -0.388533,0.7770671 -0.07377,1.7213501 0.703294,2.1098841 0.777067,0.388533 1.72135,0.07377 2.109883,-0.703295 l 0.354107,-0.703294 h 4.3476383 l 0.354106,0.703294 c 0.388534,0.777067 1.332817,1.091828 2.109884,0.703295 0.777066,-0.388534 1.091827,-1.332817 0.703294,-2.1098841 L 16.5542,8.0908029 13.406589,1.7955799 C 13.141009,1.2595029 12.595095,0.9250689 12,0.9250689 Z M 11.006535,8.0071949 12,6.0202649 l 0.993465,1.98693 z",
     "alphabet-desc-icon": "m 7.278583,2.5575432 c 0,0.870511 0.703294,1.573805 1.573805,1.573805 h 2.493499 L 7.73597,7.7412652 C 7.283501,8.1937342 7.150711,8.8675202 7.396618,9.4576972 7.642525,10.047875 8.21303,10.43149 8.852388,10.43149 h 6.295223 c 0.870512,0 1.573806,-0.7032948 1.573806,-1.5738058 0,-0.870512 -0.703294,-1.573806 -1.573806,-1.573806 h -2.493498 l 3.609917,-3.609917 c 0.452469,-0.452469 0.585259,-1.126255 0.339352,-1.716432 C 16.357475,1.3673522 15.78697,0.98373724 15.147611,0.98373724 H 8.852388 c -0.870511,0 -1.573805,0.70329396 -1.573805,1.57380596 z M 12,12.000378 c -0.595095,0 -1.141009,0.334434 -1.406589,0.870511 l -3.147612,6.295223 -0.786902,1.573806 c -0.388534,0.777067 -0.07377,1.72135 0.703294,2.109884 0.777067,0.388533 1.72135,0.07377 2.109883,-0.703295 l 0.354107,-0.703294 h 4.347638 l 0.354106,0.703294 c 0.388534,0.777067 1.332817,1.091828 2.109884,0.703295 0.777066,-0.388534 1.091827,-1.332817 0.703294,-2.109884 L 16.5542,19.166112 13.406589,12.870889 C 13.141009,12.334812 12.595095,12.000378 12,12.000378 Z M 11.006535,19.082504 12,17.095574 l 0.993465,1.98693 z",
-    "grade-asc-icon": "M 289.05664 32.060547 C 285.30254 31.928711 281.50117 32.46172 277.82617 33.699219 L 229.82617 49.699219 C 213.12619 55.299213 204.02696 73.499235 209.62695 90.199219 C 215.22695 106.8992 233.32697 116.00039 250.12695 110.40039 L 256.02734 108.40039 L 256.02734 160 L 240.02734 160 C 222.32736 160 208.02734 174.30002 208.02734 192 C 208.02734 209.69998 222.32736 224 240.02734 224 L 288.02734 224 L 336.02734 224 C 353.72733 224 368.02734 209.69998 368.02734 192 C 368.02734 174.30002 353.72733 160 336.02734 160 L 320.02734 160 L 320.02734 64 C 320.02734 53.70001 315.02655 43.999994 306.72656 38 L 306.62695 38.099609 C 301.43946 34.349613 295.31347 32.280273 289.05664 32.060547 z M 297.45312 248.0293 C 287.17481 247.59277 276.86327 252.09181 270.30078 260.9668 L 221.5 326.76758 C 207.50001 345.66756 200 368.46682 200 391.9668 C 200 440.56675 239.40005 479.9668 288 479.9668 C 336.59995 479.9668 376 440.56675 376 391.9668 C 376 352.78886 350.42766 319.60751 315.05859 308.18945 L 321.80078 299.06836 C 332.30077 284.86837 329.2996 264.76757 315.09961 254.26758 C 309.77461 250.33008 303.62011 248.29121 297.45312 248.0293 z M 286.64453 360.00977 C 299.11488 359.48748 311.2745 366.32688 316.94922 378.31836 C 324.51551 394.30698 317.68785 413.40049 301.69922 420.9668 C 285.71058 428.5331 266.61707 421.70543 259.05078 405.7168 C 251.48449 389.72817 258.31215 370.63466 274.30078 363.06836 C 278.29794 361.17678 282.48775 360.18386 286.64453 360.00977 z ",
-    "grade-desc-icon": "M 297.45312 32.029297 C 287.17481 31.592774 276.86327 36.091806 270.30078 44.966797 L 221.5 110.76758 C 207.50001 129.66756 200 152.46682 200 175.9668 C 200 224.56675 239.40005 263.9668 288 263.9668 C 336.59995 263.9668 376 224.56675 376 175.9668 C 376 136.78886 350.42766 103.60751 315.05859 92.189453 L 321.80078 83.068359 C 332.30077 68.868374 329.2996 48.767568 315.09961 38.267578 C 309.77461 34.330082 303.62011 32.291211 297.45312 32.029297 z M 286.64453 144.00977 C 299.11488 143.48748 311.2745 150.32688 316.94922 162.31836 C 324.51551 178.30698 317.68785 197.40049 301.69922 204.9668 C 285.71058 212.5331 266.61707 205.70543 259.05078 189.7168 C 251.48449 173.72817 258.31215 154.63466 274.30078 147.06836 C 278.29794 145.17678 282.48775 144.18386 286.64453 144.00977 z M 289.05664 288.06055 C 285.30254 287.92871 281.50117 288.46172 277.82617 289.69922 L 229.82617 305.69922 C 213.12619 311.29921 204.02696 329.49924 209.62695 346.19922 C 215.22695 362.8992 233.32697 372.00039 250.12695 366.40039 L 256.02734 364.40039 L 256.02734 416 L 240.02734 416 C 222.32736 416 208.02734 430.30002 208.02734 448 C 208.02734 465.69998 222.32736 480 240.02734 480 L 288.02734 480 L 336.02734 480 C 353.72733 480 368.02734 465.69998 368.02734 448 C 368.02734 430.30002 353.72733 416 336.02734 416 L 320.02734 416 L 320.02734 320 C 320.02734 309.70001 315.02655 299.99999 306.72656 294 L 306.62695 294.09961 C 301.43946 290.34961 295.31347 288.28027 289.05664 288.06055 z ",
+    "grade-asc-icon": "m 12.052165,0.94430121 c -0.185333,-0.00651 -0.373001,0.019805 -0.554429,0.080898 L 9.128058,1.8150917 c -0.824449,0.2764621 -1.273662,1.174966 -0.997201,1.9994154 0.276463,0.8244498 1.17003,1.27376 1.999416,0.9972973 l 0.291292,-0.098737 V 7.260452 H 9.631672 c -0.873817,0 -1.579784,0.7059674 -1.579784,1.5797848 0,0.8738179 0.705967,1.5797852 1.579784,1.5797852 h 2.369678 2.369678 c 0.873817,0 1.579785,-0.7059673 1.579785,-1.5797852 0,-0.8738174 -0.705968,-1.5797848 -1.579785,-1.5797848 H 13.581135 V 2.5210972 c 0,-0.5084929 -0.24688,-0.987366 -0.656636,-1.2835755 l -0.0049,0.00492 C 12.663484,1.0573085 12.361054,0.95514871 12.052165,0.94430121 Z m 0.41452,10.66200679 c -0.507423,-0.02155 -1.016486,0.200559 -1.340465,0.638702 l -2.40921,3.248472 c -0.691156,0.93306 -1.061419,2.05862 -1.061419,3.218774 0,2.399296 1.945113,4.344409 4.34441,4.344409 2.399296,0 4.344408,-1.945113 4.344408,-4.344409 0,-1.934148 -1.262463,-3.572254 -3.008573,-4.135944 l 0.33285,-0.450293 c 0.518367,-0.701029 0.370204,-1.693371 -0.330825,-2.211737 -0.262886,-0.194388 -0.566723,-0.295044 -0.871176,-0.307974 z m -0.533602,5.528284 c 0.615639,-0.02579 1.21594,0.311865 1.496091,0.903864 0.373535,0.78933 0.03646,1.731944 -0.752867,2.10548 -0.789331,0.373535 -1.731945,0.03646 -2.10548,-0.752866 -0.373535,-0.789332 -0.03646,-1.731946 0.752866,-2.105481 0.197333,-0.09338 0.404177,-0.142403 0.60939,-0.150997 z",
+    "grade-desc-icon": "M 12.467643,0.92024312 C 11.959178,0.89864846 11.449071,1.1212139 11.124427,1.5602564 L 8.7102694,4.8153963 c -0.692574,0.9349753 -1.063597,2.0628464 -1.063597,3.2253816 0,2.4042211 1.9491064,4.3533271 4.3533276,4.3533271 2.404222,0 4.353328,-1.949106 4.353328,-4.3533271 0,-1.9381182 -1.265054,-3.5795872 -3.014749,-4.1444342 L 13.672112,3.4451266 C 14.191543,2.7426586 14.043076,1.7482792 13.340608,1.2288486 13.077182,1.0340621 12.772721,0.93319988 12.467643,0.92024312 Z M 11.932946,6.4598754 c 0.616903,-0.025838 1.218435,0.3125053 1.499162,0.9057192 0.374301,0.7909509 0.03654,1.7355 -0.754412,2.1098025 -0.790953,0.374302 -1.735501,0.036539 -2.109803,-0.7544119 -0.374301,-0.7909514 -0.03654,-1.7355005 0.754412,-2.1098025 0.197738,-0.093576 0.405006,-0.142695 0.610641,-0.1513073 z m 0.119326,7.1261386 c -0.185714,-0.0065 -0.373766,0.01985 -0.555567,0.08107 l -2.3745426,0.791514 c -0.826142,0.277029 -1.276277,1.177378 -0.999248,2.00352 0.27703,0.826142 1.172431,1.276374 2.0035206,0.999344 l 0.29189,-0.09894 v 2.552614 H 9.6268106 c -0.8756112,0 -1.5830282,0.707416 -1.5830282,1.583028 0,0.875611 0.707417,1.583028 1.5830282,1.583028 h 2.3745424 2.374542 c 0.875612,0 1.583028,-0.707417 1.583028,-1.583028 0,-0.875612 -0.707416,-1.583028 -1.583028,-1.583028 h -0.791514 v -4.749085 c 0,-0.509537 -0.247387,-0.989393 -0.657985,-1.28621 l -0.0049,0.0049 C 12.664843,13.69923 12.361793,13.59686 12.05227,13.585991 Z",
     "gradeCount-asc-icon": "M 7.0211,0 C 5.49008,0 4.22457,1.265515 4.22457,2.796529 V 21.203472 C 4.22457,22.734485 5.49008,24 7.0211,24 h 9.9578 c 1.53101,0 2.79653,-1.265515 2.79653,-2.796528 V 2.796529 C 19.77543,1.265515 18.50991,0 16.9789,0 Z m 0,2.113937 h 9.9578 c 0.39646,0 0.68259,0.286131 0.68259,0.682592 v 18.406943 c 0,0.396459 -0.28613,0.682591 -0.68259,0.682591 H 7.0211 c -0.39646,0 -0.68259,-0.286132 -0.68259,-0.682591 V 2.796529 c 0,-0.396461 0.28613,-0.682592 0.68259,-0.682592 z m 5.02256,0.632324 c -0.15513,-0.0054 -0.31222,0.01658 -0.46408,0.06771 L 9.59612,3.475195 c -0.69007,0.231401 -1.06604,0.98343 -0.83464,1.6735 0.2314,0.690069 0.9793,1.066137 1.6735,0.834737 l 0.24381,-0.08268 V 8.03296 h -0.66112 c -0.73139,0 -1.32225,0.590955 -1.32225,1.322346 0,0.731391 0.59085,1.322243 1.32225,1.322243 h 1.98346 1.98347 c 0.73139,0 1.32224,-0.590852 1.32224,-1.322243 0,-0.731391 -0.59085,-1.322346 -1.32224,-1.322346 H 13.32338 V 4.066128 c 0,-0.425612 -0.20658,-0.826484 -0.54954,-1.074413 l -0.004,0.0041 C 12.55548,2.840859 12.30233,2.755309 12.04379,2.74623 Z m 0.34692,8.924262 c -0.42472,-0.01804 -0.85072,0.167846 -1.12189,0.534574 l -2.0166,2.719011 c -0.57851,0.780977 -0.88842,1.723078 -0.88842,2.694134 0,2.008227 1.6281,3.63622 3.63633,3.63622 2.00822,0 3.63632,-1.627993 3.63632,-3.63622 0,-1.618894 -1.05674,-2.990069 -2.51825,-3.461882 l 0.27859,-0.376854 c 0.43388,-0.586765 0.30993,-1.417367 -0.27683,-1.851243 -0.22004,-0.162704 -0.47442,-0.246917 -0.72925,-0.25774 z m -0.44663,4.627128 c 0.51529,-0.02158 1.01777,0.261093 1.25226,0.7566 0.31265,0.660675 0.0305,1.449616 -0.63016,1.762267 -0.66067,0.312652 -1.44961,0.03052 -1.76226,-0.630155 -0.31265,-0.660675 -0.0305,-1.449617 0.63015,-1.762268 0.16517,-0.07816 0.33824,-0.11925 0.51001,-0.126444 z",
     "gradeCount-desc-icon": "M 7.0211002,4.5e-7 C 5.4900903,4.5e-7 4.2245704,1.2655165 4.2245704,2.7965295 V 21.203472 C 4.2245704,22.734484 5.4900903,24 7.0211002,24 h 9.9578008 c 1.531009,0 2.796529,-1.265516 2.796529,-2.796528 V 2.7965295 C 19.77543,1.2655165 18.509911,4.5e-7 16.978901,4.5e-7 Z m 0,2.11393705 h 9.9578008 c 0.396459,0 0.682589,0.2861319 0.682589,0.6825919 V 21.203472 c 0,0.39646 -0.28613,0.682591 -0.682589,0.682591 H 7.0211002 c -0.39646,0 -0.6825899,-0.286131 -0.6825899,-0.682591 V 2.7965295 c 0,-0.04956 0.00499,-0.0974 0.013099,-0.1431661 0.060201,-0.320364 0.3225705,-0.5394259 0.6694806,-0.5394259 z m 5.3694808,0.5723529 c -0.42472,-0.01804 -0.85072,0.1678459 -1.12189,0.5345739 L 9.2520806,5.9398752 c -0.5789604,0.78063 -0.8884004,1.7230799 -0.8884004,2.6941353 0,2.0082245 1.6280904,3.6362185 3.6363198,3.6362185 2.008221,0 3.63632,-1.627994 3.63632,-3.6362185 0,-1.6188932 -1.05675,-2.9900703 -2.51825,-3.4618833 L 13.396661,4.7952733 C 13.83047,4.2084563 13.706591,3.3779053 13.11983,2.9440304 12.899791,2.7813265 12.64541,2.6971134 12.390581,2.6862904 Z M 11.94395,7.3134183 c 0.51529,-0.021581 1.01777,0.261094 1.25226,0.7566 0.312651,0.6606753 0.0305,1.4496163 -0.630149,1.7622663 -0.66068,0.3126534 -1.449621,0.03051 -1.76227,-0.630154 -0.31265,-0.660674 -0.0305,-1.4496173 0.63015,-1.7622683 0.16517,-0.07816 0.33824,-0.11925 0.510009,-0.126444 z m 0.0997,6.0025297 c -0.0936,0.0055 -0.312221,0.01657 -0.46407,0.06771 l -1.9834804,0.661225 c -0.6900602,0.2314 -1.0660301,0.98343 -0.8346301,1.673498 0.2314,0.690069 0.9793001,1.066138 1.6735005,0.834738 l 0.2438,-0.08269 v 2.132208 h -0.661112 c -0.7313904,0 -1.3222508,0.590956 -1.3222508,1.322346 0,0.731391 0.5908604,1.322243 1.3222508,1.322243 h 1.983459 1.983471 c 0.73139,0 1.32224,-0.590852 1.32224,-1.322243 0,-0.73139 -0.59085,-1.322346 -1.32224,-1.322346 h -0.661221 v -3.966832 c 0,-0.425611 -0.206579,-0.826482 -0.549549,-1.074413 l -0.004,0.0041 c -0.21436,-0.154969 -0.47143,-0.264748 -0.726051,-0.249599 z",
-
 
 }
 
@@ -171,6 +171,19 @@ function sortArray(array, mode, order) {
             sortIcon('alphabet', order);
             break;
         }
+        case 'grade': {
+            array.sort((a, b) => {
+                const avgA = a.avg;
+                const avgB = b.avg;
+
+                if(avgA < avgB) return (-1 * orderMultiplier);
+                if(avgA > avgB) return (1 * orderMultiplier);
+                return 0; //equal
+            });
+
+            sortIcon('grade', order);
+            break;
+        }
         case 'gradeCount': {
             array.sort((a, b) => {
                 const countA = a.grades.length;
@@ -192,12 +205,39 @@ function sortArray(array, mode, order) {
     return array;
 }
 
+function refreshAverages() {
+    for (const session of subjects.sessions) {
+        const avgArray = [];
+        for (const subject of session.grades) {
+            subject.avg = parseFloat(calculateAvg(subject.grades, subject.examWeight)) || 0;
+            avgArray.push(subject.avg);
+        }
+        session.avg = calculateAvgFromArray(avgArray);
+    }
+}
+
+function refreshSort() {
+    // Sort all lists individually
+    for (const session of subjects.sessions) {
+        if (session.sorted) {
+            session.grades = sortArray(session.grades, session.sorted.mode, session.sorted.order);
+        }
+    }
+
+    // Sort the sessions list globally, if a top-level sort is defined
+    if (subjects.sorted) {
+        subjects.sessions = sortArray(subjects.sessions, subjects.sorted.mode, subjects.sorted.order);
+    }
+
+    DataManager.storage.set('subjects', subjects);
+}
+
 function sortButton(scope, mode, order) {
     let path;
     switch(scope) {
         case 'sessions':
             path = subjects.sessions;
-            path = sortArray(path, mode, order);
+            sortArray(path, mode, order);
 
             subjects.sorted = {mode, order};;
 
@@ -205,7 +245,7 @@ function sortButton(scope, mode, order) {
             break;
         case 'main':
             path = subjects.sessions.find(element => element.name === activeSession).grades;
-            path = sortArray(path, mode, order);
+            sortArray(path, mode, order);
 
             subjects.sessions.find(element => element.name === activeSession).sorted = {mode, order};
 
@@ -639,9 +679,18 @@ function save() {
         default:
             break;
     }
-    DataManager.storage.set('subjects', subjects);
+    
+    onDataChanged();
+
     switchScene('main');
     clearInputs();
+}
+
+function onDataChanged() {
+    refreshAverages();
+    refreshSort();
+
+    DataManager.storage.set('subjects', subjects);
 }
 
 function clearInputs() {
@@ -1005,6 +1054,7 @@ function changeLang(lang) {
             document.querySelector('#sortDialog button[value="false"]').textContent = 'Abbrechen';
             document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
             document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetisch';
+            document.querySelector('#sortDialog option[value="grade"]').textContent = 'Note';
             document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'Notenanzahl';
             document.querySelector('#sortDialog option[value="asc"]').textContent = 'aufsteigend';
             document.querySelector('#sortDialog option[value="desc"]').textContent = 'absteigend';
@@ -1032,6 +1082,7 @@ function changeLang(lang) {
             document.querySelector('#sortDialog button[value="false"]').textContent = 'Cancel';
             document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
             document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetic';
+            document.querySelector('#sortDialog option[value="grade"]').textContent = 'grade';
             document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'grade count';
             document.querySelector('#sortDialog option[value="asc"]').textContent = 'ascending';
             document.querySelector('#sortDialog option[value="desc"]').textContent = 'descending';
@@ -1241,11 +1292,12 @@ async function registerSW() {
         const channel = new BroadcastChannel('sw_channel');
         channel.onmessage = async (event) => {
             if(event.data.from !== 'SW') return;
-            console.log(`Received channelmessage ${event.data}`);
+            console.log(`Received channelmessage ${JSON.stringify(event.data)}`);
 
             try {
                 const changelog = await fetchData('testlog.json');
                 handleUpdate(changelog, event.data.version);
+                await updateStore.set('oldVersion', buildVersion);
             }
             catch (error) {
                 console.log(`Error fetching changelog ${error}`);
@@ -1361,6 +1413,74 @@ function compareVersion(version1, version2) {
     return 0;
 }
 
+const updateTasks = {
+    _referenceRegistry: {},
+
+    handlers: {
+        rename({ from, to }) {
+            const { resolvePath, assignPath, deletePath } = updateTasks._pathHelpers;
+            const value = resolvePath(from);
+            if (value === undefined) throw new Error(`Source "${from}" does not exist`);
+
+            assignPath(to, value);
+            deletePath(from);
+        },
+
+        runFunction({ function: fnName, parameters: params }) {
+            const fn = updateTasks._referenceRegistry[fnName];
+            if (typeof fn !== 'function') throw new Error(`Function "${fnName}" not found`);
+
+            fn(params);
+        }
+    },
+
+    /**
+     * 
+     * @param {Array.<Object>} taskList 
+     */
+    run(taskList) {
+        const { handlers } = updateTasks;
+
+        for(const task of taskList) {
+            const { type, params, onFailure } = task;
+            const handler = handlers[type];
+
+            if(!handler) {
+                console.warn(`Unknown task type: "${type}"`);
+                if(onFailure === 'stop') break;
+                continue;
+            }
+
+            try {
+                handler(params)
+            }
+            catch(e) {
+                console.error(`Task "${type}" failed`, e);
+                if(onFailure === 'stop') break;
+            }
+        }
+    },
+
+    _pathHelpers: {
+        resolvePath(path) {
+            return path.split('.').reduce((acc, key) => acc?.[key], updateTasks._referenceRegistry);
+        },
+
+        assignPath(path, value) {
+            const keys = path.split('.');
+            const lastKey = keys.pop();
+            const target = keys.reduce((acc, key) => acc[key] ??= {}, updateTasks._referenceRegistry);
+            target[lastKey] = value;
+        },
+
+        deletePath(path) {
+            const keys = path.split('.');
+            const lastKey = keys.pop();
+            const target = keys.reduce((acc, key) => acc[key], updateTasks._referenceRegistry);
+            if (target && lastKey in target) delete target[lastKey];
+        }
+    }
+}
 
 
 
@@ -1448,8 +1568,32 @@ window.DataManager = DataManager;
 window.onload = () => {
     initStorage();
     initFileEngine();
+    versionCheck(); //Checks for update installation
     init();
 };
+
+async function versionCheck() {
+    const oldVersion = await updateStore.get('oldVersion');
+    if(!oldVersion) return;
+    
+    console.log(`Old version available: "${oldVersion}"`)
+    try {
+        const changelog = await fetchData('testlog.json');
+        
+        const filteredVersions = changelog.versions.filter((element) => compareVersion(oldVersion, element.version) < 0 && compareVersion(element.version, buildVersion) <= 0); //only versions newer than oldVersion, but older or equal than current Version
+
+        filteredVersions.forEach(version => {
+            console.log(version)
+            if(version.tasks) updateTasks.run(version.tasks);
+        });
+    }
+    catch (error) {
+        console.log(`Error fetching changelog ${error}`);
+        return error;
+    }
+
+    await updateStore.remove('oldVersion');
+}
 
 function init() {
     document.querySelectorAll('.autosave').forEach(element => {
@@ -1557,9 +1701,13 @@ function init() {
             }
 
             if(!(await getConfirm(`Really delete?`))) return;
+
             dir.splice(subjectsIndex, 1)
-            DataManager.storage.set('subjects', subjects);
+            
+            onDataChanged();
+
             toggleEditing();
+
             if(scene == 'sessions') {
                 loadSession();
                 return;
@@ -1694,15 +1842,6 @@ function init() {
         }
     }
 
-    //Convert subjects Array to object
-    if(Array.isArray(subjects)) {
-        subjects = {
-            version: buildVersion,
-            sessions: subjects
-        }
-        DataManager.storage.set('subjects', subjects);
-    }
-
     if(!settings.lang) {
         settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
     }
@@ -1776,8 +1915,18 @@ function initStorage() {
     console.log(initData)
 
     if(!initData.isNewUser) {
+        //Convert subjects Array to object if necessary
+        if(Array.isArray(initData.content.subjects)) {
+            initData.content.subjects = {
+                version: buildVersion,
+                sessions: initData.content.subjects
+            }
+        }
+
         subjects = {...initData.content.subjects};
         settings = {...initData.content.settings};
+
+        onDataChanged();
     }
     else {
         if(navigator.standalone) sendLogData('standalone');

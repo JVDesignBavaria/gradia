@@ -48,6 +48,16 @@
                     "tags": ["UI", "Data"],
                     "type": "discontinued"
                 }
+            ],
+            "tasks": [
+                {
+                    "type": "runFunction",
+                    "params": {
+                        "function": "alert",
+                        "parameters": "Hey"
+                    },
+                    "onFailure": "stop"
+                }
             ]
         },
         {
@@ -83,6 +93,52 @@
                     "description": { "de": "Sortierfehler behoben", "en": "Fixed sorting bug" },
                     "tags": ["UI", "Tools"],
                     "type": "fixed"
+                }
+            ],
+            "tasks": [
+                {
+                    "type": "runFunction",
+                    "params": {
+                        "function": "alert",
+                        "parameters": "Gotcha"
+                    },
+                    "onFailure": "stop"
+                }
+            ]
+        },
+        {
+            "version": "Version 1.4",
+            "release": "2025-01-20",
+            "changes": [
+                {
+                    "id": "TEST_bullshit",
+                    "name": { "de": "Bullshit", "en": "Bullshit" },
+                    "description": { "de": "Nur ein Test", "en": "Only a test" },
+                    "tags": ["UI", "Tools"],
+                    "type": "improved"
+                }
+            ],
+            "tasks": [
+                {
+                    "type": "rename",
+                    "params": {
+                        "from": "subjects.sessions",
+                        "to": "subjects.semesters"
+                    },
+                    "onFailure": "stop"
+                }
+            ]
+        },
+        {
+            "version": "Beta 1.1.3",
+            "release": "2025-07-08",
+            "changes": [
+                {
+                    "id": "TEST_bullshit",
+                    "name": { "de": "Alles Neu!", "en": "Everything's new!" },
+                    "description": { "de": "Nur ein Test", "en": "Only a test" },
+                    "tags": ["UI", "Tools"],
+                    "type": "improved"
                 }
             ]
         }

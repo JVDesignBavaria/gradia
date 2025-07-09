@@ -1,4 +1,4 @@
-const CACHE_NAME = 'Version 1.1';
+const CACHE_NAME = 'Beta 1.1.3';
 const INFO = {
     get description() {
         return {de:`Dieses Update enthält Fehlerbehebungen${this.features.length < 1 ? `.`:` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${this.features.length < 1 ? `.`:` and introduces these new features:`}`}
@@ -33,31 +33,33 @@ self.addEventListener('install', (event) => {
         ])
     )
     self.skipWaiting();
-    sendMessage({from:'SW', version:CACHE_NAME, info:INFO});
+    sendMessage('sw_channel', {from:'SW', version:CACHE_NAME, info:INFO});
 })
 
 self.addEventListener('activate', (event) => {
+    console.log('SW activates');
+
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            // Check for old caches
+        (async () => {
+            const cacheNames = await caches.keys();
             const oldCaches = cacheNames.filter(cacheName => cacheName !== CACHE_NAME);
+
             if (oldCaches.length > 0) {
-                sendLogData('updated'); // Send log data only if there are old caches
+                const current = await updateStore.get('oldVersion');
+
+                if (!current) await updateStore.set('oldVersion', oldCaches[0]);
+
+                await sendLogData('updated');
             }
 
-            // Delete old caches
-            return Promise.all(
-                oldCaches.map(cacheName => {
-                    return caches.delete(cacheName);
-                })
-            );
-        })
+            await Promise.all(oldCaches.map(cacheName => caches.delete(cacheName)));
+        })()
     );
 });
 
-function sendMessage(message) {
-    const channel = new BroadcastChannel('sw_channel');
-    console.log(`sending ${message}`);
+function sendMessage(channelName, message) {
+    const channel = new BroadcastChannel(channelName);
+    console.log(`sending ${JSON.stringify(message)}`);
     channel.postMessage(message);
 }
 
@@ -125,3 +127,63 @@ async function sendLogData(logType) {
         console.error('Failed to send version data:', error);
     }
 }
+
+
+
+
+
+
+
+//----- IDB Wrapper - Temporary until datamanager.js supports IDB -----//
+
+const DB_NAME = 'gradia';
+const STORE_NAME = 'update';
+const DB_VERSION = 1;
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+const updateStore = {
+    async set(key, value) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).put(value, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => reject(tx.error);
+        });
+    },
+
+    async get(key) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const request = tx.objectStore(STORE_NAME).get(key);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    },
+
+    async remove(key) {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).delete(key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+};
