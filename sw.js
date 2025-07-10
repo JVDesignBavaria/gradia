@@ -7,6 +7,7 @@ const INFO = {
         {name:{de:`Tabellen-Sortierung`, en:`Table Sort`}, description:{de:`Die Tabellen können automatisch sortiert werden`, en:`Tables can be sorted automatically`}, version: '1.1'},
         {name:{de:"Update-Historie", en:"Update History"}, description:{de:"Neue Features werden versionsübergreifend angezeigt", en:"New Features are displayed across all versions"}, version: '1.1'},
         {name:{de:`Teilweise Datenlöschung`, en:`Partial Data Deletion`}, description:{de:`Einstellungen oder Noten können unabhängig voneinander gelöscht werden`, en:`Settings and Grades can be deleted independently`}, version: '1.1'},
+        {name:{de:`Noten-Download`, en:`Grade-Download`}, description:{de:`Die Noten-Daten können als .grd/.grde-Datei heruntergeladen werden`, en:`The grade-data can be downloaded as a .grd/.grde file`}, version: '1.1'},
     ],
     release: new Date('2025-07-10')
 };
