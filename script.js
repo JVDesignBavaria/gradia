@@ -1,13 +1,20 @@
-const buildVersion = 'Version 1.0'
+const buildVersion = 'Version 1.1';
 
-let subjects = [];
+import * as DataManager from 'datamanager';
+import { generateRecoveryKey } from 'cryptojs';
+import { updateStore } from './modules/idbUpdateStore.js';
+
+let subjects = {
+    version: buildVersion,
+    semesters: []
+}
 
 let settings = {
     lang: undefined,
     examName: 'Schulaufgaben',
     showMultiplier: false,
     darkmode: true,
-    activeSession: undefined,
+    activeSemester: undefined,
     seenDownloadMessage: false,
     offline: false,
     seenStoragePolicy: false
@@ -32,10 +39,18 @@ const iconPaths = {
     "delete-icon": "M 9.4921875,2.41875 8.6015625,3.75 H 15.398438 L 14.507813,2.41875 C 14.4375,2.315625 14.320313,2.25 14.19375,2.25 H 9.8015625 C 9.675,2.25 9.5578125,2.3109375 9.4875,2.41875 Z M 16.382813,1.171875 18.103125,3.75 H 18.75 21 21.375 C 21.998438,3.75 22.5,4.2515625 22.5,4.875 22.5,5.4984375 21.998438,6 21.375,6 H 21 V 20.25 C 21,22.321875 19.321875,24 17.25,24 H 6.75 C 4.678125,24 3,22.321875 3,20.25 V 6 H 2.625 C 2.0015625,6 1.5,5.4984375 1.5,4.875 1.5,4.2515625 2.0015625,3.75 2.625,3.75 H 3 5.25 5.896875 L 7.6171875,1.1671875 C 8.1046875,0.440625 8.925,0 9.8015625,0 H 14.19375 c 0.876563,0 1.696875,0.440625 2.184375,1.1671875 z M 5.25,6 v 14.25 c 0,0.829687 0.6703125,1.5 1.5,1.5 h 10.5 c 0.829687,0 1.5,-0.670313 1.5,-1.5 V 6 Z M 9,9 v 9.75 C 9,19.1625 8.6625,19.5 8.25,19.5 7.8375,19.5 7.5,19.1625 7.5,18.75 V 9 C 7.5,8.5875 7.8375,8.25 8.25,8.25 8.6625,8.25 9,8.5875 9,9 Z m 3.75,0 v 9.75 c 0,0.4125 -0.3375,0.75 -0.75,0.75 -0.4125,0 -0.75,-0.3375 -0.75,-0.75 V 9 c 0,-0.4125 0.3375,-0.75 0.75,-0.75 0.4125,0 0.75,0.3375 0.75,0.75 z m 3.75,0 v 9.75 c 0,0.4125 -0.3375,0.75 -0.75,0.75 C 15.3375,19.5 15,19.1625 15,18.75 V 9 c 0,-0.4125 0.3375,-0.75 0.75,-0.75 0.4125,0 0.75,0.3375 0.75,0.75 z",
     "close-icon": `<path d="m 21.4125,5.4125 c 0.78125,-0.78125 0.78125,-2.05 0,-2.83125 C 20.63125,1.8 19.3625,1.8 18.58125,2.58125 L 12,9.16875 5.4125,2.5875 C 4.63125,1.80625 3.3625,1.80625 2.58125,2.5875 1.8,3.36875 1.8,4.6375 2.58125,5.41875 L 9.16875,12 2.5875,18.5875 c -0.78125,0.78125 -0.78125,2.05 0,2.83125 0.78125,0.78125 2.05,0.78125 2.83125,0 L 12,14.83125 18.5875,21.4125 c 0.78125,0.78125 2.05,0.78125 2.83125,0 0.78125,-0.78125 0.78125,-2.05 0,-2.83125 L 14.83125,12 Z" style="stroke-width:0.0625" />`,
     "ios-share-icon": "m 11.55943,0.43947875 c -0.58597,-0.58597 -1.53758,-0.58597 -2.12355,0 L 3.43559,6.4397688 c -0.58597,0.58597 -0.58597,1.53758 0,2.12354 0.58597,0.58597 1.53758,0.58597 2.12354,0 l 3.4408,-3.44079 v 9.8770402 c 0,0.82973 0.67034,1.50008 1.50007,1.50008 0.82973,0 1.50007,-0.67035 1.50007,-1.50008 V 5.1225188 l 3.44079,3.44079 c 0.58597,0.58597 1.53758,0.58597 2.12355,0 0.58596,-0.58596 0.58596,-1.53757 0,-2.12354 L 11.56411,0.43947875 Z M 2.99963,16.499639 c 0,-0.82973 -0.67034,-1.50008 -1.50007,-1.50008 -0.82973,0 -1.50007,0.67035 -1.50007,1.50008 v 3.00014 c 0,2.4845 2.01572,4.50022 4.50022,4.50022 h 12.00058 c 2.4845,0 4.50022,-2.01572 4.50022,-4.50022 v -3.00014 c 0,-0.82973 -0.67034,-1.50008 -1.50007,-1.50008 -0.82973,0 -1.50008,0.67035 -1.50008,1.50008 v 3.00014 c 0,0.82973 -0.67034,1.50008 -1.50007,1.50008 H 4.49971 c -0.82973,0 -1.50008,-0.67035 -1.50008,-1.50008 z",
+    "sort-icon": "m 6.3748144,1.4999998 c -0.4218745,0 -0.8202942,0.1781437 -1.1062317,0.4875183 l -4.1249998,4.5 c -0.55781192,0.609375 -0.51562437,1.560901 0.09375,2.118713 0.6093744,0.557812 1.5609013,0.515625 2.1187132,-0.09375 L 4.8748144,6.8578491 V 21 c 0,0.829686 0.6703135,1.5 1.5,1.5 0.8296871,0 1.5,-0.670314 1.5,-1.5 V 6.8578491 l 1.5187683,1.654632 c 0.5578122,0.6140621 1.5046523,0.651562 2.1187133,0.09375 0.614062,-0.557812 0.651562,-1.509338 0.09375,-2.118713 l -4.1249999,-4.5 C 7.1951091,1.6781434 6.7966889,1.4999998 6.3748144,1.4999998 Z m 11.2487186,0 c -0.829687,0 -1.5,0.6703134 -1.5,1.5000001 V 17.142151 l -1.518768,-1.654633 c -0.557812,-0.609375 -1.509339,-0.651562 -2.118714,-0.09375 -0.609374,0.557812 -0.651562,1.509339 -0.09375,2.118713 l 4.125,4.5 C 16.803238,22.321856 17.201658,22.5 17.623533,22.5 c 0.421874,0 0.820295,-0.178144 1.106232,-0.487519 l 4.125,-4.5 c 0.557812,-0.609374 0.520312,-1.560901 -0.09375,-2.118713 -0.614062,-0.557812 -1.560902,-0.520312 -2.118714,0.09375 l -1.518768,1.654633 V 2.9999999 c 0,-0.8296867 -0.670313,-1.5000001 -1.5,-1.5000001 z",
+    "alphabet-asc-icon": "m 7.2785827,15.200984 c 0,0.870511 0.703294,1.573805 1.573805,1.573805 h 2.4934993 l -3.6099173,3.609917 c -0.452469,0.452469 -0.585259,1.126255 -0.339352,1.716432 0.245907,0.590177 0.816412,0.973793 1.45577,0.973793 h 6.2952233 c 0.870512,0 1.573806,-0.703295 1.573806,-1.573806 0,-0.870512 -0.703294,-1.573806 -1.573806,-1.573806 h -2.493498 l 3.609917,-3.609917 c 0.452469,-0.452469 0.585259,-1.126255 0.339352,-1.716432 -0.245907,-0.590177 -0.816412,-0.973792 -1.455771,-0.973792 H 8.8523877 c -0.870511,0 -1.573805,0.703294 -1.573805,1.573806 z M 12,0.9250689 c -0.595095,0 -1.141009,0.334434 -1.406589,0.870511 l -3.1476123,6.295223 -0.786902,1.573806 c -0.388533,0.7770671 -0.07377,1.7213501 0.703294,2.1098841 0.777067,0.388533 1.72135,0.07377 2.109883,-0.703295 l 0.354107,-0.703294 h 4.3476383 l 0.354106,0.703294 c 0.388534,0.777067 1.332817,1.091828 2.109884,0.703295 0.777066,-0.388534 1.091827,-1.332817 0.703294,-2.1098841 L 16.5542,8.0908029 13.406589,1.7955799 C 13.141009,1.2595029 12.595095,0.9250689 12,0.9250689 Z M 11.006535,8.0071949 12,6.0202649 l 0.993465,1.98693 z",
+    "alphabet-desc-icon": "m 7.278583,2.5575432 c 0,0.870511 0.703294,1.573805 1.573805,1.573805 h 2.493499 L 7.73597,7.7412652 C 7.283501,8.1937342 7.150711,8.8675202 7.396618,9.4576972 7.642525,10.047875 8.21303,10.43149 8.852388,10.43149 h 6.295223 c 0.870512,0 1.573806,-0.7032948 1.573806,-1.5738058 0,-0.870512 -0.703294,-1.573806 -1.573806,-1.573806 h -2.493498 l 3.609917,-3.609917 c 0.452469,-0.452469 0.585259,-1.126255 0.339352,-1.716432 C 16.357475,1.3673522 15.78697,0.98373724 15.147611,0.98373724 H 8.852388 c -0.870511,0 -1.573805,0.70329396 -1.573805,1.57380596 z M 12,12.000378 c -0.595095,0 -1.141009,0.334434 -1.406589,0.870511 l -3.147612,6.295223 -0.786902,1.573806 c -0.388534,0.777067 -0.07377,1.72135 0.703294,2.109884 0.777067,0.388533 1.72135,0.07377 2.109883,-0.703295 l 0.354107,-0.703294 h 4.347638 l 0.354106,0.703294 c 0.388534,0.777067 1.332817,1.091828 2.109884,0.703295 0.777066,-0.388534 1.091827,-1.332817 0.703294,-2.109884 L 16.5542,19.166112 13.406589,12.870889 C 13.141009,12.334812 12.595095,12.000378 12,12.000378 Z M 11.006535,19.082504 12,17.095574 l 0.993465,1.98693 z",
+    "grade-asc-icon": "m 12.052165,0.94430121 c -0.185333,-0.00651 -0.373001,0.019805 -0.554429,0.080898 L 9.128058,1.8150917 c -0.824449,0.2764621 -1.273662,1.174966 -0.997201,1.9994154 0.276463,0.8244498 1.17003,1.27376 1.999416,0.9972973 l 0.291292,-0.098737 V 7.260452 H 9.631672 c -0.873817,0 -1.579784,0.7059674 -1.579784,1.5797848 0,0.8738179 0.705967,1.5797852 1.579784,1.5797852 h 2.369678 2.369678 c 0.873817,0 1.579785,-0.7059673 1.579785,-1.5797852 0,-0.8738174 -0.705968,-1.5797848 -1.579785,-1.5797848 H 13.581135 V 2.5210972 c 0,-0.5084929 -0.24688,-0.987366 -0.656636,-1.2835755 l -0.0049,0.00492 C 12.663484,1.0573085 12.361054,0.95514871 12.052165,0.94430121 Z m 0.41452,10.66200679 c -0.507423,-0.02155 -1.016486,0.200559 -1.340465,0.638702 l -2.40921,3.248472 c -0.691156,0.93306 -1.061419,2.05862 -1.061419,3.218774 0,2.399296 1.945113,4.344409 4.34441,4.344409 2.399296,0 4.344408,-1.945113 4.344408,-4.344409 0,-1.934148 -1.262463,-3.572254 -3.008573,-4.135944 l 0.33285,-0.450293 c 0.518367,-0.701029 0.370204,-1.693371 -0.330825,-2.211737 -0.262886,-0.194388 -0.566723,-0.295044 -0.871176,-0.307974 z m -0.533602,5.528284 c 0.615639,-0.02579 1.21594,0.311865 1.496091,0.903864 0.373535,0.78933 0.03646,1.731944 -0.752867,2.10548 -0.789331,0.373535 -1.731945,0.03646 -2.10548,-0.752866 -0.373535,-0.789332 -0.03646,-1.731946 0.752866,-2.105481 0.197333,-0.09338 0.404177,-0.142403 0.60939,-0.150997 z",
+    "grade-desc-icon": "M 12.467643,0.92024312 C 11.959178,0.89864846 11.449071,1.1212139 11.124427,1.5602564 L 8.7102694,4.8153963 c -0.692574,0.9349753 -1.063597,2.0628464 -1.063597,3.2253816 0,2.4042211 1.9491064,4.3533271 4.3533276,4.3533271 2.404222,0 4.353328,-1.949106 4.353328,-4.3533271 0,-1.9381182 -1.265054,-3.5795872 -3.014749,-4.1444342 L 13.672112,3.4451266 C 14.191543,2.7426586 14.043076,1.7482792 13.340608,1.2288486 13.077182,1.0340621 12.772721,0.93319988 12.467643,0.92024312 Z M 11.932946,6.4598754 c 0.616903,-0.025838 1.218435,0.3125053 1.499162,0.9057192 0.374301,0.7909509 0.03654,1.7355 -0.754412,2.1098025 -0.790953,0.374302 -1.735501,0.036539 -2.109803,-0.7544119 -0.374301,-0.7909514 -0.03654,-1.7355005 0.754412,-2.1098025 0.197738,-0.093576 0.405006,-0.142695 0.610641,-0.1513073 z m 0.119326,7.1261386 c -0.185714,-0.0065 -0.373766,0.01985 -0.555567,0.08107 l -2.3745426,0.791514 c -0.826142,0.277029 -1.276277,1.177378 -0.999248,2.00352 0.27703,0.826142 1.172431,1.276374 2.0035206,0.999344 l 0.29189,-0.09894 v 2.552614 H 9.6268106 c -0.8756112,0 -1.5830282,0.707416 -1.5830282,1.583028 0,0.875611 0.707417,1.583028 1.5830282,1.583028 h 2.3745424 2.374542 c 0.875612,0 1.583028,-0.707417 1.583028,-1.583028 0,-0.875612 -0.707416,-1.583028 -1.583028,-1.583028 h -0.791514 v -4.749085 c 0,-0.509537 -0.247387,-0.989393 -0.657985,-1.28621 l -0.0049,0.0049 C 12.664843,13.69923 12.361793,13.59686 12.05227,13.585991 Z",
+    "gradeCount-asc-icon": "M 7.0211,0 C 5.49008,0 4.22457,1.265515 4.22457,2.796529 V 21.203472 C 4.22457,22.734485 5.49008,24 7.0211,24 h 9.9578 c 1.53101,0 2.79653,-1.265515 2.79653,-2.796528 V 2.796529 C 19.77543,1.265515 18.50991,0 16.9789,0 Z m 0,2.113937 h 9.9578 c 0.39646,0 0.68259,0.286131 0.68259,0.682592 v 18.406943 c 0,0.396459 -0.28613,0.682591 -0.68259,0.682591 H 7.0211 c -0.39646,0 -0.68259,-0.286132 -0.68259,-0.682591 V 2.796529 c 0,-0.396461 0.28613,-0.682592 0.68259,-0.682592 z m 5.02256,0.632324 c -0.15513,-0.0054 -0.31222,0.01658 -0.46408,0.06771 L 9.59612,3.475195 c -0.69007,0.231401 -1.06604,0.98343 -0.83464,1.6735 0.2314,0.690069 0.9793,1.066137 1.6735,0.834737 l 0.24381,-0.08268 V 8.03296 h -0.66112 c -0.73139,0 -1.32225,0.590955 -1.32225,1.322346 0,0.731391 0.59085,1.322243 1.32225,1.322243 h 1.98346 1.98347 c 0.73139,0 1.32224,-0.590852 1.32224,-1.322243 0,-0.731391 -0.59085,-1.322346 -1.32224,-1.322346 H 13.32338 V 4.066128 c 0,-0.425612 -0.20658,-0.826484 -0.54954,-1.074413 l -0.004,0.0041 C 12.55548,2.840859 12.30233,2.755309 12.04379,2.74623 Z m 0.34692,8.924262 c -0.42472,-0.01804 -0.85072,0.167846 -1.12189,0.534574 l -2.0166,2.719011 c -0.57851,0.780977 -0.88842,1.723078 -0.88842,2.694134 0,2.008227 1.6281,3.63622 3.63633,3.63622 2.00822,0 3.63632,-1.627993 3.63632,-3.63622 0,-1.618894 -1.05674,-2.990069 -2.51825,-3.461882 l 0.27859,-0.376854 c 0.43388,-0.586765 0.30993,-1.417367 -0.27683,-1.851243 -0.22004,-0.162704 -0.47442,-0.246917 -0.72925,-0.25774 z m -0.44663,4.627128 c 0.51529,-0.02158 1.01777,0.261093 1.25226,0.7566 0.31265,0.660675 0.0305,1.449616 -0.63016,1.762267 -0.66067,0.312652 -1.44961,0.03052 -1.76226,-0.630155 -0.31265,-0.660675 -0.0305,-1.449617 0.63015,-1.762268 0.16517,-0.07816 0.33824,-0.11925 0.51001,-0.126444 z",
+    "gradeCount-desc-icon": "M 7.0211002,4.5e-7 C 5.4900903,4.5e-7 4.2245704,1.2655165 4.2245704,2.7965295 V 21.203472 C 4.2245704,22.734484 5.4900903,24 7.0211002,24 h 9.9578008 c 1.531009,0 2.796529,-1.265516 2.796529,-2.796528 V 2.7965295 C 19.77543,1.2655165 18.509911,4.5e-7 16.978901,4.5e-7 Z m 0,2.11393705 h 9.9578008 c 0.396459,0 0.682589,0.2861319 0.682589,0.6825919 V 21.203472 c 0,0.39646 -0.28613,0.682591 -0.682589,0.682591 H 7.0211002 c -0.39646,0 -0.6825899,-0.286131 -0.6825899,-0.682591 V 2.7965295 c 0,-0.04956 0.00499,-0.0974 0.013099,-0.1431661 0.060201,-0.320364 0.3225705,-0.5394259 0.6694806,-0.5394259 z m 5.3694808,0.5723529 c -0.42472,-0.01804 -0.85072,0.1678459 -1.12189,0.5345739 L 9.2520806,5.9398752 c -0.5789604,0.78063 -0.8884004,1.7230799 -0.8884004,2.6941353 0,2.0082245 1.6280904,3.6362185 3.6363198,3.6362185 2.008221,0 3.63632,-1.627994 3.63632,-3.6362185 0,-1.6188932 -1.05675,-2.9900703 -2.51825,-3.4618833 L 13.396661,4.7952733 C 13.83047,4.2084563 13.706591,3.3779053 13.11983,2.9440304 12.899791,2.7813265 12.64541,2.6971134 12.390581,2.6862904 Z M 11.94395,7.3134183 c 0.51529,-0.021581 1.01777,0.261094 1.25226,0.7566 0.312651,0.6606753 0.0305,1.4496163 -0.630149,1.7622663 -0.66068,0.3126534 -1.449621,0.03051 -1.76227,-0.630154 -0.31265,-0.660674 -0.0305,-1.4496173 0.63015,-1.7622683 0.16517,-0.07816 0.33824,-0.11925 0.510009,-0.126444 z m 0.0997,6.0025297 c -0.0936,0.0055 -0.312221,0.01657 -0.46407,0.06771 l -1.9834804,0.661225 c -0.6900602,0.2314 -1.0660301,0.98343 -0.8346301,1.673498 0.2314,0.690069 0.9793001,1.066138 1.6735005,0.834738 l 0.2438,-0.08269 v 2.132208 h -0.661112 c -0.7313904,0 -1.3222508,0.590956 -1.3222508,1.322346 0,0.731391 0.5908604,1.322243 1.3222508,1.322243 h 1.983459 1.983471 c 0.73139,0 1.32224,-0.590852 1.32224,-1.322243 0,-0.73139 -0.59085,-1.322346 -1.32224,-1.322346 h -0.661221 v -3.966832 c 0,-0.425611 -0.206579,-0.826482 -0.549549,-1.074413 l -0.004,0.0041 c -0.21436,-0.154969 -0.47143,-0.264748 -0.726051,-0.249599 z",
+
 }
 
 let scene;
-let activeSession;
+let activeSemester;
 let editing = false;
 
 function replaceIcons() {
@@ -85,31 +100,31 @@ function replaceIcons() {
 } 
 
 function addSubject(name) {
-    subjects.find(element => element.name === activeSession).grades.push({name, grades: []});
+    subjects.semesters.find(element => element.name === activeSemester).grades.push({name, grades: []});
 }
 
-function addSession(name) {
+function addSemester(name) {
     const cleared = deleteSpaces(name);
-    if(!cleared || subjects.find(element => element.name === cleared)) {
+    if(!cleared || subjects.semesters.find(element => element.name === cleared)) {
         showMessage(text({de:`Dieser Name ist nicht gültig`, en:`This name isn't valid`}));
         return false;
     }
-    subjects.push({ name: cleared, grades: [] })
-    activeSession = cleared;
-    settings.activeSession = activeSession;
-    setLocalStorage(settings, 'settings');
-    document.getElementById('sessionLink').textContent = '< ' + cleared;
-    loadSession();
+    subjects.semesters.push({ name: cleared, grades: [] })
+    activeSemester = cleared;
+    settings.activeSemester = activeSemester;
+    DataManager.storage.set('settings', settings);
+    document.getElementById('semesterLink').textContent = '< ' + cleared;
+    loadsemester();
     return true;
 }
 
 function addGrade(subjectName, grade, weight, description) {
-    if(activeSession == undefined) {
-        let newSession = prompt(text({de:`Geben Sie einen Namen für das Schuljahr ein, für das die Note eingetragen werden soll`, en:`Enter a name for the school year this grade belongs to`}));
-        addSession(newSession);
+    if(activeSemester == undefined) {
+        let newsemester = prompt(text({de:`Geben Sie einen Namen für das Schuljahr ein, für das die Note eingetragen werden soll`, en:`Enter a name for the school year this grade belongs to`}));
+        addSemester(newsemester);
     }
 
-    let subject = subjects.find(element => element.name === activeSession).grades.find(subject => subject.name === subjectName);
+    let subject = subjects.semesters.find(element => element.name === activeSemester).grades.find(subject => subject.name === subjectName);
 
     if (subject) {
         if (document.getElementById('schulaufgabe').checked) {
@@ -133,14 +148,176 @@ function addGrade(subjectName, grade, weight, description) {
 }
 
 function searchArray(array) {
-    for(i = 0; i < array.length; i ++) {
+    for(let i = 0; i < array.length; i ++) {
         if(Array.isArray(array[i])) return i;
     }
     return;
 }
 
+function sortArray(array, mode, order) {
+    if(!Array.isArray(array)) return;
+    let orderMultiplier = (order == 'desc') ? -1 : 1;
+    switch(mode) {
+        case 'alphabet': {
+            array.sort((a, b) => {
+                const nameA = a.name.toUpperCase();
+                const nameB = b.name.toUpperCase();
+
+                if(nameA < nameB) return (-1 * orderMultiplier);
+                if(nameA > nameB) return (1 * orderMultiplier);
+                return 0; //equal
+            });
+
+            sortIcon('alphabet', order);
+            break;
+        }
+        case 'grade': {
+            array.sort((a, b) => {
+                const avgA = a.avg;
+                const avgB = b.avg;
+
+                if(avgA < avgB) return (-1 * orderMultiplier);
+                if(avgA > avgB) return (1 * orderMultiplier);
+                return 0; //equal
+            });
+
+            sortIcon('grade', order);
+            break;
+        }
+        case 'gradeCount': {
+            array.sort((a, b) => {
+                const countA = a.grades.length;
+                const countB = b.grades.length;
+
+                if(countA < countB) return (-1 * orderMultiplier);
+                if(countA > countB) return (1 * orderMultiplier);
+                return 0; //equal
+            });
+
+            sortIcon('gradeCount', order);
+            break;
+        }
+        default: {
+            console.log(`Can't sort by ${mode}`);
+        }
+    }
+
+    return array;
+}
+
+function refreshAverages() {
+    for (const semester of subjects.semesters) {
+        const avgArray = [];
+        for (const subject of semester.grades) {
+            subject.avg = parseFloat(calculateAvg(subject.grades, subject.examWeight)) || 0;
+            avgArray.push(subject.avg);
+        }
+        semester.avg = calculateAvgFromArray(avgArray);
+    }
+}
+
+function refreshSort() {
+    // Sort all lists individually
+    for (const semester of subjects.semesters) {
+        if (semester.sorted) {
+            semester.grades = sortArray(semester.grades, semester.sorted.mode, semester.sorted.order);
+        }
+    }
+
+    // Sort the semesters list globally, if a top-level sort is defined
+    if (subjects.sorted) {
+        subjects.semesters = sortArray(subjects.semesters, subjects.sorted.mode, subjects.sorted.order);
+    }
+
+    DataManager.storage.set('subjects', subjects);
+}
+
+function sortButton(scope, mode, order) {
+    let path;
+    switch(scope) {
+        case 'semesters':
+            path = subjects.semesters;
+            sortArray(path, mode, order);
+
+            subjects.sorted = {mode, order};;
+
+            loadsemester();
+            break;
+        case 'main':
+            path = subjects.semesters.find(element => element.name === activeSemester).grades;
+            sortArray(path, mode, order);
+
+            subjects.semesters.find(element => element.name === activeSemester).sorted = {mode, order};
+
+            loadSubjects();
+            break;
+    }
+    
+    DataManager.storage.set('subjects', subjects);
+}
+
+function sortIcon(mode, order) {
+    const icon = document.getElementById('sortIcon');
+
+    if(mode && order) {
+        icon.className = `${mode}-${order}-icon`;
+
+        replaceIcons();
+        return;
+    }
+
+    icon.className = 'sort-icon';
+}
+
+async function sortMenu() {
+    const dialog = document.getElementById('sortDialog');
+    const messageSpan = document.getElementById('sortMessage');
+    messageSpan.innerHTML = text({de:`Wie soll die Tabelle sortiert werden?`, en:`How should the table be sorted?`});
+    
+    let sortData = null;
+
+    if (scene === 'semesters') {
+        sortData = subjects.sorted;
+    } 
+    else if (scene === 'main') {
+        const semester = subjects.semesters.find(el => el.name === activeSemester);
+        if (semester) sortData = semester.sorted;
+    }
+
+    if (sortData) {
+        document.getElementById('sortMode').value = sortData.mode;
+        document.getElementById('sortOrder').value = sortData.order;
+    }
+
+    const response = await sortPromise(dialog);
+    if(!response) return;
+    sortButton(scene, response.sortMode, response.order);
+}
+
+function sortPromise(dialog) {
+    return new Promise((resolve, reject) => {
+        dialog.showModal();
+        dialog.onclose = () => {
+            if(!(dialog.returnValue === 'true')) resolve(false);
+            
+            // Get the values from the select elements
+            const sortMode = document.getElementById('sortMode').value;
+            const order = document.getElementById('sortOrder').value;
+
+            // Resolve with an object containing the return value and the select values
+            resolve({
+                sortMode: sortMode,
+                order: order
+            });
+        };
+    });
+}
+
+
 function loadSubjects() {
-    if(!(subjects.find(element => element.name === activeSession).grades.length > 0)) {
+    const target = subjects.semesters.find(element => element.name === activeSemester);
+
+    if(!(subjects.semesters.find(element => element.name === activeSemester)?.grades.length > 0)) {
         emptyTable(document.getElementById('table'));
         let newTR = document.createElement('tr');
         newTR.id = 'emptyTable';
@@ -151,112 +328,80 @@ function loadSubjects() {
         document.getElementById('emptyTable').appendChild(newTH);
         return;
     }
+
     emptyTable(document.getElementById('table'));
-        let avg = [];
-        subjects.find(element => element.name === activeSession).grades.forEach(subject => {
-            let newTR = document.createElement('tr');
-            newTR.dataset.session = activeSession;
-            newTR.dataset.name = subject.name;
-            newTR.id = activeSession + subject.name;
-            newTR.className = 'subjTR';
-            document.getElementById('table').appendChild(newTR);
+
+    sortIcon(target.sorted?.mode, target.sorted?.order);
+
+    let avg = [];
+    subjects.semesters.find(element => element.name === activeSemester).grades.forEach(subject => {
+        let newTR = document.createElement('tr');
+        newTR.dataset.semester = activeSemester;
+        newTR.dataset.name = subject.name;
+        newTR.id = activeSemester + subject.name;
+        newTR.className = 'subjTR';
+        document.getElementById('table').appendChild(newTR);
 
 
-            let newSubjDiv = document.createElement('div');
+        let newSubjDiv = document.createElement('div');
 
-            let toolDiv = document.createElement('div');
-            toolDiv.classList = `transparent`;
+        let toolDiv = document.createElement('div');
+        toolDiv.classList = `transparent`;
 
-            let editBtn = document.createElement('i');
-            editBtn.classList = `edit-icon editIcon`;
-            toolDiv.appendChild(editBtn);
+        let editBtn = document.createElement('i');
+        editBtn.classList = `edit-icon editIcon`;
+        toolDiv.appendChild(editBtn);
 
-            let removeBtn = document.createElement('i');
-            removeBtn.classList = `delete-icon removeIcon`;
-            toolDiv.appendChild(removeBtn);
+        let removeBtn = document.createElement('i');
+        removeBtn.classList = `delete-icon removeIcon`;
+        toolDiv.appendChild(removeBtn);
 
-            let newSubj = document.createElement('th');
-            newSubj.textContent = subject.name;
-            newSubjDiv.appendChild(toolDiv);
-            newSubjDiv.appendChild(newSubj);
-            document.getElementById(activeSession + subject.name).appendChild(newSubjDiv);
+        let newSubj = document.createElement('th');
+        newSubj.textContent = subject.name;
+        newSubjDiv.appendChild(toolDiv);
+        newSubjDiv.appendChild(newSubj);
+        document.getElementById(activeSemester + subject.name).appendChild(newSubjDiv);
 
-            let calcAvg = calculateAvg(subject.grades, subject.examWeight);
-            if(parseFloat(calcAvg)) {
-                let newAvg = document.createElement('td');
-                newAvg.textContent = calcAvg;
-                avg.push(parseFloat(calcAvg));
-                document.getElementById(activeSession + subject.name).appendChild(newAvg);
-            }
+        let calcAvg = calculateAvg(subject.grades, subject.examWeight);
+        if(parseFloat(calcAvg)) {
+            let newAvg = document.createElement('td');
+            newAvg.textContent = calcAvg;
+            avg.push(parseFloat(calcAvg));
+            document.getElementById(activeSemester + subject.name).appendChild(newAvg);
+        }
 
-            let count = -1;
-            subject.grades.forEach(gradesArray => {
-                count ++;
-                let newTr = document.createElement('tr');
-                newTr.dataset.session = activeSession;
-                newTr.dataset.name = subject.name;
-                newTr.dataset.count = count;
-                newTr.id = activeSession + subject.name + count;
-                newTr.classList = activeSession + subject.name + ' hiddenTr';
-                document.getElementById('table').appendChild(newTr);
+        let count = -1;
+        subject.grades.forEach(gradesArray => {
+            count ++;
+            let newTr = document.createElement('tr');
+            newTr.dataset.semester = activeSemester;
+            newTr.dataset.name = subject.name;
+            newTr.dataset.count = count;
+            newTr.id = activeSemester + subject.name + count;
+            newTr.classList = activeSemester + subject.name + ' hiddenTr';
+            document.getElementById('table').appendChild(newTr);
 
-                if (Array.isArray(gradesArray)) {
-                    let newTd = document.createElement('td');
-                    newTd.textContent = settings.examName;
-                    document.getElementById(activeSession + subject.name + count).appendChild(newTd);
+            if (Array.isArray(gradesArray)) {
+                let newTd = document.createElement('td');
+                newTd.textContent = settings.examName;
+                document.getElementById(activeSemester + subject.name + count).appendChild(newTd);
 
-                    newTd = document.createElement('td');
-                    newTd.textContent = calculateAvg(gradesArray, 1);
-                    document.getElementById(activeSession + subject.name + count).appendChild(newTd);
+                newTd = document.createElement('td');
+                newTd.textContent = calculateAvg(gradesArray, 1);
+                document.getElementById(activeSemester + subject.name + count).appendChild(newTd);
 
-                    let count2 = -1;
-                    gradesArray.forEach(element => {
-                        count2 ++;
-                        let newTr = document.createElement('tr');
-                        newTr.dataset.session = activeSession;
-                        newTr.dataset.name = subject.name;
-                        newTr.dataset.count = count;
-                        newTr.dataset.innerCount = count2;
-                        newTr.id = activeSession + subject.name + count + count2;
-                        newTr.classList = activeSession + subject.name + ' ' + activeSession + subject.name + count + ' hiddenTr' + ' inExam';
-                        document.getElementById('table').appendChild(newTr);
+                let count2 = -1;
+                gradesArray.forEach(element => {
+                    count2 ++;
+                    let newTr = document.createElement('tr');
+                    newTr.dataset.semester = activeSemester;
+                    newTr.dataset.name = subject.name;
+                    newTr.dataset.count = count;
+                    newTr.dataset.innerCount = count2;
+                    newTr.id = activeSemester + subject.name + count + count2;
+                    newTr.classList = activeSemester + subject.name + ' ' + activeSemester + subject.name + count + ' hiddenTr' + ' inExam';
+                    document.getElementById('table').appendChild(newTr);
 
-                        let newGrdDiv = document.createElement('div');
-
-                        let toolDiv = document.createElement('div');
-                        toolDiv.classList = `transparent`;
-
-                        let editBtn = document.createElement('i');
-                        editBtn.classList = `edit-icon editIcon`;
-                        toolDiv.appendChild(editBtn);
-
-                        let removeBtn = document.createElement('i');
-                        removeBtn.classList = `delete-icon removeIcon`;
-                        toolDiv.appendChild(removeBtn);
-
-                        let newGrd = document.createElement('td');
-                        newGrd.textContent = element.description;
-                        newGrdDiv.appendChild(toolDiv);
-                        newGrdDiv.appendChild(newGrd);
-                        document.getElementById(activeSession + subject.name + count + count2).appendChild(newGrdDiv);
-
-                        let gradeDiv = document.createElement('div');
-                        gradeDiv.classList = 'gradeDiv';
-
-                        newGrd = document.createElement('td');
-                        newGrd.textContent = element.grade;
-                        gradeDiv.appendChild(newGrd);
-
-                        if(settings.showMultiplier) {
-                            newGrd = document.createElement('td');
-                            newGrd.textContent = element.weight + 'x';
-                            gradeDiv.appendChild(newGrd);
-                        }
-
-                        document.getElementById(activeSession + subject.name + count + count2).appendChild(gradeDiv);
-                    });
-                }
-                else {
                     let newGrdDiv = document.createElement('div');
 
                     let toolDiv = document.createElement('div');
@@ -271,73 +416,110 @@ function loadSubjects() {
                     toolDiv.appendChild(removeBtn);
 
                     let newGrd = document.createElement('td');
-                    newGrd.textContent = gradesArray.description;
+                    newGrd.textContent = element.description;
                     newGrdDiv.appendChild(toolDiv);
                     newGrdDiv.appendChild(newGrd);
-                    document.getElementById(activeSession + subject.name + count).appendChild(newGrdDiv);
+                    document.getElementById(activeSemester + subject.name + count + count2).appendChild(newGrdDiv);
 
                     let gradeDiv = document.createElement('div');
                     gradeDiv.classList = 'gradeDiv';
 
                     newGrd = document.createElement('td');
-                    newGrd.textContent = gradesArray.grade;
+                    newGrd.textContent = element.grade;
                     gradeDiv.appendChild(newGrd);
 
                     if(settings.showMultiplier) {
                         newGrd = document.createElement('td');
-                        newGrd.textContent = gradesArray.weight + 'x';
+                        newGrd.textContent = element.weight + 'x';
                         gradeDiv.appendChild(newGrd);
                     }
 
-                    document.getElementById(activeSession + subject.name + count).appendChild(gradeDiv);
+                    document.getElementById(activeSemester + subject.name + count + count2).appendChild(gradeDiv);
+                });
+            }
+            else {
+                let newGrdDiv = document.createElement('div');
+
+                let toolDiv = document.createElement('div');
+                toolDiv.classList = `transparent`;
+
+                let editBtn = document.createElement('i');
+                editBtn.classList = `edit-icon editIcon`;
+                toolDiv.appendChild(editBtn);
+
+                let removeBtn = document.createElement('i');
+                removeBtn.classList = `delete-icon removeIcon`;
+                toolDiv.appendChild(removeBtn);
+
+                let newGrd = document.createElement('td');
+                newGrd.textContent = gradesArray.description;
+                newGrdDiv.appendChild(toolDiv);
+                newGrdDiv.appendChild(newGrd);
+                document.getElementById(activeSemester + subject.name + count).appendChild(newGrdDiv);
+
+                let gradeDiv = document.createElement('div');
+                gradeDiv.classList = 'gradeDiv';
+
+                newGrd = document.createElement('td');
+                newGrd.textContent = gradesArray.grade;
+                gradeDiv.appendChild(newGrd);
+
+                if(settings.showMultiplier) {
+                    newGrd = document.createElement('td');
+                    newGrd.textContent = gradesArray.weight + 'x';
+                    gradeDiv.appendChild(newGrd);
                 }
-            });
+
+                document.getElementById(activeSemester + subject.name + count).appendChild(gradeDiv);
+            }
         });
+    });
 
-        let newTR = document.createElement('tr');
-        newTR.id = 'total';
-        newTR.className = 'subjTR';
-        document.getElementById('table').appendChild(newTR);
+    let newTR = document.createElement('tr');
+    newTR.id = 'total';
+    newTR.className = 'subjTR';
+    document.getElementById('table').appendChild(newTR);
 
-        let newSubj = document.createElement('th');
-        newSubj.textContent = text({de:`Gesamt`, en:`Total`});
-        document.getElementById('total').appendChild(newSubj);
+    let newSubj = document.createElement('th');
+    newSubj.textContent = text({de:`Gesamt`, en:`Total`});
+    document.getElementById('total').appendChild(newSubj);
 
+    let calcAvg = calculateAvgFromArray(avg);
+    if(parseFloat(calcAvg)) {
+        let newAvg = document.createElement('td');
         let calcAvg = calculateAvgFromArray(avg);
-        if(parseFloat(calcAvg)) {
-            let newAvg = document.createElement('td');
-            let calcAvg = calculateAvgFromArray(avg);
-            newAvg.textContent = calcAvg;
-            document.getElementById('total').appendChild(newAvg);
-        }
+        newAvg.textContent = calcAvg;
+        document.getElementById('total').appendChild(newAvg);
+    }
+
     replaceIcons();
 }
 
 /*function loadSubjects() {
     emptyTable(document.getElementById('table'));
         subjects.forEach(subject => {
-            console.log(activeSession + subject.name);
+            console.log(activeSemester + subject.name);
             
             let newTR = document.createElement('tr');
-            newTR.id = activeSession + subject.name;
+            newTR.id = activeSemester + subject.name;
             document.getElementById('table').appendChild(newTR);
 
             let newSubj = document.createElement('th');
-            newSubj.textContent = activeSession + subject.name;
-            document.getElementById(activeSession + subject.name).appendChild(newSubj);
+            newSubj.textContent = activeSemester + subject.name;
+            document.getElementById(activeSemester + subject.name).appendChild(newSubj);
 
             subject.grades.forEach(gradesArray => {
                 console.log(gradesArray.grade);
 
                 let newGrd = document.createElement('td');
                 newGrd.textContent = gradesArray.grade;
-                document.getElementById(activeSession + subject.name).appendChild(newGrd);
+                document.getElementById(activeSemester + subject.name).appendChild(newGrd);
             });
             console.log(calculateAvg(subject.grades));
 
             let newAvg = document.createElement('td');
             newAvg.textContent = calculateAvg(subject.grades);
-            document.getElementById(activeSession + subject.name).appendChild(newAvg);
+            document.getElementById(activeSemester + subject.name).appendChild(newAvg);
         });
 }*/
 
@@ -346,13 +528,13 @@ function emptyTable(el) {
 }
 
 function toggleAll(elements) {
-    if (elements[0].style.display == 'none') {
-        for (var i = 0; i < elements.length; i++) {
+    if (getComputedStyle(elements[0]).display === 'none') {
+        for (let i = 0; i < elements.length; i++) {
             elements[i].style.display = 'flex';
         }
     }
     else {
-        for (var i = 0; i < elements.length; i++) {
+        for (let i = 0; i < elements.length; i++) {
             elements[i].style.display = 'none';
         }
     }
@@ -404,7 +586,7 @@ function save() {
     if(document.getElementById('addVar').textContent) addVar = JSON.parse(document.getElementById('addVar').textContent);
     let name;
     let dir;
-    if(!(scene == 'editSession') && !(scene == 'addSession') || scene == 'sessions') dir = subjects.find(session => session.name === activeSession).grades;
+    if(!(scene == 'editsemester') && !(scene == 'addSemester') || scene == 'semesters') dir = subjects.semesters.find(semester => semester.name === activeSemester).grades;
     switch (scene) {
         case 'addGrade':
             if (document.getElementById('focusedSubj').value == '' || document.getElementById('grade').value == '' || document.getElementById('weight').value == '') {
@@ -415,7 +597,7 @@ function save() {
                 showMessage(text({de:`Die Fächer-Bezeichnung darf keine Zahl enthalten`, en:`The subject name must not contain  any number`}));
                 return;
             }
-            if(document.getElementById('focusedSubj').value.includes(activeSession)) {
+            if(document.getElementById('focusedSubj').value.includes(activeSemester)) {
                 showMessage(text({de:`Die Fächer-Bezeichnung kann nicht das Schuljahr enthalten`, en:`The subject can't contain the name of the year`}));
                 return;
             }*/
@@ -424,15 +606,19 @@ function save() {
         case 'addSubject':
             addSubject(document.getElementById('focusedSubj').value);
             break;
-        case 'addSession':
+        case 'addSemester':
             let newSessName = document.getElementById('addSess').value;
-            if(addSession(newSessName)) {
-                activeSession = deleteSpaces(newSessName);
-                settings.activeSession = activeSession;
-                setLocalStorage(settings, 'settings');
+            if(addSemester(newSessName)) {
+                activeSemester = deleteSpaces(newSessName);
+                settings.activeSemester = activeSemester;
+                DataManager.storage.set('settings', settings);
             }
             break;
         case 'editGrade':
+            if (document.getElementById('grade').value == '' || document.getElementById('weight').value == '') {
+                showMessage(text({de:`Die Felder müssen ausgefüllt sein`, en:`You need to fill in the inputs`}));
+                return;
+            }
             let newGrade = {
                 grade: 1,
                 weight: 1,
@@ -441,17 +627,16 @@ function save() {
             newGrade.grade = parseFloat(document.getElementById('grade').value);
             newGrade.weight = parseFloat(document.getElementById('weight').value);
             newGrade.description = document.getElementById('description').value;
-            subjects.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
 
-            if(addVar[2]) { //2 indices means Schulaufgabe
-                subjects.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]][addVar[2]] = newGrade;
+            if(addVar[2] || addVar[2] === 0) { //2 indices means Schulaufgabe
+                subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === addVar[0]).grades[addVar[1]][addVar[2]] = newGrade;
             }
             else {
-                subjects.find(element => element.name === activeSession).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
+                subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === addVar[0]).grades[addVar[1]] = newGrade;
             }
             toggleEditing();
             break;
-        case 'editSession':
+        case 'editsemester':
             name = document.getElementById('addSess').value;
             const cleaned = deleteSpaces(name);
 
@@ -459,17 +644,21 @@ function save() {
                 showMessage(text({de:`Ungültiger Name`, en:`Invalid name`}));
                 return;
             }
-            for (const session of subjects) {
-                if(session.name == cleaned) {
+            for (const semester of subjects.semesters) {
+                if(semester.name == cleaned) {
                     showMessage(text({de:`Ein Schuljahr mit diesem Namen ist bereits vorhanden`, en:`A school year with this name can't exist twice`}));
                     return;
                 }
             }
 
-            subjects[addVar].name = name;
+            subjects.semesters[addVar].name = name;
             toggleEditing();
             break;
         case 'editSubject':
+            if (document.getElementById('focusedSubj').value == '') {
+                showMessage(text({de:`Die Felder müssen ausgefüllt sein`, en:`You need to fill in the inputs`}));
+                return;
+            }
             name = document.getElementById('focusedSubj').value;
 
             if(dir.find(element => element.name === name) && !(dir.indexOf(dir.find(element => element.name === name)) == addVar)) {
@@ -480,19 +669,28 @@ function save() {
                 showMessage(text({de:`Die Fächer-Bezeichnung darf keine Zahl enthalten`, en:`The subject name must not contain  any number`}));
                 return;
             }
-            if(document.getElementById('focusedSubj').value.includes(activeSession)) {
+            if(document.getElementById('focusedSubj').value.includes(activeSemester)) {
                 showMessage(text({de:`Die Fächer-Bezeichnung kann nicht das Schuljahr enthalten`, en:`The subject can't contain the name of the year`}));
                 return;
             }*/
-            subjects.find(session => session.name == activeSession).grades[addVar].name = name;
+            subjects.semesters.find(semester => semester.name == activeSemester).grades[addVar].name = name;
             toggleEditing();
             break;
         default:
             break;
     }
-    setLocalStorage(subjects, 'subjects');
+    
+    onDataChanged();
+
     switchScene('main');
     clearInputs();
+}
+
+function onDataChanged() {
+    refreshAverages();
+    refreshSort();
+
+    DataManager.storage.set('subjects', subjects);
 }
 
 function clearInputs() {
@@ -511,22 +709,99 @@ function deleteSpaces(str) {
 }
 
 async function deleteData() {
-    if(!(await getConfirm(text({de:`Alle gespeicherten Daten löschen?`, en:`Delete all saved data?`})))) return;
-    deleteLocalStorage('subjects');
+    const message = {de:`Welche Daten sollen gelöscht werden?`, en:`What data should be deleted?`};
+    const options = [ 
+        {value: 'settings', content: text({de:'Einstellungen', en:'Settings'})},
+        {value: 'subjects', content: text({de:'Noten', en:'Grades'})},
+        {value: 'all', content: text({de:'Alle', en:'All'})},
+    ];
 
-    subjects = [];
-    settings = {
-        lang: 'de',
-        examName: 'Schulaufgaben',
-        showMultiplier: false,
-        darkmode: true,
-        activeSession: undefined,
-        seenDownloadMessage: false,
-        offline: false
+    let key = await selectDialog(message, options);
+    if(!key) return;
+    if(!(await getConfirm(text({de:`Alle ${key === 'settings' ? 'Einstellungen' : key === 'subjects' ? 'Noten' : 'gespeicherten Daten'} löschen?`, en:`Delete all ${key === 'settings' ? 'settings' : key === 'subjects' ? 'grades' : 'saved data'}?`})))) return;
+    DataManager.storage.remove(key === 'all' ? 'subjects' : key);
+
+    if(key === 'subjects' || key === 'all') {
+        subjects = {
+            version: buildVersion,
+            semesters: []
+        }
+
+        activeSemester = undefined;
+        settings.activeSemester = undefined;
     }
-    setLocalStorage(subjects, 'subjects');
-    setLocalStorage(settings, 'settings');
-    switchScene('main');
+
+    if(key === 'settings' || key === 'all') {
+        settings = {
+            lang: languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en',
+            examName: 'Schulaufgaben',
+            showMultiplier: false,
+            darkmode: true,
+            activeSemester: undefined,
+            seenDownloadMessage: false,
+            offline: false,
+            seenStoragePolicy: false
+        }
+    }
+
+    changeLang(settings.lang);
+    changeMode(settings.darkmode);
+
+    DataManager.storage.set('subjects', subjects);
+    DataManager.storage.set('settings', settings);
+    switchScene(key === 'settings' ? 'settings' : 'main');
+}
+
+async function selectDialog(message, options) {
+    const select = document.getElementById('dialogSelect');
+    select.innerHTML = '';
+    options.forEach(option => {
+        const obj = document.createElement('option');
+        obj.value = option.value;
+        obj.textContent = option.content;
+        select.appendChild(obj);
+    });
+    const dialog = document.getElementById('selectDialog');
+    const messageSpan = document.getElementById('selectMessage');
+    messageSpan.innerHTML = text(message);
+
+    const response = await selectPromise(dialog);
+    return response;
+}
+
+function selectPromise(dialog) {
+    return new Promise((resolve, reject) => {
+        dialog.showModal();
+        dialog.onclose = () => {
+            if(!(dialog.returnValue === 'true')) resolve(false);
+            
+            // Get the values from the select elements
+            const value = document.getElementById('dialogSelect').value;
+
+            // Resolve with an object containing the return value and the select values
+            resolve(value);
+        };
+    });
+}
+
+async function fileAccessDialog(message) {
+    document.getElementById('fileAccessKey').value = '';
+
+    const dialog = document.getElementById('fileAccessDialog');
+    const messageSpan = document.getElementById('fileAccessMessage');
+    messageSpan.innerHTML = text(message);
+
+    const response = await fileAccessPromise(dialog);
+    return response;
+}
+
+function fileAccessPromise(dialog) {
+    return new Promise((resolve, reject) => {
+        dialog.showModal();
+        dialog.onclose = () => {
+            resolve(dialog.returnValue === 'true');
+        };
+    });
 }
 
 function toggleEditing() {
@@ -539,8 +814,8 @@ function toggleEditing() {
     document.documentElement.style.setProperty('--editing', 'block');
 }
 
-function loadSession() {
-    if(!subjects.length > 0) {
+function loadsemester() {
+    if(!subjects.semesters.length > 0) {
         emptyTable(document.getElementById('table'));
         let newTR = document.createElement('tr');
         newTR.id = 'emptyTable';
@@ -551,58 +826,63 @@ function loadSession() {
         document.getElementById('emptyTable').appendChild(newTH);
         return;
     }
+
     emptyTable(document.getElementById('table'));
-        let avg = [];
-        subjects.forEach(session => {
-            let newTR = document.createElement('tr');
-            newTR.id = session.name;
-            newTR.className = 'sessionTR';
-            document.getElementById('table').appendChild(newTR);
 
-            let newGrdDiv = document.createElement('div');
+    sortIcon(subjects.sorted?.mode, subjects.sorted?.order);
 
-            let toolDiv = document.createElement('div');
-            toolDiv.classList = `transparent`;
-
-            let editBtn = document.createElement('i');
-            editBtn.classList = `edit-icon editIcon`;
-            toolDiv.appendChild(editBtn);
-
-            let removeBtn = document.createElement('i');
-            removeBtn.classList = `delete-icon removeIcon`;
-            toolDiv.appendChild(removeBtn);
-
-            let newSess = document.createElement('th');
-            newSess.textContent = session.name;
-            newGrdDiv.appendChild(toolDiv);
-            newGrdDiv.appendChild(newSess);
-            document.getElementById(session.name).appendChild(newGrdDiv);
-
-            let innerAvg = getAvgArray(session.grades);
-            let calcAvg = calculateAvgFromArray(innerAvg);
-            if(parseFloat(calcAvg)) {
-                let newAvg = document.createElement('td');
-                newAvg.textContent = calcAvg;
-                avg.push(parseFloat(calcAvg));
-                document.getElementById(session.name).appendChild(newAvg);
-            }
-        });
-
+    let avg = [];
+    subjects.semesters.forEach(semester => {
         let newTR = document.createElement('tr');
-        newTR.id = 'total';
-        newTR.className = 'sessionTR';
+        newTR.id = semester.name;
+        newTR.className = 'semesterTR';
         document.getElementById('table').appendChild(newTR);
 
-        let newSubj = document.createElement('th');
-        newSubj.textContent = text({de:`Gesamt`, en:`Total`});
-        document.getElementById('total').appendChild(newSubj);
+        let newGrdDiv = document.createElement('div');
 
-        let calcAvg = calculateAvgFromArray(avg);
+        let toolDiv = document.createElement('div');
+        toolDiv.classList = `transparent`;
+
+        let editBtn = document.createElement('i');
+        editBtn.classList = `edit-icon editIcon`;
+        toolDiv.appendChild(editBtn);
+
+        let removeBtn = document.createElement('i');
+        removeBtn.classList = `delete-icon removeIcon`;
+        toolDiv.appendChild(removeBtn);
+
+        let newSess = document.createElement('th');
+        newSess.textContent = semester.name;
+        newGrdDiv.appendChild(toolDiv);
+        newGrdDiv.appendChild(newSess);
+        document.getElementById(semester.name).appendChild(newGrdDiv);
+
+        let innerAvg = getAvgArray(semester.grades);
+        let calcAvg = calculateAvgFromArray(innerAvg);
         if(parseFloat(calcAvg)) {
             let newAvg = document.createElement('td');
             newAvg.textContent = calcAvg;
-            document.getElementById('total').appendChild(newAvg);
+            avg.push(parseFloat(calcAvg));
+            document.getElementById(semester.name).appendChild(newAvg);
         }
+    });
+
+    let newTR = document.createElement('tr');
+    newTR.id = 'total';
+    newTR.className = 'semesterTR';
+    document.getElementById('table').appendChild(newTR);
+
+    let newSubj = document.createElement('th');
+    newSubj.textContent = text({de:`Gesamt`, en:`Total`});
+    document.getElementById('total').appendChild(newSubj);
+
+    let calcAvg = calculateAvgFromArray(avg);
+    if(parseFloat(calcAvg)) {
+        let newAvg = document.createElement('td');
+        newAvg.textContent = calcAvg;
+        document.getElementById('total').appendChild(newAvg);
+    }
+
     replaceIcons();
 }
 
@@ -618,11 +898,8 @@ function getAvgArray(array) {
 function switchScene(target) {
     switch (target) {
         case 'add':
-            if (scene == 'addGrade' || scene == 'addSession' || scene == 'editGrade' || scene == 'editSession' || scene == 'editSubject') save();
-            else if (scene == 'sessions') {
-                scene = 'addSession';
-                switchScene('addSession');
-            }
+            if (scene == 'addGrade' || scene == 'addSemester' || scene == 'editGrade' || scene == 'editsemester' || scene == 'editSubject') save();
+            else if (scene == 'semesters' || !activeSemester) switchScene('addSemester');
             else {
                 scene = 'addGrade';
                 document.getElementById('add').style.display = 'flex';
@@ -635,7 +912,8 @@ function switchScene(target) {
                 setSubjectList();
             }
             break;
-        case 'addSession':
+        case 'addSemester':
+            scene = 'addSemester';
             document.getElementById('add').style.display = 'flex';
             document.getElementById('centerbuttonicon').className = 'tick-icon';
             document.getElementById('settings').style.display = 'none';
@@ -645,10 +923,10 @@ function switchScene(target) {
         case 'main':
             document.getElementById('add').style.display = 'none';
             document.getElementById('centerbuttonicon').className = 'plus-icon';
-            document.getElementById('sessionLink').style.display = 'block';
+            document.getElementById('semesterLink').style.display = 'block';
             document.getElementById('settings').style.display = 'none';
-            if(activeSession == undefined) {
-                switchScene('sessions');
+            if(!activeSemester) {
+                switchScene('semesters');
                 break;
             }
             scene = 'main';
@@ -665,13 +943,13 @@ function switchScene(target) {
             document.getElementById('darkmode').checked = settings.darkmode;
             document.getElementById('offline').checked = settings.offline;
             break;
-        case 'sessions':
-            loadSession();
-            document.getElementById('sessionLink').style.display = 'none';
-            scene = 'sessions';
-            activeSession = undefined;
-            settings.activeSession = undefined;
-            setLocalStorage(settings, 'settings');
+        case 'semesters':
+            loadsemester();
+            document.getElementById('semesterLink').style.display = 'none';
+            scene = 'semesters';
+            activeSemester = undefined;
+            settings.activeSemester = undefined;
+            DataManager.storage.set('settings', settings);
             break;
         case 'editGrade':
             scene = 'editGrade';
@@ -684,8 +962,8 @@ function switchScene(target) {
             document.getElementById('focusedSubj').style.display = 'none';
             document.getElementById('schulaufgabebox').style.display = 'none';
             break;
-        case 'editSession':
-            scene = 'editSession';
+        case 'editsemester':
+            scene = 'editsemester';
             document.getElementById('add').style.display = 'flex';
             document.getElementById('centerbuttonicon').className = 'tick-icon';
             document.getElementById('settings').style.display = 'none';
@@ -706,9 +984,9 @@ function switchScene(target) {
 }
 
 function setSubjectList() {
-    dataList = document.getElementById('subjects');
+    const dataList = document.getElementById('subjects');
     dataList.innerHTML = '';
-    subjects.find(session => session.name == activeSession).grades.forEach(subject => {
+    subjects.semesters.find(semester => semester.name === activeSemester).grades.forEach(subject => {
         const option = document.createElement('option');
         option.value = subject.name;
         dataList.appendChild(option);
@@ -725,10 +1003,10 @@ function editScene(grade, slot) {
     document.getElementById('addVar').textContent = slot;
 }
 
-function editSessionScene(session, slot) {
-    switchScene('editSession');
+function editsemesterScene(semester, slot) {
+    switchScene('editsemester');
 
-    document.getElementById('addSess').value = session.name;
+    document.getElementById('addSess').value = semester.name;
     document.getElementById('addVar').textContent = slot;
 }
 
@@ -752,25 +1030,25 @@ function saveSettings() {
         settings.lang = document.getElementById('lang').value;
         changeLang(settings.lang);
     }
-    settings.examName = document.getElementById('examName').value;
+    settings.examName = document.getElementById('examName').value || 'Schulaufgaben';
     settings.showMultiplier = document.getElementById('showMultipliers').checked;
     settings.darkmode = document.getElementById('darkmode').checked;
     settings.offline = document.getElementById('offline').checked;
 
     changeMode(settings.darkmode);
 
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('settings', settings);
 }
 
 function changeMode(mode) {
     if (mode) {
-        Array.from(document.getElementsByClassName('background')).forEach(element => {
+        document.querySelectorAll('.background').forEach(element => {
             element.style.display = 'block';
             document.documentElement.style.setProperty('--main-color', '#fff');
         });
     }
     else {
-        Array.from(document.getElementsByClassName('background')).forEach(element => {
+        document.querySelectorAll('.background').forEach(element => {
             element.style.display = 'none';
         });
         document.documentElement.style.setProperty('--main-color', '#000');
@@ -789,8 +1067,16 @@ function changeLang(lang) {
             document.querySelector('#downloadDialog button[value="true"]').textContent = 'Später';
             document.querySelector('#confirmDialog button[value="false"]').textContent = 'Abbrechen';
             document.querySelector('#confirmDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#selectDialog button[value="false"]').textContent = 'Abbrechen';
+            document.querySelector('#selectDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog button[value="false"]').textContent = 'Abbrechen';
+            document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetisch';
+            document.querySelector('#sortDialog option[value="grade"]').textContent = 'Note';
+            document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'Notenanzahl';
+            document.querySelector('#sortDialog option[value="asc"]').textContent = 'aufsteigend';
+            document.querySelector('#sortDialog option[value="desc"]').textContent = 'absteigend';
             document.querySelector('#infoDialog button[value="true"]').textContent = 'Fertig';
-            document.getElementById('updateGuide').textContent = 'Starte Gradia neu, um das Update zu installieren.';
 
             document.getElementById('addSess').placeholder = 'Schuljahr-Name';
             document.getElementById('focusedSubj').placeholder = 'Fach-Name';
@@ -809,8 +1095,16 @@ function changeLang(lang) {
             document.querySelector('#downloadDialog button[value="true"]').textContent = 'Later';
             document.querySelector('#confirmDialog button[value="false"]').textContent = 'Cancel';
             document.querySelector('#confirmDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#selectDialog button[value="false"]').textContent = 'Cancel';
+            document.querySelector('#selectDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog button[value="false"]').textContent = 'Cancel';
+            document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
+            document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetic';
+            document.querySelector('#sortDialog option[value="grade"]').textContent = 'grade';
+            document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'grade count';
+            document.querySelector('#sortDialog option[value="asc"]').textContent = 'ascending';
+            document.querySelector('#sortDialog option[value="desc"]').textContent = 'descending';
             document.querySelector('#infoDialog button[value="true"]').textContent = 'Confirm';
-            document.getElementById('updateGuide').textContent = 'Restart Gradia to install the update.';
 
             document.getElementById('addSess').placeholder = 'School year name';
             document.getElementById('focusedSubj').placeholder = 'Subject name';
@@ -868,150 +1162,67 @@ function dialogPromise(dialog) {
 
 
 
-function setLocalStorage(value, key) {
-    if (typeof(Storage) !== "undefined") {
-        // Retrieve the array from localStorage
-        var gradiaArray = JSON.parse(localStorage.getItem('gradia')) || [];
 
-        gradiaArray = gradiaArray.filter(item => item.key !== key);
 
-        // Push new value with key into the array
-        gradiaArray.push({ key: key, value: value });
 
-        // Convert the updated array back into a string and set it in localStorage
-        localStorage.setItem('gradia', JSON.stringify(gradiaArray));
-    } else {
-        console.log("Sorry, your browser does not support Web Storage...");
+async function downloadMenu() {
+    const message = {de:`Welches Datei-Format soll genutzt werden?`, en:`Which data-format should be used?`};
+    const options = [ 
+        {value: 'gradia-grd', content: text({de:'.grd - Maximale Kompatibilität', en:'.grd - Maximum Compatibility'})},
+        {value: 'gradia-grde', content: text({de:'.grde - Maximale Sicherheit', en:'.grde - Maximum Security'})},
+    ]
+
+    const recoveryKey = await generateRecoveryKey();
+    document.getElementById('recoveryKey').textContent = recoveryKey;
+    document.getElementById('copyRecoveryKey').addEventListener('click', copyHandler);
+
+    document.getElementById('dialogSelect').addEventListener('change', changeHandler);
+
+    function copyHandler() {
+        navigator.clipboard.writeText(document.getElementById('recoveryKey').textContent);
     }
-}
 
-function deleteLocalStorage(key) {
-    var gradiaArray = JSON.parse(localStorage.getItem('gradia')) || [];
-
-    gradiaArray = gradiaArray.filter(item => item.key !== key);
-
-    localStorage.setItem('gradia', JSON.stringify(gradiaArray));
-}
-
-function getLocalStorageValue(key) {
-    if (typeof(Storage) !== "undefined") {
-        // Retrieve the gradia array from localStorage
-        const gradiaArray = JSON.parse(localStorage.getItem('gradia')) || [];
-
-        // Find the item with the given key in the gradia array
-        const item = gradiaArray.find(item => item.key === key);
-
-        if (item) {
-            // Return the value associated with the given key
-            return item.value;
-        } else {
-            console.log(`No value found for key '${key}' in the gradia localstorage.`);
-            return null;
-        }
-    } else {
-        console.log("Sorry, your browser does not support Web Storage...");
-        return null;
+    function changeHandler(event) {
+        if (DataManager.file.formats[event.target.value]?.encrypted === true)
+            document.documentElement.style.setProperty('--encryptedFileDisplay', 'flex');
+        else
+            document.documentElement.style.setProperty('--encryptedFileDisplay', 'none');
     }
-}
-
-function checkLocalStorage() {
-    if(localStorage.getItem('gradia') !== null) return true;
-
-    setLocalStorage([], 'gradia');
-    setLocalStorage([],'subjects');
-    setLocalStorage(settings, 'settings');
-}
 
 
+    const format = await selectDialog(message, options);
+    
+    const password = document.getElementById('filePasswordInput').value;
 
+    const encryptParameters = {password, recoveryKey}
 
-function downloadTxtFile(array, fileName) {
-    // Convert array elements to strings and join them with newline characters
-    const text = JSON.stringify(array);
-
-    // Create a Blob object
-    const blob = new Blob([text], { type: 'text/plain' });
-
-    // Create a link element
-    const link = document.createElement('a');
-
-    // Set link's attributes
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-
-    // Append link to the body
-    document.body.appendChild(link);
-
-    // Trigger a click event on the link
-    link.click();
-
-    // Cleanup: remove the link
-    document.body.removeChild(link);
-}
-
-
-
-
-
-
-
-
-function setCookie(value) {
-    // Serialize the value to a JSON string
-    const jsonString = JSON.stringify(value);
-
-    // Calculate the expiration date
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + 30);
-
-    // Convert the JSON string to a URI-encoded string
-    const encodedValue = encodeURIComponent(jsonString);
-
-    // Create the cookie string
-    const cookieString = `subjects=${encodedValue}; expires=${expirationDate.toUTCString()}; path=/`;
-
-    // Set the cookie
-    document.cookie = cookieString;
-}
-
-function getCookieValue(cookieName) {
-    const cookies = document.cookie.split('; ');
-
-    for (const cookie of cookies) {
-        const [name, value] = cookie.split('=');
-
-        if (name === cookieName) {
-            // Decode the cookie value
-            const decodedValue = decodeURIComponent(value);
-
-            // Check if the value is JSON encoded
-            try {
-                const parsedValue = JSON.parse(decodedValue);
-                return parsedValue; // Return the parsed array
-            } catch (error) {
-                // If JSON parsing fails, return the decoded value as is
-                return decodedValue;
+    DataManager.file.export({data: subjects, format, encryptParameters})
+        .catch(error => {
+            switch(error.code) {
+                case 'MISSING_ENCRYPT_PARAM':
+                    alert('Missing encryption Parameters');
+                    break;
+                default:
+                    console.log(error)
+                    alert(error);
             }
-        }
-    }
+        });
+    
+    switchScene('main');
 
-    return null; // Cookie not found
+    // Hide encryption UI
+    document.documentElement.style.setProperty('--encryptedFileDisplay', 'none');
+    document.getElementById('filePasswordInput').value = '';
+    document.getElementById('recoveryKey').textContent = '';
+
+    // Remove event listeners
+    document.getElementById('copyRecoveryKey').removeEventListener('click', copyHandler);
+    document.getElementById('dialogSelect').removeEventListener('change', changeHandler);
 }
 
 
 
-function checkCookie() {
-    const cookies = document.cookie.split('; ');
 
-    for (const cookie of cookies) {
-        const [name, value] = cookie.split('=');
-        if (name === 'subjects') {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 function appChannel(type, message, purpose, identifier) {
     const channel = new BroadcastChannel('app_channel');
@@ -1057,15 +1268,15 @@ async function showDownloadMessage() {
     else alert(navigator.userAgent);*/
 
     const downloadMessage = {
-        de:`Installiere Gradia auf deinem Gerät: <p>Für einen schnellen Zugriff auf Gradia, direkt von deinem Homebildschirm aus, <br>tippe <i class="ios-share-icon" data-color="#ee82ee"></i> und wähle <i>Zum Homebildschirm hinzufügen</i></p>`,
-        en:`Install Gradia on your device: <p>For quick access to Gradia, right from your homescreen, <br>tap <i class="ios-share-icon" data-color="#ee82ee"></i> and choose <i>Add to homescreen</i></p>`
+        de:`Installiere Gradia auf deinem Gerät: <p>Für einen schnellen Zugriff auf Gradia, direkt von deinem Homebildschirm aus, <br>tippe <i class="ios-share-icon inline" data-color="#ee82ee"></i> und wähle <i class="inline">Zum Homebildschirm hinzufügen</i></p>`,
+        en:`Install Gradia on your device: <p>For quick access to Gradia, right from your homescreen, <br>tap <i class="ios-share-icon inline" data-color="#ee82ee"></i> and choose <i class="inline">Add to homescreen</i></p>`
     }
 
     const result = await getDownloadResult(text(downloadMessage));
     if(result) settings.seenDownloadMessage = new Date();
     else settings.seenDownloadMessage = true;
     
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('settings', settings);
 }
 
 async function getDownloadResult(message) {
@@ -1079,7 +1290,7 @@ async function getDownloadResult(message) {
 
 function seenStoragePolicy() {
     settings.seenStoragePolicy = true;
-    setLocalStorage(settings, 'settings');
+    DataManager.storage.set('settings', settings);
     document.getElementById('infoConfirm').onclick = '';
 }
 
@@ -1100,6 +1311,19 @@ function singleLanguage(string) {
     return result;
 }
 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if(!response.ok) {
+            throw new Error(`Response status for ${url}: ${response.status}`);
+        }
+
+        const json = await response.json();
+        return json;
+    }
+    catch(error) {console.log(error)}
+}
+
 
 //----- SERVICE WORKER HANDLING -----//
 
@@ -1116,10 +1340,20 @@ async function registerSW() {
         else if(registration.active) console.log("SW active");
 
         const channel = new BroadcastChannel('sw_channel');
-        channel.onmessage = (event) => {
+        channel.onmessage = async (event) => {
             if(event.data.from !== 'SW') return;
-            console.log(`Received channelmessage ${event.data}`);
-            handleUpdate(event.data);
+            console.log(`Received channelmessage ${JSON.stringify(event.data)}`);
+
+            try {
+                const changelog = await fetchData('changelog.json');
+                handleUpdate(changelog, event.data.version);
+                await updateStore.set('oldVersion', buildVersion);
+            }
+            catch (error) {
+                console.log(`Error fetching changelog ${error}`);
+                return error;
+            }
+            
         }
     }
     catch(error) {
@@ -1128,33 +1362,179 @@ async function registerSW() {
     }
 }
 
-function handleUpdate(updateData) {
-    if(updateData.version == buildVersion) return;
-    document.getElementById('updateInfo').style.display = 'block';
-    const info = updateData.info;
-    let output = ``;
-    console.log(`${text({de:`Ein neues Update ist verfügbar:`, en:`A new update is available:`})} ${updateData.version}
-    ${info.description}
-    ${info.features.forEach(feature => {
-        return `${feature.name} - ${feature.description}
-        `
-    })}
-    ${info.release}`)
+function handleUpdate(changelog, updateVersion) {
+    if(updateVersion == buildVersion) return; //Update already installed
 
-    document.getElementById('updateDate').textContent = info.release.toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
-    document.getElementById('updateVersion').textContent = updateData.version;
-    output += text(info.description);
-    if(info.features) {
-        output += `<ul>`;
-        info.features.forEach(feature => {
-            output += `<li><b>${text(feature.name)}</b><p>${text(feature.description)}</p></li>`
-        });
-        output += `</ul>`;
+    let output = '<ul>';
+
+    // Create Wrapper Element
+    const wrapper = document.createElement('div');
+    wrapper.id = 'updateInfo';
+
+    // Create Date Display
+    const date = document.createElement('h2');
+    date.id = 'updateDate';
+    date.textContent = new Date(changelog.versions.find(element => element.version === updateVersion).release).toLocaleDateString(undefined, {year: 'numeric', month: '2-digit', day: '2-digit'});
+    wrapper.appendChild(date);
+
+    // Create Version Display
+    const version = document.createElement('h3');
+    version.id = 'updateVersion';
+    version.textContent = updateVersion;
+    wrapper.appendChild(version);
+
+    // Create Description Content
+    const features = new Map();
+
+    const filteredVersions = changelog.versions.filter((element) => compareVersion(buildVersion, element.version) < 0 && compareVersion(element.version, updateVersion) <= 0); //only versions newer than current, but older or equal than updateVersion
+
+    filteredVersions.flatMap(version => version.changes).forEach(change => {
+        if(!features.has(change.id)) {
+            features.set(change.id, change);
+            return;
+        }
+
+        console.log(`Duplicate ${change.id} found`)
+        switch(change.type) {
+            case "fixed": 
+                break;
+            case "improved":
+                features.get(change.id).description = mergeTextObjects([features.get(change.id).description, change.alt_description || change.description]);
+                break;
+            case "discontinued":
+                features.delete(change.id);
+                break;
+        }
+    });
+
+    for(const change of features.values()) {
+        output += `<li><b>${text(change.name)}</b><p>${text(change.description)}</p></li>`
     }
-    document.getElementById('updateDescription').innerHTML = output;
+
+    console.log(features)
+
+    output += `</ul>`;
+
+    // Create Introduction Sentence
+    const intro = text({de:`Dieses Update enthält Fehlerbehebungen${features.size < 1 ? `.` : features.size == 1 ? ` und führt dieses neue Feature ein:` : ` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${features.size < 1 ? `.` : features.size == 1 ? ` and introduces this new feature:` : ` and introduces these new features:`}`});
+
+    // Create Description Display
+    const description = document.createElement('span');
+    description.id = 'updateDescription';
+    description.innerHTML = intro + output;
+    wrapper.appendChild(description);
     console.log(output);
+
+    // Create Guide Display
+    const guide = document.createElement('span');
+    guide.id = 'updateGuide';
+    guide.textContent = text({de:'Starte Gradia neu, um das Update zu installieren.', en:'Restart Gradia to install the update.'});
+    wrapper.appendChild(guide);
+
+    document.getElementById('settings').appendChild(wrapper);
 }
 
+function mergeTextObjects(objArray) {
+    const result = {};
+
+    for(const obj of objArray) {
+        for(const lang in obj) {
+            result[lang] = (result[lang] || '') +  obj[lang];
+        }
+    }
+    console.log(result)
+    return result;
+}
+
+function compareVersion(version1, version2) {
+    const split1 = version1 ? version1.replace(/[a-zA-Z\s]/g, '').split('.').map(Number) : [];
+    const split2 = version2 ? version2.replace(/[a-zA-Z\s]/g, '').split('.').map(Number) : [];
+
+    const maxLength = Math.max(split1.length, split2.length);
+
+    for(let i = 0; i < maxLength; i ++) {
+        const num1 = split1[i] || 0;
+        const num2 = split2[i] || 0;
+
+        if(num1 > num2) return 1;
+        if(num1 < num2) return -1;
+    }
+
+    return 0;
+}
+
+const updateTasks = {
+    _referenceRegistry: {},
+
+    handlers: {
+        rename({ from, to }) {
+            const { resolvePath, assignPath, deletePath } = updateTasks._pathHelpers;
+            const value = resolvePath(from);
+            if (value === undefined) throw new Error(`Source "${from}" does not exist`);
+
+            assignPath(to, value);
+            deletePath(from);
+        },
+
+        runFunction({ function: fnName, parameters: params }) {
+            const fn = updateTasks._referenceRegistry[fnName];
+            if (typeof fn !== 'function') throw new Error(`Function "${fnName}" not found`);
+
+            fn(params);
+        },
+
+        showInfo({ message }) {
+            showMessage(text(message));
+        }
+    },
+
+    /**
+     * 
+     * @param {Array.<Object>} taskList 
+     */
+    run(taskList) {
+        const { handlers } = updateTasks;
+
+        for(const task of taskList) {
+            const { type, params, onFailure } = task;
+            const handler = handlers[type];
+
+            if(!handler) {
+                console.warn(`Unknown task type: "${type}"`);
+                if(onFailure === 'stop') break;
+                continue;
+            }
+
+            try {
+                handler(params)
+            }
+            catch(e) {
+                console.error(`Task "${type}" failed`, e);
+                if(onFailure === 'stop') break;
+            }
+        }
+    },
+
+    _pathHelpers: {
+        resolvePath(path) {
+            return path.split('.').reduce((acc, key) => acc?.[key], updateTasks._referenceRegistry);
+        },
+
+        assignPath(path, value) {
+            const keys = path.split('.');
+            const lastKey = keys.pop();
+            const target = keys.reduce((acc, key) => acc[key] ??= {}, updateTasks._referenceRegistry);
+            target[lastKey] = value;
+        },
+
+        deletePath(path) {
+            const keys = path.split('.');
+            const lastKey = keys.pop();
+            const target = keys.reduce((acc, key) => acc[key], updateTasks._referenceRegistry);
+            if (target && lastKey in target) delete target[lastKey];
+        }
+    }
+}
 
 
 
@@ -1238,193 +1618,16 @@ async function sendLogData(logType) {
 
 
 //----- CALLED ON EVERY LOAD -----//
-
+window.DataManager = DataManager;
 window.onload = () => {
+    initStorage();
+    initFileEngine();
+    initUI();
+    versionCheck(); //Checks for update installation
     init();
 };
 
-function init() {
-    document.querySelectorAll('.autosave').forEach(element => {
-        element.addEventListener('input', (event) => {
-            save();
-        })
-    });
-    document.getElementById('table').addEventListener('click', async function(e) {
-        const target = e.target.closest('tr');
-        const icon = e.target.closest('i');
-        if(icon && icon.classList.contains('editIcon')) {
-            const id = target.id;
-            /*let subjectName = id.replace(new RegExp(activeSession, 'g'), ''); //removes activeSession from name string
-            let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
-            let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
-            const data = target.dataset;
-            let subject = data.name;
-            let index = data.count;
-            let index2 = data.innerCount;
-            let grade;
-
-            if(scene == 'sessions') { //if session
-                let session = subjects.find(element => element.name == id);
-                let index = subjects.indexOf(session);
-                editSessionScene(session, index);
-                return;
-            }
-
-            if(!index) { //if no index: subject instead of 
-                let dir = subjects.find(session => session.name === activeSession).grades;
-                let subjectObj = dir.find(element => element.name === subject);
-                let index = dir.indexOf(subjectObj);
-                editSubjectScene(subjectObj, index);
-                return;
-            }
-
-            if(index2) { //2 indices means Schulaufgabe
-                grade = subjects.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index][index2];
-            }
-            else {
-                grade = subjects.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index];
-            }
-
-            editScene(grade, `["${subject}", ${index}${index2 ? `, ${index2}` : ``}]`);
-        }
-        else if (icon && icon.classList.contains('removeIcon')) {
-            const id = target.id;
-            /*let subjectName = id.replace(new RegExp(activeSession, 'g'), ''); //removes activeSession from name string
-            let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
-            let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
-            const data = target.dataset;
-            let subject = data.name;
-            let index = data.count;
-            let index2 = data.innerCount;
-            let subjectsIndex;
-            let dir;
-
-            if(scene == 'sessions') { //if session
-                dir = subjects;
-                const session = subjects.find(session => session.name == id);
-                subjectsIndex = subjects.indexOf(session);
-            }
-            else {
-                dir = subjects.find(element => element.name === activeSession).grades;
-
-                if(!index) { //if no index: subject instead of grade
-                    let grade = dir.find(element => element.name === subject);
-                    subjectsIndex = dir.indexOf(grade);
-                }
-                else if(index2) {
-                    dir = dir.find(element => element.name === subject).grades[index];
-                    subjectsIndex = dir[index2];
-                }
-                else {
-                    dir = dir.find(element => element.name === subject).grades;
-                    subjectsIndex = index;
-                }
-            }
-
-            if(!(await getConfirm(`Really delete?`))) return;
-            dir.splice(subjectsIndex, 1)
-            setLocalStorage(subjects, 'subjects');
-            toggleEditing();
-            if(scene == 'sessions') {
-                loadSession();
-                return;
-            }
-            loadSubjects();
-        }
-        else if (target && target.tagName === 'TR') {
-            if(target.className.includes('sessionTR') && !(target.id == 'total')) {
-                activeSession = target.id;
-                settings.activeSession = activeSession;
-                setLocalStorage(settings, 'settings');
-                document.getElementById('sessionLink').textContent = '< ' + activeSession;
-                switchScene('main');
-            }
-            else {
-                var id = target.id;
-                var elements = document.getElementsByClassName(id);
-                if(!(elements.length == 0)) {
-                    toggleAll(elements);
-                    if(!(/.*\d$/.test(id))) { //false if digit on last position
-                        for (var i = 0; i < elements.length; i++) {
-                            let className = elements[i].className;
-                            if (className.includes('inExam')) elements[i].style.display = 'none';
-                        };
-                    }
-                }
-                /*else {
-                    if(!editing) return;
-                    console.log(id);
-                    let subjectName = id.replace(new RegExp(activeSession, 'g'), '');
-                    let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
-                    let index = subjectName.match(/\d+$/); //int with only the numbers at the end
-
-                    console.log(subjectName + '; ' + subject + '; ' + index);
-
-                    let grade = subjects.find(element => element.name === activeSession).grades.find(element => element.name === subject).grades[index];
-
-                    editScene(grade, `["${subject}", ${index}]`);
-                }*/
-            }
-        }
-    });
-
-    document.addEventListener('keyup', function(event) {
-        switch (event.key) {
-            case 'Enter':
-                if(!(document.getElementById('add').style.display == 'none')) save();
-                if(!(document.getElementById('settings').style.display == 'none')) saveSettings();
-                break;
-        
-            default:
-                break;
-        }
-    });
-
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-    
-        reader.onload = function(e) {
-            const fileContent = e.target.result;
-            // Split the file content into an array (assuming each line is an element)
-            const dataArray = fileContent.split('\n');
-            
-            // Process the array or do something with the data
-            subjects = JSON.parse(dataArray);
-            setLocalStorage(subjects, 'subjects');
-            switchScene('main');
-        };
-    
-        reader.readAsText(file);
-    });
-
-    const app_channel = new BroadcastChannel('app_channel');
-    app_channel.onmessage = (event) => {
-        const data = event.data;
-        const identifier = broadcastID.indexOf(data.identifier)
-        if(data.from === 'gradia' && data.type === 'response' && data.purpose === 'replaceSettings' && identifier >= 0) {
-            broadcastID.splice(identifier, 1);
-            console.log(data);
-            settings = data.message;
-            setLocalStorage(settings, 'settings');
-            loadSession();
-        }
-        if(data.from === 'gradia' && data.type === 'request' && data.message === 'settings' && identifier < 0) {
-            app_channel.postMessage({
-                from: 'gradia',
-                type: 'response',
-                message: settings,
-                purpose: data.purpose,
-                identifier: data.identifier
-            })
-        }
-    }
-    const knownUser = checkLocalStorage();
-    if(knownUser) {
-        subjects = getLocalStorageValue('subjects');
-        settings = getLocalStorageValue('settings');
-    }
-
+function initUI() {
     if(!settings.lang) {
         settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
     }
@@ -1433,41 +1636,400 @@ function init() {
         document.documentElement.lang = settings.lang;
         changeLang(settings.lang);
     }
+}
 
-    /*else {
-        const identifier = identifierCode();
-        broadcastID.push(identifier);
-        appChannel('request', 'settings', 'replaceSettings', identifier);
-    }*/
+async function versionCheck() {
+    const oldVersion = await updateStore.get('oldVersion');
+    if(!oldVersion) return;
+    
+    console.log(`Old version available: "${oldVersion}"`)
+    try {
+        const changelog = await fetchData('changelog.json');
+        
+        const filteredVersions = changelog.versions.filter((element) => compareVersion(oldVersion, element.version) < 0 && compareVersion(element.version, buildVersion) <= 0); //only versions newer than oldVersion, but older or equal than current Version
 
-    if(settings.activeSession == undefined && subjects.length > 0) activeSession = subjects[subjects.length - 1].name;
-    else if (!(settings.activeSession == undefined)) activeSession = settings.activeSession;
-    else activeSession = undefined;
+        filteredVersions.forEach(version => {
+            console.log(version)
+            if(version.tasks) updateTasks.run(version.tasks);
+        });
+    }
+    catch (error) {
+        console.log(`Error fetching changelog ${error}`);
+        return error;
+    }
 
-    if(!(activeSession == undefined)) {
-        document.getElementById('sessionLink').textContent = '< ' + activeSession;
-        loadSubjects();
+    await updateStore.remove('oldVersion');
+}
+
+function init() {
+    try {
+        document.querySelectorAll('.autosave').forEach(element => {
+            element.addEventListener('input', (event) => {
+                save();
+            })
+        });
+
+        document.querySelectorAll('dialog').forEach(element => {
+            element.addEventListener('click', (e) => {
+                if(e.target.nodeName === 'DIALOG') {
+                    e.target.close('false');
+                }
+            })
+        });
+
+        document.querySelectorAll('.options-icon').forEach(element => {
+            element.addEventListener('click', toggleEditing);
+        });
+
+        document.getElementById('semesterLink').addEventListener('click', () => switchScene('semesters'))
+
+        document.getElementById('sortIcon').addEventListener('click', sortMenu);
+
+        document.querySelectorAll('.nav > div > i').forEach(element => {
+            element.addEventListener('click', (e) => {
+                switchScene(e.currentTarget.dataset.scene);
+            })
+        })
+
+        document.getElementById('downloadButton').addEventListener('click', downloadMenu);
+
+        document.getElementById('deleteButton').addEventListener('click', deleteData);
+
+        document.getElementById('table').addEventListener('click', async function(e) {
+            const target = e.target.closest('tr');
+            const icon = e.target.closest('i');
+            if(icon && icon.classList.contains('editIcon')) {
+                const id = target.id;
+                /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
+                let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
+                let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
+                const data = target.dataset;
+                let subject = data.name;
+                let index = data.count;
+                let index2 = data.innerCount;
+                let grade;
+
+                if(scene == 'semesters') { //if semester
+                    let semester = subjects.semesters.find(element => element.name == id);
+                    let index = subjects.semesters.indexOf(semester);
+                    editsemesterScene(semester, index);
+                    return;
+                }
+
+                if(!index) { //if no index: subject instead of 
+                    let dir = subjects.semesters.find(semester => semester.name === activeSemester).grades;
+                    let subjectObj = dir.find(element => element.name === subject);
+                    let index = dir.indexOf(subjectObj);
+                    editSubjectScene(subjectObj, index);
+                    return;
+                }
+
+                if(index2) { //2 indices means Schulaufgabe
+                    grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index][index2];
+                }
+                else {
+                    grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
+                }
+
+                editScene(grade, `["${subject}", ${index}${index2 ? `, ${index2}` : ``}]`);
+            }
+            else if (icon && icon.classList.contains('removeIcon')) {
+                const id = target.id;
+                /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
+                let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
+                let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
+                const data = target.dataset;
+                let subject = data.name;
+                let index = data.count;
+                let index2 = data.innerCount;
+                let subjectsIndex;
+                let dir;
+
+                if(scene == 'semesters') { //if semester
+                    dir = subjects.semesters;
+                    const semester = subjects.semesters.find(semester => semester.name == id);
+                    subjectsIndex = subjects.semesters.indexOf(semester);
+                }
+                else {
+                    dir = subjects.semesters.find(element => element.name === activeSemester).grades;
+
+                    if(!index) { //if no index: subject instead of grade
+                        let grade = dir.find(element => element.name === subject);
+                        subjectsIndex = dir.indexOf(grade);
+                    }
+                    else if(index2) {
+                        dir = dir.find(element => element.name === subject).grades[index];
+                        subjectsIndex = dir[index2];
+                    }
+                    else {
+                        dir = dir.find(element => element.name === subject).grades;
+                        subjectsIndex = index;
+                    }
+                }
+
+                if(!(await getConfirm(`Really delete?`))) return;
+
+                dir.splice(subjectsIndex, 1)
+                
+                onDataChanged();
+
+                toggleEditing();
+
+                if(scene == 'semesters') {
+                    loadsemester();
+                    return;
+                }
+                loadSubjects();
+            }
+            else if (target && target.tagName === 'TR') {
+                if(target.className.includes('semesterTR') && !(target.id == 'total')) {
+                    activeSemester = target.id;
+                    settings.activeSemester = activeSemester;
+                    DataManager.storage.set('settings', settings);
+                    document.getElementById('semesterLink').textContent = '< ' + activeSemester;
+                    switchScene('main');
+                }
+                else {
+                    let id = target.id;
+                    let elements = document.getElementsByClassName(id);
+                    if(!(elements.length == 0)) {
+                        toggleAll(elements);
+                        if(!(/.*\d$/.test(id))) { //false if digit on last position
+                            for (let i = 0; i < elements.length; i++) {
+                                let className = elements[i].className;
+                                if (className.includes('inExam')) elements[i].style.display = 'none';
+                            };
+                        }
+                    }
+                    /*else {
+                        if(!editing) return;
+                        console.log(id);
+                        let subjectName = id.replace(new RegExp(activeSemester, 'g'), '');
+                        let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
+                        let index = subjectName.match(/\d+$/); //int with only the numbers at the end
+
+                        console.log(subjectName + '; ' + subject + '; ' + index);
+
+                        let grade = subjects.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
+
+                        editScene(grade, `["${subject}", ${index}]`);
+                    }*/
+                }
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            switch (event.key) {
+                case 'Enter':
+                    if(!(document.getElementById('add').style.display == 'none')) save();
+                    if(!(document.getElementById('settings').style.display == 'none')) saveSettings();
+                    break;
+            
+                default:
+                    break;
+            }
+        });
+
+        document.getElementById('fileInput').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const fileExtension = file.name.split('.').slice(-1)[0];
+
+            // Find the format key matching the extension and if encrypted
+            const formatEntry = Object.values(DataManager.file.formats).find(format => format.extension === fileExtension);
+
+            if (formatEntry && formatEntry.encrypted) {
+                //document.getElementById('fileAccessKey').value = '';
+                //document.documentElement.style.setProperty('--fileAccessDisplay', 'block');
+                const ready = await fileAccessDialog({"de": "Gib das Passwort oder den Wiederherstellungscode für diese Datei ein", "en": "Enter the Password or the Recovery Code for this file"});
+                if(ready) handleFile();
+            } 
+            else {
+                //document.documentElement.style.setProperty('--fileAccessDisplay', 'none');
+                handleFile();
+            }
+        });
+
+        async function handleFile() {
+            const file = document.getElementById('fileInput').files[0];
+
+            const accessKey = document.getElementById('fileAccessKey')?.value;
+            
+            DataManager.file.import(file, accessKey)
+                .then((result) =>{
+                    subjects = JSON.parse(result);
+
+                    DataManager.storage.set('subjects', subjects);
+                    activeSemester = undefined;
+                    switchScene('main'); //no active semester: switches to semesters automatically
+                })
+                .catch(error => {
+                    switch(error.code) {
+                        case 'NO_KEY':
+                            alert('You need to input your password or recovery key');
+                            break;
+                        case 'INVALID_FILE_STRUCTURE':
+                            alert(`The uploaded file's file structure is invalid.`);
+                            break;
+                        case 'DEK_DECRYPTION_ERROR':
+                            alert('The provided key is invalid');
+                            break;
+                        case 'DECRYPTION_ERROR':
+                            alert('The decryption failed');
+                            break;
+                        case 'BAD_HMAC':
+                            alert('The file decryption failed, because the content seems to be altered or corrupted.');
+                            break;
+                        default:
+                            alert(error.message);
+                    }
+                });
+
+            document.getElementById('fileAccessKey').value = '';
+            document.getElementById('fileInput').value = '';
+        }
+
+        const app_channel = new BroadcastChannel('app_channel');
+        app_channel.onmessage = (event) => {
+            const data = event.data;
+            const identifier = broadcastID.indexOf(data.identifier)
+            if(data.from === 'gradia' && data.type === 'response' && data.purpose === 'replaceSettings' && identifier >= 0) {
+                broadcastID.splice(identifier, 1);
+                console.log(data);
+                settings = data.message;
+                DataManager.storage.set('settings', settings);
+                loadsemester();
+            }
+            if(data.from === 'gradia' && data.type === 'request' && data.message === 'settings' && identifier < 0) {
+                app_channel.postMessage({
+                    from: 'gradia',
+                    type: 'response',
+                    message: settings,
+                    purpose: data.purpose,
+                    identifier: data.identifier
+                })
+            }
+        }
+
+        /*else {
+            const identifier = identifierCode();
+            broadcastID.push(identifier);
+            appChannel('request', 'settings', 'replaceSettings', identifier);
+        }*/
+
+        if(settings.activeSemester == undefined && subjects.semesters.length > 0) activeSemester = subjects.semesters[subjects.semesters.length - 1].name;
+        else if (!(settings.activeSemester == undefined)) activeSemester = settings.activeSemester;
+        else activeSemester = undefined;
+
+        if(!(activeSemester == undefined)) {
+            document.getElementById('semesterLink').textContent = '< ' + activeSemester;
+            loadSubjects();
+            scene = 'main';
+        }
+        else {
+            switchScene('semesters');
+        }
+
+        changeMode(settings.darkmode);
+        replaceIcons();
+
+
+        document.getElementById('buildVersion').textContent = buildVersion;
+
+        document.getElementById('loading-screen').style.display = 'none';
+
+        if(!settings.seenStoragePolicy) {
+            showStoragePolicy();
+        }
+        
+        showDownloadMessage();
+
+        if(!settings.offline) registerSW();
+    }
+    catch(error) {
+        document.getElementById('loading-screen').addEventListener('click', function() {
+            DataManager.file.export({ data: subjects, format: 'gradia-grd'});
+        })
+        document.getElementById('loading-error').innerHTML = `<i>${error}</i><br>An error occurred during initialization. Please send this error to our support.<br>You can still download your data by clicking on the Gradia logo.`;
+    }
+}
+
+function initStorage() {
+    DataManager.storage.prefix = 'gradia';
+
+    // Set templates for storage values
+    DataManager.storage.templates = {
+        subjects: {
+            version: undefined,
+            semesters: []
+        },
+        settings: {
+            lang: undefined,
+            examName: 'Schulaufgaben',
+            showMultiplier: false,
+            darkmode: true,
+            activeSemester: undefined,
+            seenDownloadMessage: false,
+            offline: false,
+            seenStoragePolicy: false
+        }
+    }
+    
+    // Set keys that should be automatically set on storage initialization based on their template
+    DataManager.storage.defaults = ['subjects', 'settings'];
+
+    const initData = DataManager.storage.init();
+
+    if(!initData.isNewUser) {
+        //Convert subjects Array to object if necessary
+        if(Array.isArray(initData.content.subjects)) {
+            initData.content.subjects = {
+                version: buildVersion,
+                semesters: initData.content.subjects
+            }
+        }
+
+        subjects = {...initData.content.subjects};
+        settings = {...initData.content.settings};
+
+        onDataChanged();
     }
     else {
-        switchScene('sessions');
-    }
-
-    changeMode(settings.darkmode);
-    replaceIcons();
-
-
-    document.getElementById('buildVersion').textContent = buildVersion;
-
-    document.getElementById('loading-screen').style.display = 'none';
-
-    if(!settings.seenStoragePolicy) {
-        showStoragePolicy();
-    }
-    if(!knownUser) {
         if(navigator.standalone) sendLogData('standalone');
         else if(!isCrawler()) sendLogData('new_user');
     }
-    showDownloadMessage();
-
-    if(!settings.offline) registerSW();
 }
+
+function initFileEngine() {
+    DataManager.file.formats = {
+        'gradia-grd': {
+            encrypted: false,
+            extension: 'grd',
+            fileName: 'gradia_save',
+            minVersion: 'Version 1.0',
+            currVersion: 'Version 1.0'
+        },
+        'gradia-grde': {
+            encrypted: true,
+            extension: 'grde',
+            fileName: 'gradia_save',
+            minVersion: 'Version 1.0',
+            currVersion: 'Version 1.0'
+        }
+    }
+}
+
+window.onerror = function(message, source, lineno, colno, error) {
+    alert(`Error: ${message}\nSource: ${source}\nLine: ${lineno}, Column: ${colno}\nStack Trace: ${error?.stack || 'N/A'}`);
+
+    if(!subjects.semesters) {
+        subjects = {
+            version: buildVersion,
+            semesters: []
+        }
+        DataManager.storage.set('subjects', subjects);
+    }
+    // Return true to prevent the default browser error alert (optional)
+    return false;
+};

@@ -1,0 +1,49 @@
+{
+    "app": "Gradia",
+    "changelog_version": "1.0",
+    "versions": [
+        {
+            "version": "Version 1.1",
+            "release": "2025-07-10",
+            "changes": [
+                {
+                    "id": "UI_table-sort",
+                    "name": {"de": "Tabellen-Sortierung", "en": "Table Sort"},
+                    "description": {"de": "Die Tabellen können automatisch sortiert werden", "en": "Tables can be sorted automatically"},
+                    "tags": ["UI", "Tools"],
+                    "type": "new"
+                },
+                {
+                    "id": "DATA_deletion",
+                    "name": {"de": "Teilweise Datenlöschung", "en": "Partial Data Deletion"},
+                    "description": {"de": "Einstellungen oder Noten können unabhängig voneinander gelöscht werden", "en": "Settings and Grades can be deleted independently"},
+                    "tags": ["UI", "Data"],
+                    "type": "new"
+                },
+                {
+                    "id": "UI_update-history",
+                    "name": {"de": "Update-Historie", "en": "Update History"},
+                    "description": {"de": "Neue Features werden versionsübergreifend angezeigt", "en": "New Features are displayed across all versions"},
+                    "tags": ["UI", "Updates"],
+                    "type": "new"
+                },
+                {
+                    "id": "DATA_file_type",
+                    "name": {"de": "Noten-Download", "en": "Grade-Download"},
+                    "description": {"de": "Die Noten-Daten können als .grd/.grde-Datei heruntergeladen werden", "en": "The grade-data can be downloaded as a .grd/.grde file"},
+                    "tags": ["UI", "Data"],
+                    "type": "improved"
+                }
+            ],
+            "tasks": [
+                {
+                    "type": "showInfo",
+                    "params": {
+                        "message": {"de": "Das Datei-Format für Downloads hat sich geändert - Gradia akzeptiert nur noch .grd/.grde-Dateien. Ersetze bereits bestehende .txt-Dateien durch einen neuen Download.", "en": "The File-Format for downloads has changed - Gradia now only accepts .grd/.grde-Files. Replace your .txt-Files with a new Download."}
+                    },
+                    "onFailure": "continue"
+                }
+            ]
+        }
+    ]
+}

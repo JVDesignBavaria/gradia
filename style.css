@@ -1,11 +1,16 @@
 :root {
     --main-color: #fff;
     --editing: none;
+    --encryptedFileDisplay: none;
     font-size: 25px;
 }
 
 *[onClick] {
     cursor: pointer;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 html {
@@ -24,6 +29,11 @@ body {
 .background {
     width: 100vw;
     height: 100vh;
+    background: url(./img/background.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     filter: contrast(120%) invert(1) brightness(30%);
     position: fixed;
     left: 0;
@@ -99,6 +109,13 @@ main {
 i {
     color: var(--main-color);
     font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.inline {
+    display: inline;
 }
 
 #top-controls {
@@ -111,9 +128,20 @@ i {
     align-items: center;
 }
 
+#toolDiv {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    flex-direction: row-reverse;
+}
+
+#toolDiv > * {
+    margin-left: 20px;
+}
+
 #add, #settings {
     position: fixed;
-    height: 90vh;
+    height: max(calc(100vh - 22vw), 90vh);
     width: 100vw;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -127,8 +155,8 @@ i {
     color: #fff;
 }
 
-#add:last-child, #settings:last-child {
-    margin: 0 0 19vw 0;
+#add > :last-child, #settings > :last-child {
+    margin-bottom: min(19vw, 22.5vh);
 }
 
 .data {
@@ -137,11 +165,12 @@ i {
 
 input, select {
     width: 80vw;
+    max-width: 120vh;
     border-radius: 10px;
     border: none;
     margin: 10px 0;
     padding: 5px 10px;
-    height: 1.2rem;
+    height: calc(1.2rem + 10px);
     font-size: 1rem;
     margin-top: 15px;
     background: #fff;
@@ -153,8 +182,8 @@ input, select {
 }
 
 #updateInfo {
-    display: none;
     width: 80vw;
+    max-width: 120vh;
     border-radius: 10px;
     border: none;
     margin: 10px 0 16vh 0;
@@ -202,7 +231,7 @@ input, select {
 } 
 
 select {
-    width: calc(80vw + 20px);
+    width: 80vw;
     height: calc(1.2rem + 10px);
 }
 
@@ -221,6 +250,7 @@ input[type=checkbox] {
 
 .checkboxbox {
     width: 80vw;
+    max-width: 120vh;
     display: flex;
     flex-direction: row;
     justify-content: left;
@@ -241,19 +271,20 @@ input[type=checkbox] {
     display: none; /*----- Discontinued -----*/
 }
 
-#sessionLink {
-    width: 90%;
+#semesterLink {
     max-width: 120vh;
     text-align: left;
     font-size: 0.9rem;
+    line-height: 1rem;
     cursor: pointer;
 }
 
 #table {
     width: 90%;
-    max-width: 120vh;
+    max-width: min(90%, 120vh);
     margin:  0 0 19vw 0;
     overflow: hidden;
+    overflow-wrap: anywhere;
 }
 
 #table tr {
@@ -292,7 +323,18 @@ input[type=checkbox] {
 }
 
 #table #total {
-    border-top: double 2px var(--main-color);
+    margin-top: 20px;
+    border-top: solid 1.75px var(--main-color);
+    position: relative;
+}
+
+#table #total::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    margin: -20px 0;
+    border-top: solid 1.75px var(--main-color);
+    width: 100%;
 }
 
 #table th {
@@ -305,20 +347,19 @@ input[type=checkbox] {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-width: fit-content;
 }
 
 #table .hiddenTr {
     display: none;
     padding-left: 10%;
     margin: 7.5px 0 0 0;
-    width: 90%;
     padding-top: 0;
     border: none;
 }
 
 #table .inExam {
     padding-left: 20%;
-    width: 80%;
 }
 
 #emptyTable {
@@ -335,35 +376,50 @@ input[type=checkbox] {
 }
 
 dialog {
+    position: relative;
+    width: 565px;
+    min-width: min(375px, 100vw);
     border-radius: 15px;
     background: #9A7AA0;
     border: none;
     top: calc(70vh / 2 - 50dvh);
     color: #fff;
     font-size: 1rem;
-    padding: 30px 40px;
+    padding: 0;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
 }
 
 dialog form {
+    box-sizing: content-box; /*width: content + padding to fill dialog completely*/
+    padding: 30px 40px;
+    min-width: calc(100% - 80px);
+    min-height: calc(100% - 60px);
+}
+
+dialog i {
+    color: #fff;
+}
+
+dialog form > div {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-dialog form span {
+dialog form > div span {
+    width: 100%;
     margin-bottom: 20px;
     line-height: 1.3rem;
 }
 
-dialog form div {
+dialog form > div div {
     width: 100%;
     display: flex;
     gap: 10px;
 }
 
-dialog button {
+dialog button, dialog input {
     border-radius: 10px;
     border: none;
     padding: 7px;
@@ -373,31 +429,63 @@ dialog button {
     flex: 1;
 }
 
+dialog form > div select, dialog form > div input {
+    width: 100%;
+}
+
 #infoDialog, #downloadDialog {
-    width: calc(100dvw - 40px);
+    width: 100dvw;
     max-width: 80dvh;
     height: 90dvh;
     top: 10dvh;
-    padding: 30px 20px;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.1);
     border-radius: 15px 15px 0 0;
 }
 
-#infoDialog form, #downloadDialog form {
-    width: 100%;
-    height: 100%;
+#infoDialog form > div, #downloadDialog form > div {
     justify-content: flex-start;
 }
 
 #infoDialog .infoTop, #downloadDialog .infoTop {
     position: absolute;
     top: 0;
+    left: 0;
     background: #3c2f3e;
     padding: 7px 0;
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
     box-shadow: 0px 2px 10px 0px #000;
+}
+
+#sortDialog {
+    width: calc(100dvw - 80px);
+    max-width: 80dvh;
+}
+
+.multiSelect {
+    gap: 0;
+}
+
+.multiSelect select {
+    border-radius: 0;
+    border: none;
+    border-right: solid 1.5px #000;
+    padding: 7px;
+    font-size: 0.8rem;
+    background: #fff;
+    color: #000;
+    flex: 1;
+    min-width: 0;
+}
+
+.multiSelect select:nth-of-type(1) {
+    border-radius: 10px 0 0 10px;
+}
+
+.multiSelect select:last-of-type {
+    border-radius: 0 10px 10px 0;
+    border: none;
 }
 
 #infoDialog .infoTop button, #downloadDialog .infoTop button {
@@ -414,11 +502,50 @@ dialog button {
     width: 100%;
     height: 100%;
     padding: 60px 0 30px 0;
-    overflow: scroll;
+}
+
+#infoDialog span, #downloadDialog span {
+    max-height: calc(100% - 28px);
+    overflow-y: scroll;
 }
 
 input[type=file] {
     display: none;
+}
+
+label {
+    width: 100%;
+    font-size: 0.85rem;
+    margin: -7.5px 0 10px 0;
+}
+
+.encryptedFile {
+    display: var(--encryptedFileDisplay);
+}
+
+.encryptedFile.box {
+    background: #fff;
+    border-radius: 10px;
+    margin: 5px 0 10px;
+    color: #1e1e1e;
+    font-size: 0.9rem;
+    padding: 0 0 0 10px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.encryptedFile.box > * {
+    margin: 0;
+}
+
+.encryptedFile.box button {
+    cursor: pointer;
+    border-left: solid 1px #1e1e1e;
+    border-radius: 0 10px 10px 0;
+}
+
+.encryptedFile.box button:hover {
+    box-shadow: inset 0 0 3px 0 #000;
 }
 
 .labelBox {
@@ -427,11 +554,16 @@ input[type=file] {
     justify-content: space-between;
     align-items: center;
     width: calc(80vw + 20px);
+    max-width: calc(120vh + 20px);
     margin: 10px 0;
     padding: 5px 10px;
     gap: 20px;
     font-size: 1rem;
     margin-top: 15px;
+}
+
+.labelBox * {
+    box-sizing: content-box;
 }
 
 .labelBox input {
@@ -456,6 +588,7 @@ input[type=file] {
     color: #000;
     border-radius: 10px;
     height: 100%;
+    overflow-wrap: anywhere;
 }
 
 .switch {
@@ -518,8 +651,13 @@ input[type=file] {
     }
 
     #centerbutton {
-        max-height: 15vh;
+        height: 15vh;
         bottom: 7.5vh;
+    }
+
+    .smalluibutton {
+        width: calc((100vw - 15vh) / 2);
+        max-width: none;
     }
 
     main {
@@ -528,7 +666,6 @@ input[type=file] {
 
     #table .hiddenTr {
         padding-left: 50px;
-        width: calc(100% - 50px);
     }
 
     #table {
@@ -537,7 +674,6 @@ input[type=file] {
 
     #table .inExam {
         padding-left: 100px;
-        width: calc(100% - 100px);
     }
 
     #emptyTable {
@@ -545,7 +681,7 @@ input[type=file] {
     }
 }
 
-@media screen and (min-width: 750px) {
+@media screen and (min-width: 830px) {
     .labelBox {
         flex-direction: row;
     }
@@ -562,9 +698,4 @@ input[type=file] {
     .labelBox .innerLabelBox:last-of-type {
         justify-content: right;
     }
-
-    .labelBox label {
-        width: 75%;
-    }
-
 }

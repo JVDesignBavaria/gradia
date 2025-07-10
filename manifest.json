@@ -1,10 +1,29 @@
 {
-    "name": "Gradia",
-    "icons": [
-        {
-            "src": "app_icon.png",
-            "type": "image/png",
-            "sizes": "512x512"
-        }
-    ]
+  "name": "Gradia",
+  "short_name": "Gradia",
+  "description": "Gradia by JVDesign allows you to calculate and organize your grades quickly and easily, even over multiple school years. Keep track of your academic performance offline and on your device.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#9A7AA0",
+  "orientation": "portrait",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "./img/app_icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./img/ogimage.png",
+      "type": "image/png",
+      "sizes": "1200x630",
+      "label": "Main UI"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "dir": "ltr"
 }
