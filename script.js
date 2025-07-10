@@ -1651,7 +1651,6 @@ async function versionCheck() {
 
 function init() {
     try {
-        lol();
         document.querySelectorAll('.autosave').forEach(element => {
             element.addEventListener('input', (event) => {
                 save();

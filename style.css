@@ -434,7 +434,7 @@ dialog form > div select, dialog form > div input {
 }
 
 #infoDialog, #downloadDialog {
-    width: calc(100dvw - 40px);
+    width: 100dvw;
     max-width: 80dvh;
     height: 90dvh;
     top: 10dvh;
