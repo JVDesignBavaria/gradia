@@ -1484,7 +1484,7 @@ const updateTasks = {
         },
 
         showInfo({ message }) {
-            showMessage(message);
+            showMessage(text(message));
         }
     },
 
@@ -1622,9 +1622,21 @@ window.DataManager = DataManager;
 window.onload = () => {
     initStorage();
     initFileEngine();
+    initUI();
     versionCheck(); //Checks for update installation
     init();
 };
+
+function initUI() {
+    if(!settings.lang) {
+        settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
+    }
+
+    if(!(settings.lang == 'de')) {
+        document.documentElement.lang = settings.lang;
+        changeLang(settings.lang);
+    }
+}
 
 async function versionCheck() {
     const oldVersion = await updateStore.get('oldVersion');
@@ -1898,15 +1910,6 @@ function init() {
                     identifier: data.identifier
                 })
             }
-        }
-
-        if(!settings.lang) {
-            settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
-        }
-
-        if(!(settings.lang == 'de')) {
-            document.documentElement.lang = settings.lang;
-            changeLang(settings.lang);
         }
 
         /*else {
