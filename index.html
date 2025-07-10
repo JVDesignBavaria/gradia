@@ -22,7 +22,8 @@
             height: 100vh;
             background: #000;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-evenly;
             align-items: center;
             z-index: 9999;
         }
@@ -34,6 +35,11 @@
             fill-opacity:1;
             stroke-width:4.50001;
             paint-order:fill markers stroke;
+        }
+        #loading-error {
+            text-align: center;
+            width: 80vw;
+            white-space: pre-wrap;
         }
     </style>
 
@@ -85,6 +91,9 @@
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M 11.958917,0.04026482 A 12,12 0 0 0 0.040782,10.665456 h 2.778642 a 9.25,9.25 0 0 1 9.139493,-7.8749715 9.25,9.25 0 0 1 1.37511,0.1085205 V 0.12243035 a 12,12 0 0 0 -1.37511,-0.08216553 z m 1.37511,10.62519118 v 2.749703 h 7.772136 a 9.25,9.25 0 0 1 -7.772136,7.766451 v 2.778125 A 12,12 0 0 0 23.959218,12.040049 12,12 0 0 0 23.877053,10.665456 H 21.105646 Z M 0.041299,13.415159 A 12,12 0 0 0 10.584324,23.959735 V 13.415159 Z" />
         </svg>
+        <div>
+            <p id="loading-error"></p>
+        </div>
     </div>
     <div class="background"></div>
     <main>

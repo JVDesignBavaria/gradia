@@ -1650,298 +1650,307 @@ async function versionCheck() {
 }
 
 function init() {
-    document.querySelectorAll('.autosave').forEach(element => {
-        element.addEventListener('input', (event) => {
-            save();
-        })
-    });
+    try {
+        lol();
+        document.querySelectorAll('.autosave').forEach(element => {
+            element.addEventListener('input', (event) => {
+                save();
+            })
+        });
 
-    document.querySelectorAll('dialog').forEach(element => {
-        element.addEventListener('click', (e) => {
-            if(e.target.nodeName === 'DIALOG') {
-                e.target.close('false');
-            }
-        })
-    });
-
-    document.querySelectorAll('.options-icon').forEach(element => {
-        element.addEventListener('click', toggleEditing);
-    });
-
-    document.getElementById('semesterLink').addEventListener('click', () => switchScene('semesters'))
-
-    document.getElementById('sortIcon').addEventListener('click', sortMenu);
-
-    document.querySelectorAll('.nav > div > i').forEach(element => {
-        element.addEventListener('click', (e) => {
-            switchScene(e.currentTarget.dataset.scene);
-        })
-    })
-
-    document.getElementById('downloadButton').addEventListener('click', downloadMenu);
-
-    document.getElementById('deleteButton').addEventListener('click', deleteData);
-
-    document.getElementById('table').addEventListener('click', async function(e) {
-        const target = e.target.closest('tr');
-        const icon = e.target.closest('i');
-        if(icon && icon.classList.contains('editIcon')) {
-            const id = target.id;
-            /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
-            let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
-            let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
-            const data = target.dataset;
-            let subject = data.name;
-            let index = data.count;
-            let index2 = data.innerCount;
-            let grade;
-
-            if(scene == 'semesters') { //if semester
-                let semester = subjects.semesters.find(element => element.name == id);
-                let index = subjects.semesters.indexOf(semester);
-                editsemesterScene(semester, index);
-                return;
-            }
-
-            if(!index) { //if no index: subject instead of 
-                let dir = subjects.semesters.find(semester => semester.name === activeSemester).grades;
-                let subjectObj = dir.find(element => element.name === subject);
-                let index = dir.indexOf(subjectObj);
-                editSubjectScene(subjectObj, index);
-                return;
-            }
-
-            if(index2) { //2 indices means Schulaufgabe
-                grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index][index2];
-            }
-            else {
-                grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
-            }
-
-            editScene(grade, `["${subject}", ${index}${index2 ? `, ${index2}` : ``}]`);
-        }
-        else if (icon && icon.classList.contains('removeIcon')) {
-            const id = target.id;
-            /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
-            let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
-            let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
-            const data = target.dataset;
-            let subject = data.name;
-            let index = data.count;
-            let index2 = data.innerCount;
-            let subjectsIndex;
-            let dir;
-
-            if(scene == 'semesters') { //if semester
-                dir = subjects.semesters;
-                const semester = subjects.semesters.find(semester => semester.name == id);
-                subjectsIndex = subjects.semesters.indexOf(semester);
-            }
-            else {
-                dir = subjects.semesters.find(element => element.name === activeSemester).grades;
-
-                if(!index) { //if no index: subject instead of grade
-                    let grade = dir.find(element => element.name === subject);
-                    subjectsIndex = dir.indexOf(grade);
+        document.querySelectorAll('dialog').forEach(element => {
+            element.addEventListener('click', (e) => {
+                if(e.target.nodeName === 'DIALOG') {
+                    e.target.close('false');
                 }
-                else if(index2) {
-                    dir = dir.find(element => element.name === subject).grades[index];
-                    subjectsIndex = dir[index2];
+            })
+        });
+
+        document.querySelectorAll('.options-icon').forEach(element => {
+            element.addEventListener('click', toggleEditing);
+        });
+
+        document.getElementById('semesterLink').addEventListener('click', () => switchScene('semesters'))
+
+        document.getElementById('sortIcon').addEventListener('click', sortMenu);
+
+        document.querySelectorAll('.nav > div > i').forEach(element => {
+            element.addEventListener('click', (e) => {
+                switchScene(e.currentTarget.dataset.scene);
+            })
+        })
+
+        document.getElementById('downloadButton').addEventListener('click', downloadMenu);
+
+        document.getElementById('deleteButton').addEventListener('click', deleteData);
+
+        document.getElementById('table').addEventListener('click', async function(e) {
+            const target = e.target.closest('tr');
+            const icon = e.target.closest('i');
+            if(icon && icon.classList.contains('editIcon')) {
+                const id = target.id;
+                /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
+                let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
+                let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
+                const data = target.dataset;
+                let subject = data.name;
+                let index = data.count;
+                let index2 = data.innerCount;
+                let grade;
+
+                if(scene == 'semesters') { //if semester
+                    let semester = subjects.semesters.find(element => element.name == id);
+                    let index = subjects.semesters.indexOf(semester);
+                    editsemesterScene(semester, index);
+                    return;
+                }
+
+                if(!index) { //if no index: subject instead of 
+                    let dir = subjects.semesters.find(semester => semester.name === activeSemester).grades;
+                    let subjectObj = dir.find(element => element.name === subject);
+                    let index = dir.indexOf(subjectObj);
+                    editSubjectScene(subjectObj, index);
+                    return;
+                }
+
+                if(index2) { //2 indices means Schulaufgabe
+                    grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index][index2];
                 }
                 else {
-                    dir = dir.find(element => element.name === subject).grades;
-                    subjectsIndex = index;
+                    grade = subjects.semesters.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
                 }
+
+                editScene(grade, `["${subject}", ${index}${index2 ? `, ${index2}` : ``}]`);
             }
+            else if (icon && icon.classList.contains('removeIcon')) {
+                const id = target.id;
+                /*let subjectName = id.replace(new RegExp(activeSemester, 'g'), ''); //removes activeSemester from name string
+                let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
+                let index = subjectName.match(/\d+$/); //int with only the numbers at the end*/
+                const data = target.dataset;
+                let subject = data.name;
+                let index = data.count;
+                let index2 = data.innerCount;
+                let subjectsIndex;
+                let dir;
 
-            if(!(await getConfirm(`Really delete?`))) return;
+                if(scene == 'semesters') { //if semester
+                    dir = subjects.semesters;
+                    const semester = subjects.semesters.find(semester => semester.name == id);
+                    subjectsIndex = subjects.semesters.indexOf(semester);
+                }
+                else {
+                    dir = subjects.semesters.find(element => element.name === activeSemester).grades;
 
-            dir.splice(subjectsIndex, 1)
-            
-            onDataChanged();
-
-            toggleEditing();
-
-            if(scene == 'semesters') {
-                loadsemester();
-                return;
-            }
-            loadSubjects();
-        }
-        else if (target && target.tagName === 'TR') {
-            if(target.className.includes('semesterTR') && !(target.id == 'total')) {
-                activeSemester = target.id;
-                settings.activeSemester = activeSemester;
-                DataManager.storage.set('settings', settings);
-                document.getElementById('semesterLink').textContent = '< ' + activeSemester;
-                switchScene('main');
-            }
-            else {
-                let id = target.id;
-                let elements = document.getElementsByClassName(id);
-                if(!(elements.length == 0)) {
-                    toggleAll(elements);
-                    if(!(/.*\d$/.test(id))) { //false if digit on last position
-                        for (let i = 0; i < elements.length; i++) {
-                            let className = elements[i].className;
-                            if (className.includes('inExam')) elements[i].style.display = 'none';
-                        };
+                    if(!index) { //if no index: subject instead of grade
+                        let grade = dir.find(element => element.name === subject);
+                        subjectsIndex = dir.indexOf(grade);
+                    }
+                    else if(index2) {
+                        dir = dir.find(element => element.name === subject).grades[index];
+                        subjectsIndex = dir[index2];
+                    }
+                    else {
+                        dir = dir.find(element => element.name === subject).grades;
+                        subjectsIndex = index;
                     }
                 }
-                /*else {
-                    if(!editing) return;
-                    console.log(id);
-                    let subjectName = id.replace(new RegExp(activeSemester, 'g'), '');
-                    let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
-                    let index = subjectName.match(/\d+$/); //int with only the numbers at the end
 
-                    console.log(subjectName + '; ' + subject + '; ' + index);
+                if(!(await getConfirm(`Really delete?`))) return;
 
-                    let grade = subjects.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
+                dir.splice(subjectsIndex, 1)
+                
+                onDataChanged();
 
-                    editScene(grade, `["${subject}", ${index}]`);
-                }*/
+                toggleEditing();
+
+                if(scene == 'semesters') {
+                    loadsemester();
+                    return;
+                }
+                loadSubjects();
+            }
+            else if (target && target.tagName === 'TR') {
+                if(target.className.includes('semesterTR') && !(target.id == 'total')) {
+                    activeSemester = target.id;
+                    settings.activeSemester = activeSemester;
+                    DataManager.storage.set('settings', settings);
+                    document.getElementById('semesterLink').textContent = '< ' + activeSemester;
+                    switchScene('main');
+                }
+                else {
+                    let id = target.id;
+                    let elements = document.getElementsByClassName(id);
+                    if(!(elements.length == 0)) {
+                        toggleAll(elements);
+                        if(!(/.*\d$/.test(id))) { //false if digit on last position
+                            for (let i = 0; i < elements.length; i++) {
+                                let className = elements[i].className;
+                                if (className.includes('inExam')) elements[i].style.display = 'none';
+                            };
+                        }
+                    }
+                    /*else {
+                        if(!editing) return;
+                        console.log(id);
+                        let subjectName = id.replace(new RegExp(activeSemester, 'g'), '');
+                        let subject = subjectName.replace(/\d+$/, ''); // string with removed numbers at the end
+                        let index = subjectName.match(/\d+$/); //int with only the numbers at the end
+
+                        console.log(subjectName + '; ' + subject + '; ' + index);
+
+                        let grade = subjects.find(element => element.name === activeSemester).grades.find(element => element.name === subject).grades[index];
+
+                        editScene(grade, `["${subject}", ${index}]`);
+                    }*/
+                }
+            }
+        });
+
+        document.addEventListener('keyup', function(event) {
+            switch (event.key) {
+                case 'Enter':
+                    if(!(document.getElementById('add').style.display == 'none')) save();
+                    if(!(document.getElementById('settings').style.display == 'none')) saveSettings();
+                    break;
+            
+                default:
+                    break;
+            }
+        });
+
+        document.getElementById('fileInput').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const fileExtension = file.name.split('.').slice(-1)[0];
+
+            // Find the format key matching the extension and if encrypted
+            const formatEntry = Object.values(DataManager.file.formats).find(format => format.extension === fileExtension);
+
+            if (formatEntry && formatEntry.encrypted) {
+                //document.getElementById('fileAccessKey').value = '';
+                //document.documentElement.style.setProperty('--fileAccessDisplay', 'block');
+                const ready = await fileAccessDialog({"de": "Gib das Passwort oder den Wiederherstellungscode für diese Datei ein", "en": "Enter the Password or the Recovery Code for this file"});
+                if(ready) handleFile();
+            } 
+            else {
+                //document.documentElement.style.setProperty('--fileAccessDisplay', 'none');
+                handleFile();
+            }
+        });
+
+        async function handleFile() {
+            const file = document.getElementById('fileInput').files[0];
+
+            const accessKey = document.getElementById('fileAccessKey')?.value;
+            
+            DataManager.file.import(file, accessKey)
+                .then((result) =>{
+                    subjects = JSON.parse(result);
+
+                    DataManager.storage.set('subjects', subjects);
+                    activeSemester = undefined;
+                    switchScene('main'); //no active semester: switches to semesters automatically
+                })
+                .catch(error => {
+                    switch(error.code) {
+                        case 'NO_KEY':
+                            alert('You need to input your password or recovery key');
+                            break;
+                        case 'INVALID_FILE_STRUCTURE':
+                            alert(`The uploaded file's file structure is invalid.`);
+                            break;
+                        case 'DEK_DECRYPTION_ERROR':
+                            alert('The provided key is invalid');
+                            break;
+                        case 'DECRYPTION_ERROR':
+                            alert('The decryption failed');
+                            break;
+                        case 'BAD_HMAC':
+                            alert('The file decryption failed, because the content seems to be altered or corrupted.');
+                            break;
+                        default:
+                            alert(error.message);
+                    }
+                });
+
+            document.getElementById('fileAccessKey').value = '';
+            document.getElementById('fileInput').value = '';
+        }
+
+        const app_channel = new BroadcastChannel('app_channel');
+        app_channel.onmessage = (event) => {
+            const data = event.data;
+            const identifier = broadcastID.indexOf(data.identifier)
+            if(data.from === 'gradia' && data.type === 'response' && data.purpose === 'replaceSettings' && identifier >= 0) {
+                broadcastID.splice(identifier, 1);
+                console.log(data);
+                settings = data.message;
+                DataManager.storage.set('settings', settings);
+                loadsemester();
+            }
+            if(data.from === 'gradia' && data.type === 'request' && data.message === 'settings' && identifier < 0) {
+                app_channel.postMessage({
+                    from: 'gradia',
+                    type: 'response',
+                    message: settings,
+                    purpose: data.purpose,
+                    identifier: data.identifier
+                })
             }
         }
-    });
 
-    document.addEventListener('keyup', function(event) {
-        switch (event.key) {
-            case 'Enter':
-                if(!(document.getElementById('add').style.display == 'none')) save();
-                if(!(document.getElementById('settings').style.display == 'none')) saveSettings();
-                break;
-        
-            default:
-                break;
+        if(!settings.lang) {
+            settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
         }
-    });
 
-    document.getElementById('fileInput').addEventListener('change', async function(event) {
-        const file = event.target.files[0];
-        if(!file) return;
+        if(!(settings.lang == 'de')) {
+            document.documentElement.lang = settings.lang;
+            changeLang(settings.lang);
+        }
 
-        const fileExtension = file.name.split('.').slice(-1)[0];
+        /*else {
+            const identifier = identifierCode();
+            broadcastID.push(identifier);
+            appChannel('request', 'settings', 'replaceSettings', identifier);
+        }*/
 
-        // Find the format key matching the extension and if encrypted
-        const formatEntry = Object.values(DataManager.file.formats).find(format => format.extension === fileExtension);
+        if(settings.activeSemester == undefined && subjects.semesters.length > 0) activeSemester = subjects.semesters[subjects.semesters.length - 1].name;
+        else if (!(settings.activeSemester == undefined)) activeSemester = settings.activeSemester;
+        else activeSemester = undefined;
 
-        if (formatEntry && formatEntry.encrypted) {
-            //document.getElementById('fileAccessKey').value = '';
-            //document.documentElement.style.setProperty('--fileAccessDisplay', 'block');
-            const ready = await fileAccessDialog({"de": "Gib das Passwort oder den Wiederherstellungscode für diese Datei ein", "en": "Enter the Password or the Recovery Code for this file"});
-            if(ready) handleFile();
-        } 
+        if(!(activeSemester == undefined)) {
+            document.getElementById('semesterLink').textContent = '< ' + activeSemester;
+            loadSubjects();
+            scene = 'main';
+        }
         else {
-            //document.documentElement.style.setProperty('--fileAccessDisplay', 'none');
-            handleFile();
+            switchScene('semesters');
         }
-    });
 
-    async function handleFile() {
-        const file = document.getElementById('fileInput').files[0];
+        changeMode(settings.darkmode);
+        replaceIcons();
 
-        const accessKey = document.getElementById('fileAccessKey')?.value;
+
+        document.getElementById('buildVersion').textContent = buildVersion;
+
+        document.getElementById('loading-screen').style.display = 'none';
+
+        if(!settings.seenStoragePolicy) {
+            showStoragePolicy();
+        }
         
-        DataManager.file.import(file, accessKey)
-            .then((result) =>{
-                subjects = JSON.parse(result);
+        showDownloadMessage();
 
-                DataManager.storage.set('subjects', subjects);
-                activeSemester = undefined;
-                switchScene('main'); //no active semester: switches to semesters automatically
-            })
-            .catch(error => {
-                switch(error.code) {
-                    case 'NO_KEY':
-                        alert('You need to input your password or recovery key');
-                        break;
-                    case 'INVALID_FILE_STRUCTURE':
-                        alert(`The uploaded file's file structure is invalid.`);
-                        break;
-                    case 'DEK_DECRYPTION_ERROR':
-                        alert('The provided key is invalid');
-                        break;
-                    case 'DECRYPTION_ERROR':
-                        alert('The decryption failed');
-                        break;
-                    case 'BAD_HMAC':
-                        alert('The file decryption failed, because the content seems to be altered or corrupted.');
-                        break;
-                    default:
-                        alert(error.message);
-                }
-            });
-
-        document.getElementById('fileAccessKey').value = '';
-        document.getElementById('fileInput').value = '';
+        if(!settings.offline) registerSW();
     }
-
-    const app_channel = new BroadcastChannel('app_channel');
-    app_channel.onmessage = (event) => {
-        const data = event.data;
-        const identifier = broadcastID.indexOf(data.identifier)
-        if(data.from === 'gradia' && data.type === 'response' && data.purpose === 'replaceSettings' && identifier >= 0) {
-            broadcastID.splice(identifier, 1);
-            console.log(data);
-            settings = data.message;
-            DataManager.storage.set('settings', settings);
-            loadsemester();
-        }
-        if(data.from === 'gradia' && data.type === 'request' && data.message === 'settings' && identifier < 0) {
-            app_channel.postMessage({
-                from: 'gradia',
-                type: 'response',
-                message: settings,
-                purpose: data.purpose,
-                identifier: data.identifier
-            })
-        }
+    catch(error) {
+        document.getElementById('loading-screen').addEventListener('click', function() {
+            DataManager.file.export({ data: subjects, format: 'gradia-grd'});
+        })
+        document.getElementById('loading-error').innerHTML = `<i>${error}</i><br>An error occurred during initialization. Please send this error to our support.<br>You can still download your data by clicking on the Gradia logo.`;
     }
-
-    if(!settings.lang) {
-        settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
-    }
-
-    if(!(settings.lang == 'de')) {
-        document.documentElement.lang = settings.lang;
-        changeLang(settings.lang);
-    }
-
-    /*else {
-        const identifier = identifierCode();
-        broadcastID.push(identifier);
-        appChannel('request', 'settings', 'replaceSettings', identifier);
-    }*/
-
-    if(settings.activeSemester == undefined && subjects.semesters.length > 0) activeSemester = subjects.semesters[subjects.semesters.length - 1].name;
-    else if (!(settings.activeSemester == undefined)) activeSemester = settings.activeSemester;
-    else activeSemester = undefined;
-
-    if(!(activeSemester == undefined)) {
-        document.getElementById('semesterLink').textContent = '< ' + activeSemester;
-        loadSubjects();
-        scene = 'main';
-    }
-    else {
-        switchScene('semesters');
-    }
-
-    changeMode(settings.darkmode);
-    replaceIcons();
-
-
-    document.getElementById('buildVersion').textContent = buildVersion;
-
-    document.getElementById('loading-screen').style.display = 'none';
-
-    if(!settings.seenStoragePolicy) {
-        showStoragePolicy();
-    }
-    
-    showDownloadMessage();
-
-    if(!settings.offline) registerSW();
 }
 
 function initStorage() {
