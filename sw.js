@@ -1,4 +1,4 @@
-const CACHE_NAME = 'Beta 1.1.3';
+const CACHE_NAME = 'Version 1.1';
 const INFO = {
     get description() {
         return {de:`Dieses Update enthält Fehlerbehebungen${this.features.length < 1 ? `.`:` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${this.features.length < 1 ? `.`:` and introduces these new features:`}`}
@@ -8,7 +8,7 @@ const INFO = {
         {name:{de:"Update-Historie", en:"Update History"}, description:{de:"Neue Features werden versionsübergreifend angezeigt", en:"New Features are displayed across all versions"}, version: '1.1'},
         {name:{de:`Teilweise Datenlöschung`, en:`Partial Data Deletion`}, description:{de:`Einstellungen oder Noten können unabhängig voneinander gelöscht werden`, en:`Settings and Grades can be deleted independently`}, version: '1.1'},
     ],
-    release: new Date('2025-06-08')
+    release: new Date('2025-07-10')
 };
 
 async function resourcesToCache(resources) {
@@ -28,8 +28,8 @@ self.addEventListener('install', (event) => {
             'index.html',
             'style.css',
             'script.js',
-            'background.jpg',
-            //'/favicon.ico'
+            './img/background.jpg',
+            '/favicon.ico'
         ])
     )
     self.skipWaiting();

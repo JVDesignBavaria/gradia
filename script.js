@@ -1,4 +1,4 @@
-const buildVersion = 'Beta 1.1.3';
+const buildVersion = 'Version 1.1';
 
 import * as DataManager from 'datamanager';
 import { generateRecoveryKey } from 'cryptojs';
@@ -784,6 +784,26 @@ function selectPromise(dialog) {
     });
 }
 
+async function fileAccessDialog(message) {
+    document.getElementById('fileAccessKey').value = '';
+
+    const dialog = document.getElementById('fileAccessDialog');
+    const messageSpan = document.getElementById('fileAccessMessage');
+    messageSpan.innerHTML = text(message);
+
+    const response = await fileAccessPromise(dialog);
+    return response;
+}
+
+function fileAccessPromise(dialog) {
+    return new Promise((resolve, reject) => {
+        dialog.showModal();
+        dialog.onclose = () => {
+            resolve(dialog.returnValue === 'true');
+        };
+    });
+}
+
 function toggleEditing() {
     if(editing) {
         editing = false;
@@ -1152,20 +1172,52 @@ async function downloadMenu() {
         {value: 'gradia-grde', content: text({de:'.grde - Maximale Sicherheit', en:'.grde - Maximum Security'})},
     ]
 
-    let password = null;
     const recoveryKey = await generateRecoveryKey();
+    document.getElementById('recoveryKey').textContent = recoveryKey;
+    document.getElementById('copyRecoveryKey').addEventListener('click', copyHandler);
+
+    document.getElementById('dialogSelect').addEventListener('change', changeHandler);
+
+    function copyHandler() {
+        navigator.clipboard.writeText(document.getElementById('recoveryKey').textContent);
+    }
+
+    function changeHandler(event) {
+        if (DataManager.file.formats[event.target.value]?.encrypted === true)
+            document.documentElement.style.setProperty('--encryptedFileDisplay', 'flex');
+        else
+            document.documentElement.style.setProperty('--encryptedFileDisplay', 'none');
+    }
+
 
     const format = await selectDialog(message, options);
-    const formatConfig = DataManager.file.formats[format];
-    if(!formatConfig) throw new Error('Not a valid file format');
-    if(formatConfig.encrypted) password = prompt("What password should be used to encrypt this file?");
-    console.log(recoveryKey)
+    
+    const password = document.getElementById('filePasswordInput').value;
 
     const encryptParameters = {password, recoveryKey}
 
     DataManager.file.export({data: subjects, format, encryptParameters})
+        .catch(error => {
+            switch(error.code) {
+                case 'MISSING_ENCRYPT_PARAM':
+                    alert('Missing encryption Parameters');
+                    break;
+                default:
+                    console.log(error)
+                    alert(error);
+            }
+        });
     
     switchScene('main');
+
+    // Hide encryption UI
+    document.documentElement.style.setProperty('--encryptedFileDisplay', 'none');
+    document.getElementById('filePasswordInput').value = '';
+    document.getElementById('recoveryKey').textContent = '';
+
+    // Remove event listeners
+    document.getElementById('copyRecoveryKey').removeEventListener('click', copyHandler);
+    document.getElementById('dialogSelect').removeEventListener('change', changeHandler);
 }
 
 
@@ -1293,7 +1345,7 @@ async function registerSW() {
             console.log(`Received channelmessage ${JSON.stringify(event.data)}`);
 
             try {
-                const changelog = await fetchData('testlog.json');
+                const changelog = await fetchData('changelog.json');
                 handleUpdate(changelog, event.data.version);
                 await updateStore.set('oldVersion', buildVersion);
             }
@@ -1429,6 +1481,10 @@ const updateTasks = {
             if (typeof fn !== 'function') throw new Error(`Function "${fnName}" not found`);
 
             fn(params);
+        },
+
+        showInfo({ message }) {
+            showMessage(message);
         }
     },
 
@@ -1576,7 +1632,7 @@ async function versionCheck() {
     
     console.log(`Old version available: "${oldVersion}"`)
     try {
-        const changelog = await fetchData('testlog.json');
+        const changelog = await fetchData('changelog.json');
         
         const filteredVersions = changelog.versions.filter((element) => compareVersion(oldVersion, element.version) < 0 && compareVersion(element.version, buildVersion) <= 0); //only versions newer than oldVersion, but older or equal than current Version
 
@@ -1761,7 +1817,7 @@ function init() {
         }
     });
 
-    document.getElementById('fileInput').addEventListener('change', function(event) {
+    document.getElementById('fileInput').addEventListener('change', async function(event) {
         const file = event.target.files[0];
         if(!file) return;
 
@@ -1773,7 +1829,8 @@ function init() {
         if (formatEntry && formatEntry.encrypted) {
             //document.getElementById('fileAccessKey').value = '';
             //document.documentElement.style.setProperty('--fileAccessDisplay', 'block');
-            handleFile(prompt("Enter your access key"));
+            const ready = await fileAccessDialog({"de": "Gib das Passwort oder den Wiederherstellungscode für diese Datei ein", "en": "Enter the Password or the Recovery Code for this file"});
+            if(ready) handleFile();
         } 
         else {
             //document.documentElement.style.setProperty('--fileAccessDisplay', 'none');
@@ -1781,10 +1838,11 @@ function init() {
         }
     });
 
-    async function handleFile(accessKey) {
+    async function handleFile() {
         const file = document.getElementById('fileInput').files[0];
 
-        //const accessKey = document.getElementById('fileAccessKey')?.value; //normally - changed to parameter input until dialog UI refactor
+        const accessKey = document.getElementById('fileAccessKey')?.value;
+        
         DataManager.file.import(file, accessKey)
             .then((result) =>{
                 subjects = JSON.parse(result);
@@ -1815,6 +1873,7 @@ function init() {
                 }
             });
 
+        document.getElementById('fileAccessKey').value = '';
         document.getElementById('fileInput').value = '';
     }
 
