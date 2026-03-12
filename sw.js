@@ -1,19 +1,7 @@
-const CACHE_NAME = 'Version 1.1';
-const INFO = {
-    get description() {
-        return {de:`Dieses Update enthält Fehlerbehebungen${this.features.length < 1 ? `.`:` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${this.features.length < 1 ? `.`:` and introduces these new features:`}`}
-    },
-    features: [
-        {name:{de:`Tabellen-Sortierung`, en:`Table Sort`}, description:{de:`Die Tabellen können automatisch sortiert werden`, en:`Tables can be sorted automatically`}, version: '1.1'},
-        {name:{de:"Update-Historie", en:"Update History"}, description:{de:"Neue Features werden versionsübergreifend angezeigt", en:"New Features are displayed across all versions"}, version: '1.1'},
-        {name:{de:`Teilweise Datenlöschung`, en:`Partial Data Deletion`}, description:{de:`Einstellungen oder Noten können unabhängig voneinander gelöscht werden`, en:`Settings and Grades can be deleted independently`}, version: '1.1'},
-        {name:{de:`Noten-Download`, en:`Grade-Download`}, description:{de:`Die Noten-Daten können als .grd/.grde-Datei heruntergeladen werden`, en:`The grade-data can be downloaded as a .grd/.grde file`}, version: '1.1'},
-    ],
-    release: new Date('2025-07-10')
-};
+const APP_VERSION = 'Version 1.2';
 
 async function resourcesToCache(resources) {
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(APP_VERSION);
     
     // Fetch all resources with `cache: "reload"` and store them in cache
     await Promise.all(resources.map(async (resource) => {
@@ -34,7 +22,7 @@ self.addEventListener('install', (event) => {
         ])
     )
     self.skipWaiting();
-    sendMessage('sw_channel', {from:'SW', version:CACHE_NAME, info:INFO});
+    sendMessage('sw_channel', {from:'SW', version:APP_VERSION});
 })
 
 self.addEventListener('activate', (event) => {
@@ -43,7 +31,7 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         (async () => {
             const cacheNames = await caches.keys();
-            const oldCaches = cacheNames.filter(cacheName => cacheName !== CACHE_NAME);
+            const oldCaches = cacheNames.filter(cacheName => cacheName !== APP_VERSION);
 
             if (oldCaches.length > 0) {
                 const current = await updateStore.get('oldVersion');
@@ -70,7 +58,7 @@ async function cacheFirst(request) {
 
     const responseFromNetwork = await fetch(request, {cache: "reload"});
 
-    const cache = await caches.open(CACHE_NAME);
+    const cache = await caches.open(APP_VERSION);
     await cache.put(request, responseFromNetwork.clone());
 
     return responseFromNetwork;
@@ -88,7 +76,7 @@ self.addEventListener('fetch', (event) => {
 async function sendLogData(logType) {
     const versionData = {
         app_name: "gradia",
-        version: CACHE_NAME,
+        version: APP_VERSION,
         new_users: 0,
         standalone_apps: 0,
         updated_apps: 0

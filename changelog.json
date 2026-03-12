@@ -44,6 +44,12 @@
                     "onFailure": "continue"
                 }
             ]
+        },
+        {
+            "version": "Version 1.2",
+            "release": "",
+            "changes": [
+            ]
         }
     ]
 }

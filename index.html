@@ -5,7 +5,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#9A7AA0">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Gradia by JVDesign allows you to calculate and organize your grades quickly and easily, even over multiple school years. Keep track of your academic performance offline and on your device, ensuring you never miss a chance to improve your grades. Take control of your educational journey with Gradia!">
     <meta property="og:image" content="./img/ogimage.png" />
     <title>Gradia</title>
@@ -192,14 +192,14 @@
         
         <nav id="top-controls">
             <div id="toolDiv">
-                <div class="transparent">
+                <button class="transparent">
                     <i class="options-icon"></i>
-                </div>
-                <div>
+                </button>
+                <button>
                     <i class="alphabet-asc-icon"  id="sortIcon"></i>
-                </div>
+                </button>
             </div>
-            <span id="semesterLink"></span>
+            <button id="semesterLink" class="scene" data-scene="semesters"></button>
         </nav>
 
         <table id="table">
@@ -244,17 +244,17 @@
                 </label>
             </div>
             <div class="labelBox">
-                <div class="innerLabelBox"><input type="button" id="downloadButton" value="Daten herunterladen"/><label for="downloadButton">Datei herunterladen</label></div>
-                <div class="innerLabelBox"><input type="file" id="fileInput" accept=".grd, .grde"><label for="fileInput">Datei hochladen</label></div>
+                <div class="innerLabelBox"><input type="button" id="downloadButton" value="Daten herunterladen"/><label for="downloadButton">Datei exportieren</label></div>
+                <div class="innerLabelBox"><input type="file" id="fileInput" accept=".grd, .grde"><label for="fileInput">Datei importieren</label></div>
                 <div class="innerLabelBox"><input type="button" id="deleteButton" value="Alle Daten löschen"/><label for="deleteButton">Daten löschen</label></div>
             </div>
             <span id="buildVersion"></span>
         </div>
     </main>
     <nav class="nav bottom">
-        <div class="smalluibutton"><i data-size = '100%' class="home-icon" data-scene = "main"></i></div>
-        <div id="centerbutton" class="uibutton"><i id="centerbuttonicon" data-size = '100%' data-color = "#fff" class="plus-icon" data-scene = "add"></i></div>
-        <div class="smalluibutton"><i data-size = '100%' class="settings-icon" data-scene = "settings"></i></div>
+        <button class="smalluibutton scene" data-scene="main"><i data-size = '100%' class="home-icon"></i></button>
+        <button id="centerbutton" class="uibutton scene" data-scene="add"><i id="centerbuttonicon" data-size = '100%' data-color = "#fff" class="plus-icon"></i></button>
+        <button class="smalluibutton scene" data-scene="settings"><i data-size = '100%' class="settings-icon"></i></button>
     </nav>
 </body>
 </html>

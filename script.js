@@ -1,4 +1,4 @@
-const buildVersion = 'Version 1.1';
+const buildVersion = 'Version 1.2';
 
 import * as DataManager from 'datamanager';
 import { generateRecoveryKey } from 'cryptojs';
@@ -344,6 +344,7 @@ function loadSubjects() {
 
 
         let newSubjDiv = document.createElement('div');
+        newSubjDiv.classList = 'gradeHeader';
 
         let toolDiv = document.createElement('div');
         toolDiv.classList = `transparent`;
@@ -403,6 +404,7 @@ function loadSubjects() {
                     document.getElementById('table').appendChild(newTr);
 
                     let newGrdDiv = document.createElement('div');
+                    newGrdDiv.classList = 'gradeHeader';
 
                     let toolDiv = document.createElement('div');
                     toolDiv.classList = `transparent`;
@@ -439,6 +441,7 @@ function loadSubjects() {
             }
             else {
                 let newGrdDiv = document.createElement('div');
+                newGrdDiv.classList = 'gradeHeader';
 
                 let toolDiv = document.createElement('div');
                 toolDiv.classList = `transparent`;
@@ -745,7 +748,7 @@ async function deleteData() {
     }
 
     changeLang(settings.lang);
-    changeMode(settings.darkmode);
+    setDarkMode(settings.darkmode);
 
     DataManager.storage.set('subjects', subjects);
     DataManager.storage.set('settings', settings);
@@ -1035,32 +1038,24 @@ function saveSettings() {
     settings.darkmode = document.getElementById('darkmode').checked;
     settings.offline = document.getElementById('offline').checked;
 
-    changeMode(settings.darkmode);
+    setDarkMode(settings.darkmode);
 
     DataManager.storage.set('settings', settings);
 }
 
-function changeMode(mode) {
-    if (mode) {
-        document.querySelectorAll('.background').forEach(element => {
-            element.style.display = 'block';
-            document.documentElement.style.setProperty('--main-color', '#fff');
-        });
-    }
-    else {
-        document.querySelectorAll('.background').forEach(element => {
-            element.style.display = 'none';
-        });
-        document.documentElement.style.setProperty('--main-color', '#000');
-    }
+function setDarkMode(on) {
+    document.querySelectorAll('.background').forEach(element => {
+        element.style.display = on ? 'block' : 'none';
+    });
+    document.documentElement.style.setProperty('--font-color', `var(--${on ? 'bright' : 'dark'}-color)`);
 }
 
 function changeLang(lang) {
     switch(lang) {
         case 'de':
             document.querySelector("#multiplierBox span").textContent ="Gewichtungen";
-            document.querySelector("label[for='downloadButton']").textContent = 'Datei herunterladen';
-            document.querySelector("label[for='fileInput']").textContent = 'Datei hochladen';
+            document.querySelector("label[for='downloadButton']").textContent = 'Datei exportieren';
+            document.querySelector("label[for='fileInput']").textContent = 'Datei importieren';
             document.querySelector("label[for='deleteButton']").textContent = 'Daten löschen';
 
             document.querySelector('#downloadDialog button[value="false"]').textContent = 'Nicht mehr zeigen';
@@ -1087,8 +1082,8 @@ function changeLang(lang) {
             break;
         case 'en':
             document.querySelector("#multiplierBox span").textContent ="Weights";
-            document.querySelector("label[for='downloadButton']").textContent = 'Download file';
-            document.querySelector("label[for='fileInput']").textContent = 'Upload file';
+            document.querySelector("label[for='downloadButton']").textContent = 'Export file';
+            document.querySelector("label[for='fileInput']").textContent = 'Import file';
             document.querySelector("label[for='deleteButton']").textContent = 'Delete data';
 
             document.querySelector('#downloadDialog button[value="false"]').textContent = `Don't show again`;
@@ -1681,11 +1676,9 @@ function init() {
             element.addEventListener('click', toggleEditing);
         });
 
-        document.getElementById('semesterLink').addEventListener('click', () => switchScene('semesters'))
-
         document.getElementById('sortIcon').addEventListener('click', sortMenu);
 
-        document.querySelectorAll('.nav > div > i').forEach(element => {
+        document.querySelectorAll('button.scene').forEach(element => {
             element.addEventListener('click', (e) => {
                 switchScene(e.currentTarget.dataset.scene);
             })
@@ -1931,7 +1924,7 @@ function init() {
             switchScene('semesters');
         }
 
-        changeMode(settings.darkmode);
+        setDarkMode(settings.darkmode);
         replaceIcons();
 
 
