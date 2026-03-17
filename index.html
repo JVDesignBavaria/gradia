@@ -101,8 +101,8 @@
             <form method="dialog">
                 <div>
                     <div class="infoTop">
-                        <button value="true" autofocus>Später</button>
-                        <button value="false">Nicht mehr zeigen</button>
+                        <button value="true" data-i18n="dialogs.showLater" autofocus></button>
+                        <button value="false" data-i18n="dialogs.dontShowAgain"></button>
                     </div>
                     <span id="downloadMessage"></span>
                 </div>
@@ -114,8 +114,8 @@
                 <div>
                     <span id="confirmMessage"></span>
                     <div>
-                        <button value="false">Abbrechen</button>
-                        <button value="true" autofocus>Ok</button>
+                        <button value="false" data-i18n="dialogs.cancel"></button>
+                        <button value="true" data-i18n="dialogs.confirm" autofocus></button>
                     </div>
                 </div>
             </form>
@@ -127,18 +127,18 @@
                     <span id="sortMessage"></span>
                     <div class="multiSelect">
                         <select id="sortMode">
-                            <option value="alphabet">alphabetisch</option>
-                            <option value="grade">Note</option>
-                            <option value="gradeCount">Notenanzahl</option>
+                            <option value="alphabet" data-i18n="dialogs.sort.byAlphabet"></option>
+                            <option value="grade" data-i18n="dialogs.sort.byGrade"></option>
+                            <option value="gradeCount" data-i18n="dialogs.sort.byGradeCount"></option>
                         </select>
                         <select id="sortOrder">
-                            <option value="asc">aufsteigend</option>
-                            <option value="desc">absteigend</option>
+                            <option value="asc" data-i18n="dialogs.sort.ascending"></option>
+                            <option value="desc" data-i18n="dialogs.sort.descending"></option>
                         </select>
                     </div>
                     <div>
-                        <button value="false">Abbrechen</button>
-                        <button value="true" autofocus>Ok</button>
+                        <button value="false" data-i18n="dialogs.cancel"></button>
+                        <button value="true" data-i18n="dialogs.apply" autofocus></button>
                     </div>
                 </div>
             </form>
@@ -151,15 +151,15 @@
                     <select id="dialogSelect"></select>
 
                     <input type="text" id="filePasswordInput" placeholder="password" class="encryptedFile">
-                    <label for="filePasswordInput" class="encryptedFile">Choose a password to lock the file</label>
+                    <label for="filePasswordInput" class="encryptedFile" data-i18n="dialogs.exportData.passwordLabel"></label>
                     <div class="encryptedFile box">
                         <span id="recoveryKey" class="encryptedFile"></span>
-                        <button id="copyRecoveryKey" type="button">Copy</button>
+                        <button id="copyRecoveryKey" type="button" data-i18n="dialogs.exportData.recoveryKeyCopy"></button>
                     </div>
-                    <label for="copyRecoveryKey" class="encryptedFile">Your Recovery Code</label>
+                    <label for="copyRecoveryKey" class="encryptedFile" data-i18n="dialogs.exportData.recoveryKeyLabel"></label>
                     <div>
-                        <button value="false">Abbrechen</button>
-                        <button value="true" autofocus>Ok</button>
+                        <button value="false" data-i18n="dialogs.cancel"></button>
+                        <button value="true" data-i18n="dialogs.apply" autofocus></button>
                     </div>
                 </div>
             </form>
@@ -170,10 +170,10 @@
                 <div>
                     <span id="fileAccessMessage"></span>
                     <input id="fileAccessKey" class="fileAccess" type="text" placeholder="password">
-                    <label for="fileAccessKey" class="fileAccess">Your Password or Recovery Key</label>
+                    <label for="fileAccessKey" class="fileAccess" data-i18n="dialogs.importData.keyLabel"></label>
                     <div>
-                        <button value="false">Abbrechen</button>
-                        <button value="true" autofocus>Ok</button>
+                        <button value="false" data-i18n="dialogs.cancel"></button>
+                        <button value="true" data-i18n="dialogs.apply" autofocus></button>
                     </div>
                 </div>
             </form>
@@ -183,7 +183,7 @@
             <form method="dialog">
                 <div>
                     <div class="infoTop">
-                        <button id="infoConfirm" value="true" autofocus>Fertig</button>
+                        <button id="infoConfirm" value="true" data-i18n="dialogs.acknowledge" autofocus></button>
                     </div>
                     <span id="infoMessage"></span>
                 </div>
@@ -206,13 +206,13 @@
         </table>
 
         <div id="add">
-            <input type="text" id="addSess" placeholder="Schuljahr-Name">
-            <input type="text" id="focusedSubj" list="subjects" placeholder="Fach-Name">
+            <input type="text" id="addSess" data-i18n-placeholder="editor.schoolyearName.placeholder">
+            <input type="text" id="focusedSubj" list="subjects" data-i18n-placeholder="editor.subjectName.placeholder">
             <datalist id="subjects"></datalist>
-            <input type="number" max="6" min="1" id="grade" placeholder="Note">
-            <input type="number" id="weight" placeholder="Gewichtung">
-            <input type="text" id="description" placeholder="Beschreibung">
-            <div class="checkboxbox" id="schulaufgabebox"><input type="checkbox" id="schulaufgabe"><label for="schulaufgabe">Schulaufgabe</label></div>
+            <input type="number" max="6" min="1" id="grade" data-i18n-placeholder="editor.grade.placeholder">
+            <input type="number" id="weight" data-i18n-placeholder="editor.weight.placeholder">
+            <input type="text" id="description" data-i18n-placeholder="editor.description.placeholder">
+            <div class="checkboxbox" id="schulaufgabebox"><input type="checkbox" id="schulaufgabe"><label for="schulaufgabe" data-i18n="editor.exam"></label></div>
             <span class="data" id="addVar"></span>
         </div>
 
@@ -223,30 +223,30 @@
             </select>
             <input type="text" id="examName">
             <div class="checkboxbox between" id="multiplierBox">
-                <span>Gewichtungen</span>
+                <span data-i18n="settings.weights"></span>
                 <label class="switch">
                     <input class="autosave" type="checkbox" id="showMultipliers">
                     <span class="slider"></span>
                 </label>
             </div>
             <div class="checkboxbox between" id="darkmodeBox">
-                <span>Darkmode</span>
+                <span data-i18n="settings.darkmode"></span>
                 <label class="switch">
                     <input class="autosave" type="checkbox" id="darkmode">
                     <span class="slider"></span>
                 </label>
             </div>
             <div class="checkboxbox between" id="offlineBox">
-                <span>Offline</span>
+                <span data-i18n="settings.offline"></span>
                 <label class="switch">
                     <input class="autosave" type="checkbox" id="offline">
                     <span class="slider"></span>
                 </label>
             </div>
             <div class="labelBox">
-                <div class="innerLabelBox"><input type="button" id="downloadButton" value="Daten herunterladen"/><label for="downloadButton">Datei exportieren</label></div>
-                <div class="innerLabelBox"><input type="file" id="fileInput" accept=".grd, .grde"><label for="fileInput">Datei importieren</label></div>
-                <div class="innerLabelBox"><input type="button" id="deleteButton" value="Alle Daten löschen"/><label for="deleteButton">Daten löschen</label></div>
+                <div class="innerLabelBox"><input type="button" id="downloadButton" value="Daten herunterladen"/><label for="downloadButton" data-i18n="settings.exportFile"></label></div>
+                <div class="innerLabelBox"><input type="file" id="fileInput" accept=".grd, .grde"><label for="fileInput" data-i18n="settings.importFile"></label></div>
+                <div class="innerLabelBox"><input type="button" id="deleteButton" value="Alle Daten löschen"/><label for="deleteButton" data-i18n="settings.deleteData"></label></div>
             </div>
             <span id="buildVersion"></span>
         </div>

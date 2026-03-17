@@ -1,5 +1,6 @@
 const buildVersion = 'Version 1.2';
 
+import strings from './strings.json' with { type: 'json' };
 import * as DataManager from 'datamanager';
 import { generateRecoveryKey } from 'cryptojs';
 import { updateStore } from './modules/idbUpdateStore.js';
@@ -106,7 +107,7 @@ function addSubject(name) {
 function addSemester(name) {
     const cleared = deleteSpaces(name);
     if(!cleared || subjects.semesters.find(element => element.name === cleared)) {
-        showMessage(text({de:`Dieser Name ist nicht gültig`, en:`This name isn't valid`}));
+        showMessage(text('errors.invalidName'));
         return false;
     }
     subjects.semesters.push({ name: cleared, grades: [] })
@@ -119,11 +120,6 @@ function addSemester(name) {
 }
 
 function addGrade(subjectName, grade, weight, description) {
-    if(activeSemester == undefined) {
-        let newsemester = prompt(text({de:`Geben Sie einen Namen für das Schuljahr ein, für das die Note eingetragen werden soll`, en:`Enter a name for the school year this grade belongs to`}));
-        addSemester(newsemester);
-    }
-
     let subject = subjects.semesters.find(element => element.name === activeSemester).grades.find(subject => subject.name === subjectName);
 
     if (subject) {
@@ -132,7 +128,7 @@ function addGrade(subjectName, grade, weight, description) {
 
             if (location == undefined) {
                 subject.grades.unshift([ { grade, weight, description }]);
-                subject.examWeight = parseFloat(prompt(text({de:`Wie stark werden ${settings.examName} im Gesamtschnitt gewertet? (1/2)`, en:`How heavily are ${settings.examName} rated in the overall grade? (1/2)`})));
+                subject.examWeight = parseFloat(prompt(text('editor.examWeight')));
                 return;
             }
             subject.grades[location].push({ grade, weight, description });
@@ -272,7 +268,7 @@ function sortIcon(mode, order) {
 async function sortMenu() {
     const dialog = document.getElementById('sortDialog');
     const messageSpan = document.getElementById('sortMessage');
-    messageSpan.innerHTML = text({de:`Wie soll die Tabelle sortiert werden?`, en:`How should the table be sorted?`});
+    messageSpan.innerHTML = text('dialogs.sort.message');
     
     let sortData = null;
 
@@ -324,7 +320,7 @@ function loadSubjects() {
         document.getElementById('table').appendChild(newTR);
 
         let newTH = document.createElement('th');
-        newTH.textContent = text({de:`Keine Noten eingetragen`, en:`No grades added`});
+        newTH.textContent = text('table.noGrades');
         document.getElementById('emptyTable').appendChild(newTH);
         return;
     }
@@ -484,7 +480,7 @@ function loadSubjects() {
     document.getElementById('table').appendChild(newTR);
 
     let newSubj = document.createElement('th');
-    newSubj.textContent = text({de:`Gesamt`, en:`Total`});
+    newSubj.textContent = text('table.total');
     document.getElementById('total').appendChild(newSubj);
 
     let calcAvg = calculateAvgFromArray(avg);
@@ -593,17 +589,10 @@ function save() {
     switch (scene) {
         case 'addGrade':
             if (document.getElementById('focusedSubj').value == '' || document.getElementById('grade').value == '' || document.getElementById('weight').value == '') {
-                showMessage(text({de:`Die Felder müssen ausgefüllt sein`, en:`You need to fill in the inputs`}));
+                showMessage(text('errors.emptyInputs'));
                 return;
             }
-            /*if (/\d/.test(document.getElementById('focusedSubj').value)) {
-                showMessage(text({de:`Die Fächer-Bezeichnung darf keine Zahl enthalten`, en:`The subject name must not contain  any number`}));
-                return;
-            }
-            if(document.getElementById('focusedSubj').value.includes(activeSemester)) {
-                showMessage(text({de:`Die Fächer-Bezeichnung kann nicht das Schuljahr enthalten`, en:`The subject can't contain the name of the year`}));
-                return;
-            }*/
+
             addGrade(deleteSpaces(document.getElementById('focusedSubj').value),parseFloat(document.getElementById('grade').value),parseFloat(document.getElementById('weight').value), deleteSpaces(document.getElementById('description').value));
             break;
         case 'addSubject':
@@ -619,7 +608,7 @@ function save() {
             break;
         case 'editGrade':
             if (document.getElementById('grade').value == '' || document.getElementById('weight').value == '') {
-                showMessage(text({de:`Die Felder müssen ausgefüllt sein`, en:`You need to fill in the inputs`}));
+                showMessage(text('errors.emptyInputs'));
                 return;
             }
             let newGrade = {
@@ -644,12 +633,12 @@ function save() {
             const cleaned = deleteSpaces(name);
 
             if(!cleaned) {
-                showMessage(text({de:`Ungültiger Name`, en:`Invalid name`}));
+                showMessage(text('errors.invalidName'));
                 return;
             }
             for (const semester of subjects.semesters) {
                 if(semester.name == cleaned) {
-                    showMessage(text({de:`Ein Schuljahr mit diesem Namen ist bereits vorhanden`, en:`A school year with this name can't exist twice`}));
+                    showMessage(text('errors.duplicateSchoolyear'));
                     return;
                 }
             }
@@ -659,23 +648,16 @@ function save() {
             break;
         case 'editSubject':
             if (document.getElementById('focusedSubj').value == '') {
-                showMessage(text({de:`Die Felder müssen ausgefüllt sein`, en:`You need to fill in the inputs`}));
+                showMessage(text('errors.emptyInputs'));
                 return;
             }
             name = document.getElementById('focusedSubj').value;
 
             if(dir.find(element => element.name === name) && !(dir.indexOf(dir.find(element => element.name === name)) == addVar)) {
-                showMessage(text({de:`Ein Fach mit diesem Namen kann nicht doppelt existieren`, en:`A subject with that name can't exist twice`}));
+                showMessage(text('errors.duplicateSubject'));
                 return;
             }
-            /*if (/\d/.test(document.getElementById('focusedSubj').value)) {
-                showMessage(text({de:`Die Fächer-Bezeichnung darf keine Zahl enthalten`, en:`The subject name must not contain  any number`}));
-                return;
-            }
-            if(document.getElementById('focusedSubj').value.includes(activeSemester)) {
-                showMessage(text({de:`Die Fächer-Bezeichnung kann nicht das Schuljahr enthalten`, en:`The subject can't contain the name of the year`}));
-                return;
-            }*/
+
             subjects.semesters.find(semester => semester.name == activeSemester).grades[addVar].name = name;
             toggleEditing();
             break;
@@ -712,19 +694,18 @@ function deleteSpaces(str) {
 }
 
 async function deleteData() {
-    const message = {de:`Welche Daten sollen gelöscht werden?`, en:`What data should be deleted?`};
     const options = [ 
-        {value: 'settings', content: text({de:'Einstellungen', en:'Settings'})},
-        {value: 'subjects', content: text({de:'Noten', en:'Grades'})},
-        {value: 'all', content: text({de:'Alle', en:'All'})},
+        {value: 'settings', content: text('dialogs.deleteData.targetSelect.settings')},
+        {value: 'grades', content: text('dialogs.deleteData.targetSelect.grades')},
+        {value: 'all', content: text('dialogs.deleteData.targetSelect.all')},
     ];
 
-    let key = await selectDialog(message, options);
+    let key = await selectDialog(text('dialogs.deleteData.message'), options);
     if(!key) return;
-    if(!(await getConfirm(text({de:`Alle ${key === 'settings' ? 'Einstellungen' : key === 'subjects' ? 'Noten' : 'gespeicherten Daten'} löschen?`, en:`Delete all ${key === 'settings' ? 'settings' : key === 'subjects' ? 'grades' : 'saved data'}?`})))) return;
+    if(!(await getConfirm(text('dialogs.deleteData.confirmation', { target: text(`dialogs.deleteData.target.${key}`) })))) return;
     DataManager.storage.remove(key === 'all' ? 'subjects' : key);
 
-    if(key === 'subjects' || key === 'all') {
+    if(key === 'grades' || key === 'all') {
         subjects = {
             version: buildVersion,
             semesters: []
@@ -747,7 +728,7 @@ async function deleteData() {
         }
     }
 
-    changeLang(settings.lang);
+    translateDOM();
     setDarkMode(settings.darkmode);
 
     DataManager.storage.set('subjects', subjects);
@@ -825,7 +806,7 @@ function loadsemester() {
         document.getElementById('table').appendChild(newTR);
 
         let newTH = document.createElement('th');
-        newTH.textContent = text({de:`Kein Schuljahr hinzugefügt`, en:`No school year added`});
+        newTH.textContent = text('table.noSchoolyear');
         document.getElementById('emptyTable').appendChild(newTH);
         return;
     }
@@ -876,7 +857,7 @@ function loadsemester() {
     document.getElementById('table').appendChild(newTR);
 
     let newSubj = document.createElement('th');
-    newSubj.textContent = text({de:`Gesamt`, en:`Total`});
+    newSubj.textContent = text('table.total');
     document.getElementById('total').appendChild(newSubj);
 
     let calcAvg = calculateAvgFromArray(avg);
@@ -1031,7 +1012,7 @@ function setChildren(parent, attribute, value) {
 function saveSettings() {
     if(!(document.getElementById('lang').value == settings.lang)) {
         settings.lang = document.getElementById('lang').value;
-        changeLang(settings.lang);
+        translateDOM();
     }
     settings.examName = document.getElementById('examName').value || 'Schulaufgaben';
     settings.showMultiplier = document.getElementById('showMultipliers').checked;
@@ -1050,71 +1031,41 @@ function setDarkMode(on) {
     document.documentElement.style.setProperty('--font-color', `var(--${on ? 'bright' : 'dark'}-color)`);
 }
 
-function changeLang(lang) {
-    switch(lang) {
-        case 'de':
-            document.querySelector("#multiplierBox span").textContent ="Gewichtungen";
-            document.querySelector("label[for='downloadButton']").textContent = 'Datei exportieren';
-            document.querySelector("label[for='fileInput']").textContent = 'Datei importieren';
-            document.querySelector("label[for='deleteButton']").textContent = 'Daten löschen';
-
-            document.querySelector('#downloadDialog button[value="false"]').textContent = 'Nicht mehr zeigen';
-            document.querySelector('#downloadDialog button[value="true"]').textContent = 'Später';
-            document.querySelector('#confirmDialog button[value="false"]').textContent = 'Abbrechen';
-            document.querySelector('#confirmDialog button[value="true"]').textContent = 'Ok';
-            document.querySelector('#selectDialog button[value="false"]').textContent = 'Abbrechen';
-            document.querySelector('#selectDialog button[value="true"]').textContent = 'Ok';
-            document.querySelector('#sortDialog button[value="false"]').textContent = 'Abbrechen';
-            document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
-            document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetisch';
-            document.querySelector('#sortDialog option[value="grade"]').textContent = 'Note';
-            document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'Notenanzahl';
-            document.querySelector('#sortDialog option[value="asc"]').textContent = 'aufsteigend';
-            document.querySelector('#sortDialog option[value="desc"]').textContent = 'absteigend';
-            document.querySelector('#infoDialog button[value="true"]').textContent = 'Fertig';
-
-            document.getElementById('addSess').placeholder = 'Schuljahr-Name';
-            document.getElementById('focusedSubj').placeholder = 'Fach-Name';
-            document.getElementById('grade').placeholder = 'Note';
-            document.getElementById('weight').placeholder = 'Gewichtung';
-            document.getElementById('description').placeholder = 'Beschreibung';
-            document.querySelector('label[for="schulaufgabe"]').textContent = 'Schulaufgabe';
-            break;
-        case 'en':
-            document.querySelector("#multiplierBox span").textContent ="Weights";
-            document.querySelector("label[for='downloadButton']").textContent = 'Export file';
-            document.querySelector("label[for='fileInput']").textContent = 'Import file';
-            document.querySelector("label[for='deleteButton']").textContent = 'Delete data';
-
-            document.querySelector('#downloadDialog button[value="false"]').textContent = `Don't show again`;
-            document.querySelector('#downloadDialog button[value="true"]').textContent = 'Later';
-            document.querySelector('#confirmDialog button[value="false"]').textContent = 'Cancel';
-            document.querySelector('#confirmDialog button[value="true"]').textContent = 'Ok';
-            document.querySelector('#selectDialog button[value="false"]').textContent = 'Cancel';
-            document.querySelector('#selectDialog button[value="true"]').textContent = 'Ok';
-            document.querySelector('#sortDialog button[value="false"]').textContent = 'Cancel';
-            document.querySelector('#sortDialog button[value="true"]').textContent = 'Ok';
-            document.querySelector('#sortDialog option[value="alphabet"]').textContent = 'alphabetic';
-            document.querySelector('#sortDialog option[value="grade"]').textContent = 'grade';
-            document.querySelector('#sortDialog option[value="gradeCount"]').textContent = 'grade count';
-            document.querySelector('#sortDialog option[value="asc"]').textContent = 'ascending';
-            document.querySelector('#sortDialog option[value="desc"]').textContent = 'descending';
-            document.querySelector('#infoDialog button[value="true"]').textContent = 'Confirm';
-
-            document.getElementById('addSess').placeholder = 'School year name';
-            document.getElementById('focusedSubj').placeholder = 'Subject name';
-            document.getElementById('grade').placeholder = 'Grade';
-            document.getElementById('weight').placeholder = 'Weight';
-            document.getElementById('description').placeholder = 'Description';
-            document.querySelector('label[for="schulaufgabe"]').textContent = 'Exam';
-            break;
-        default:
-            break;
-    } 
+function translateDOM(root = document) {
+    root.querySelectorAll('[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label]').forEach(element => {
+        console.log(element)
+        const mappings = {
+            textContent: element.dataset.i18n,
+            placeholder: element.dataset.i18nPlaceholder,
+            title: element.dataset.i18nTitle,
+            ariaLabel: element.dataset.i18nAriaLabel
+        };
+        for(const [property, id] of Object.entries(mappings)) {
+            if(id) element[property] = text(id);
+        }
+    });
 }
 
-function text(text) {
-    return text[settings.lang];
+export function text(id, vars = {}, lang = settings.lang) {
+    const DEFAULT_LANG = 'en';
+
+    const entry = strings[id];
+    if (!entry) return id;
+
+    let value = entry[lang] ?? entry[DEFAULT_LANG];
+    if (!value) return id;
+
+    // plural handling
+    if(typeof value === "object") {
+        const count = Number(vars.count);
+        const form = count === 0 ? 'none' : count === 1 ? 'one' : 'other';
+        value = value[form] ?? value.other;
+    }
+
+    // interpolation
+    return value.replace(/\{(\w+)\}/g, (_, key) => {
+        return vars[key] ?? `{${key}}`;
+    });
 }
 
 function showMessage(message) {
@@ -1125,10 +1076,7 @@ function showMessage(message) {
 }
 
 function showStoragePolicy() {
-    const message = text({
-        de:`Gradia speichert deine Daten lokal im Browser. <p>Um einen Datenverlust im Falle der Löschung der Browser-Daten zu verhindern, solltest du deine Daten regelmäßig in den Einstellungen herunterladen. <br>Persönliche Benutzerdaten werden nicht an uns übermittelt und können daher nach Löschung nicht wiederhergestellt werden. </p><p>Wir loggen die Versionsnummer während des Installations-, und Update-Vorgangs, um die richtige Funktionalität zu validieren.</p>`, 
-        en:`Gradia stores your data locally in your browser. <p> To prevent data loss in case of a deletion of your browser's data, you should download your data from time to time in the settings. <br> Personal user data isn't getting sent to us and therefore can't be restored after deletion. </p><p>We log the version number during the installation and update process to validate correct functionality.</p>`
-    })
+    const message = text('dialogs.storagePolicy');
 
     const dialog = document.getElementById('infoDialog');
     const messageSpan = document.getElementById('infoMessage');
@@ -1155,16 +1103,10 @@ function dialogPromise(dialog) {
     })
 }
 
-
-
-
-
-
 async function downloadMenu() {
-    const message = {de:`Welches Datei-Format soll genutzt werden?`, en:`Which data-format should be used?`};
     const options = [ 
-        {value: 'gradia-grd', content: text({de:'.grd - Maximale Kompatibilität', en:'.grd - Maximum Compatibility'})},
-        {value: 'gradia-grde', content: text({de:'.grde - Maximale Sicherheit', en:'.grde - Maximum Security'})},
+        {value: 'gradia-grd', content: text('dialogs.exportData.fileType.grd')},
+        {value: 'gradia-grde', content: text('dialogs.exportData.fileType.grde')},
     ]
 
     const recoveryKey = await generateRecoveryKey();
@@ -1185,7 +1127,7 @@ async function downloadMenu() {
     }
 
 
-    const format = await selectDialog(message, options);
+    const format = await selectDialog(text('dialogs.exportData.message'), options);
     
     const password = document.getElementById('filePasswordInput').value;
 
@@ -1262,12 +1204,7 @@ async function showDownloadMessage() {
     }
     else alert(navigator.userAgent);*/
 
-    const downloadMessage = {
-        de:`Installiere Gradia auf deinem Gerät: <p>Für einen schnellen Zugriff auf Gradia, direkt von deinem Homebildschirm aus, <br>tippe <i class="ios-share-icon inline" data-color="#ee82ee"></i> und wähle <i class="inline">Zum Homebildschirm hinzufügen</i></p>`,
-        en:`Install Gradia on your device: <p>For quick access to Gradia, right from your homescreen, <br>tap <i class="ios-share-icon inline" data-color="#ee82ee"></i> and choose <i class="inline">Add to homescreen</i></p>`
-    }
-
-    const result = await getDownloadResult(text(downloadMessage));
+    const result = await getDownloadResult(text('dialogs.downloadMessage'));
     if(result) settings.seenDownloadMessage = new Date();
     else settings.seenDownloadMessage = true;
     
@@ -1403,7 +1340,7 @@ function handleUpdate(changelog, updateVersion) {
     });
 
     for(const change of features.values()) {
-        output += `<li><b>${text(change.name)}</b><p>${text(change.description)}</p></li>`
+        output += `<li><b>${change.name[settings.lang]}</b><p>${change.description[settings.lang]}</p></li>`
     }
 
     console.log(features)
@@ -1411,7 +1348,7 @@ function handleUpdate(changelog, updateVersion) {
     output += `</ul>`;
 
     // Create Introduction Sentence
-    const intro = text({de:`Dieses Update enthält Fehlerbehebungen${features.size < 1 ? `.` : features.size == 1 ? ` und führt dieses neue Feature ein:` : ` und führt diese neuen Features ein:`}`, en:`This update provides bug fixes${features.size < 1 ? `.` : features.size == 1 ? ` and introduces this new feature:` : ` and introduces these new features:`}`});
+    const intro = text('update.contents', { count: features.size });
 
     // Create Description Display
     const description = document.createElement('span');
@@ -1423,7 +1360,7 @@ function handleUpdate(changelog, updateVersion) {
     // Create Guide Display
     const guide = document.createElement('span');
     guide.id = 'updateGuide';
-    guide.textContent = text({de:'Starte Gradia neu, um das Update zu installieren.', en:'Restart Gradia to install the update.'});
+    guide.textContent = text('update.guide');
     wrapper.appendChild(guide);
 
     document.getElementById('settings').appendChild(wrapper);
@@ -1479,7 +1416,7 @@ const updateTasks = {
         },
 
         showInfo({ message }) {
-            showMessage(text(message));
+            showMessage(message[settings.lang]);
         }
     },
 
@@ -1627,10 +1564,7 @@ function initUI() {
         settings.lang = languageList(window.navigator.languages) || singleLanguage(window.navigator.language) || 'en';
     }
 
-    if(!(settings.lang == 'de')) {
-        document.documentElement.lang = settings.lang;
-        changeLang(settings.lang);
-    }
+    translateDOM();
 }
 
 async function versionCheck() {
@@ -1835,7 +1769,7 @@ function init() {
             if (formatEntry && formatEntry.encrypted) {
                 //document.getElementById('fileAccessKey').value = '';
                 //document.documentElement.style.setProperty('--fileAccessDisplay', 'block');
-                const ready = await fileAccessDialog({"de": "Gib das Passwort oder den Wiederherstellungscode für diese Datei ein", "en": "Enter the Password or the Recovery Code for this file"});
+                const ready = await fileAccessDialog('dialogs.importData.message');
                 if(ready) handleFile();
             } 
             else {

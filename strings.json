@@ -1,0 +1,222 @@
+{
+    "dialogs.acknowledge": {
+        "de": "OK",
+        "en": "OK"
+    },
+    "dialogs.apply": {
+        "de": "Anwenden",
+        "en": "Apply"
+    },
+    "dialogs.cancel": {
+        "de": "Abbrechen",
+        "en": "Cancel"
+    },
+    "dialogs.confirm": {
+        "de": "Bestätigen",
+        "en": "Confirm"
+    },
+    "dialogs.deleteData.confirmation": {
+        "de": "Alle {target} löschen?",
+        "en": "Delete all {target}?"
+    },
+    "dialogs.deleteData.message": {
+        "de": "Welche Daten sollen gelöscht werden?",
+        "en": "What data should be deleted?"
+    },
+    "dialogs.deleteData.target.all": {
+        "de": "gespeicherten Daten",
+        "en": "saved data"
+    },
+    "dialogs.deleteData.target.grades": {
+        "de": "Noten",
+        "en": "grades"
+    },
+    "dialogs.deleteData.target.settings": {
+        "de": "Einstellungen",
+        "en": "settings"
+    },
+    "dialogs.deleteData.targetSelect.all": {
+        "de": "Alle",
+        "en": "All"
+    },
+    "dialogs.deleteData.targetSelect.grades": {
+        "de": "Noten",
+        "en": "Grades"
+    },
+    "dialogs.deleteData.targetSelect.settings": {
+        "de": "Einstellungen",
+        "en": "Settings"
+    },
+    "dialogs.dontShowAgain": {
+        "de": "Nicht mehr anzeigen",
+        "en": "Don't show again"
+    },
+    "dialogs.downloadMessage": {
+        "de": "Installiere Gradia auf deinem Gerät: <p>Für einen schnellen Zugriff auf Gradia, direkt von deinem Homebildschirm aus, <br>tippe <i class='ios-share-icon inline' data-color='#ee82ee'></i> und wähle <i class='inline'>Zum Homebildschirm hinzufügen</i></p>",
+        "en": "Install Gradia on your device: <p>For quick access to Gradia, right from your homescreen, <br>tap <i class='ios-share-icon inline' data-color='#ee82ee'></i> and choose <i class='inline'>Add to homescreen</i></p>"
+    },
+    "dialogs.exportData.fileType.grd": {
+        "de": ".grd - Maximale Kompatibilität",
+        "en": ".grd - Maximum compatibility"
+    },
+    "dialogs.exportData.fileType.grde": {
+        "de": ".grde - Maximale Sicherheit",
+        "en": ".grde - Maximum security"
+    },
+    "dialogs.exportData.message": {
+        "de": "Welches Datei-Format soll genutzt werden?",
+        "en": "Which file format should be used?"
+    },
+    "dialogs.exportData.passwordLabel": {
+        "de": "Wähle ein Passwort, um die Datei zu sperren",
+        "en": "Choose a password to lock the file"
+    },
+    "dialogs.exportData.recoveryKeyCopy": {
+        "de": "Kopieren",
+        "en": "Copy"
+    },
+    "dialogs.exportData.recoveryKeyLabel": {
+        "de": "Wiederherstellungscode zum Entsperren ohne Passwort",
+        "en": "Recovery code to unlock without the password"
+    },
+    "dialogs.finish": {
+        "de": "Fertig",
+        "en": "Finish"
+    },
+    "dialogs.importData.keyLabel": {
+        "de": "Passwort oder Wiederherstellungscode",
+        "en": "Password or recovery key"
+    },
+    "dialogs.importData.message": {
+        "de": "Gib das Passwort oder den Wiederherstellungscode für diese Datei ein",
+        "en": "Enter the password or the recovery key for this file"
+    },
+    "dialogs.showLater": {
+        "de": "Später",
+        "en": "Later"
+    },
+    "dialogs.sort.ascending": {
+        "de": "aufsteigend",
+        "en": "ascending"
+    },
+    "dialogs.sort.byAlphabet": {
+        "de": "alphabetisch",
+        "en": "alphabetic"
+    },
+    "dialogs.sort.byGrade": {
+        "de": "Note",
+        "en": "grade"
+    },
+    "dialogs.sort.byGradeCount": {
+        "de": "Notenanzahl",
+        "en": "grade count"
+    },
+    "dialogs.sort.descending": {
+        "de": "absteigend",
+        "en": "descending"
+    },
+    "dialogs.sort.message": {
+        "de": "Wie soll die Tabelle sortiert werden?",
+        "en": "How should the table be sorted?"
+    },
+    "dialogs.storagePolicy": {
+        "de": "Gradia speichert deine Daten lokal im Browser. <p>Um einen Datenverlust im Falle der Löschung der Browser-Daten zu verhindern, solltest du deine Daten regelmäßig in den Einstellungen herunterladen. <br>Persönliche Benutzerdaten werden nicht an uns übermittelt und können daher nach Löschung nicht wiederhergestellt werden. </p><p>Wir loggen die Versionsnummer während des Installations- und Update-Vorgangs zur Überprüfung der korrekten Funktion.</p>",
+        "en": "Gradia stores your data locally in your browser. <p> To prevent data loss in case of a deletion of your browser's data, you should download your data from time to time in the settings. <br> Personal user data isn't getting sent to us and therefore can't be restored after deletion. </p><p>We log the version number during the installation and update process to validate correct functionality.</p>"
+    },
+    "editor.description.placeholder": {
+        "de": "z.B. Kurzarbeit Stochastik",
+        "en": "e.g. Class participation"
+    },
+    "editor.exam": {
+        "de": "Schulaufgabe",
+        "en": "Exam"
+    },
+    "editor.examWeight": {
+        "de": "Wie stark werden Schulaufgaben im Gesamtschnitt gewichtet?",
+        "en": "How heavily are exams rated in the overall grade?"
+    },
+    "editor.grade.placeholder": {
+        "de": "z.B. 2",
+        "en": "e.g. 80"
+    },
+    "editor.schoolyearName.placeholder": {
+        "de": "z.B. {schoolyear}",
+        "en": "e.g. {schoolyear}"
+    },
+    "editor.subjectName.placeholder": {
+        "de": "z.B. Mathematik",
+        "en": "e.g. Mathematics"
+    },
+    "editor.weight.placeholder": {
+        "de": "z.B. 1.5",
+        "en": "e.g. 1.5"
+    },
+    "errors.duplicateSchoolyear": {
+        "de": "Dieses Schuljahr existiert bereits",
+        "en": "A school year with this name already exists"
+    },
+    "errors.duplicateSubject": {
+        "de": "Dieses Fach existiert bereits",
+        "en": "A subject with that name already exists"
+    },
+    "errors.emptyInputs": {
+        "de": "Die Felder müssen ausgefüllt sein",
+        "en": "The fields must be filled in"
+    },
+    "errors.invalidName": {
+        "de": "Ungültiger Name",
+        "en": "Invalid name"
+    },
+    "settings.darkmode": {
+        "de": "Dunkles Design",
+        "en": "Darkmode"
+    },
+    "settings.deleteData": {
+        "de": "Daten löschen",
+        "en": "Delete data"
+    },
+    "settings.exportFile": {
+        "de": "Datei exportieren",
+        "en": "Export file"
+    },
+    "settings.importFile": {
+        "de": "Datei importieren",
+        "en": "Import file"
+    },
+    "settings.offline": {
+        "de": "Offline-Modus",
+        "en": "Offline mode"
+    },
+    "settings.weights": {
+        "de": "Gewichtungen",
+        "en": "Weights"
+    },
+    "table.noGrades": {
+        "de": "Keine Noten eingetragen",
+        "en": "No grades added"
+    },
+    "table.noSchoolyear": {
+        "de": "Kein Schuljahr hinzugefügt",
+        "en": "No school year added"
+    },
+    "table.total": {
+        "de": "Gesamt",
+        "en": "Total"
+    },
+    "update.contents": {
+        "de": {
+            "none": "Dieses Update enthält Fehlerbehebungen.",
+            "one": "Dieses Update enthält Fehlerbehebungen und führt dieses neue Feature ein:",
+            "other": "Dieses Update enthält Fehlerbehebungen und führt diese neuen Features ein:"
+        },
+        "en": {
+            "none": "This update provides bug fixes.",
+            "one": "This update provides bug fixes and introduces the following feature:",
+            "other": "This update provides bug fixes and introduces the following features:"
+        }
+    },
+    "update.guide": {
+        "de": "Starte Gradia neu, um das Update zu installieren.",
+        "en": "Restart Gradia to install the update."
+    }
+}
